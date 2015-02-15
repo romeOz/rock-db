@@ -33,6 +33,9 @@ return [
             'username' => 'postgres',
             'password' => 'postgres',
             'fixture' => __DIR__ . '/postgres.sql',
+            'migrations' => [
+                SessionsMigration::className(),
+            ]
         ],
     ]
 ];
