@@ -1,4 +1,6 @@
 <?php
+use rockunit\migrations\SessionsMigration;
+
 return [
     'databases' => [
         'cubrid' => [
@@ -12,9 +14,9 @@ return [
             'username' => 'travis',
             'password' => '',
             'fixture' => __DIR__ . '/mysql.sql',
-//            'migrations' => [
-//                SessionsMigration::className(),
-//            ]
+            'migrations' => [
+                SessionsMigration::className(),
+            ]
         ],
         'sqlite' => [
             'dsn' => 'sqlite::memory:',
