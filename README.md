@@ -25,6 +25,7 @@ Features
     - [MSSQL](https://www.microsoft.com/en-us/sqlserver/default.aspx): version 2008 or higher.
  * Query Builder/DBAL/DAO: Querying the database using a simple abstraction layer
  * Active Record: The Active Record ORM, retrieving and manipulating records, and defining relations
+ * Migrations
  * Behaviors (SluggableBehavior, TimestampBehavior,...)
  * Stores session data in a database table
  * **Validation and Sanitization rules for AR (Model)**
@@ -81,20 +82,40 @@ $users ->save();
 Documentation
 -------------------
 
-* [Basic](db-dao.md): Connecting to a database, basic queries, transactions, and schema manipulation
-* [Query Builder](db-query-builder.md)
-* [Active Record](db-active-record.md)
-* [Migrations](db-migrations.md): Apply version control to your databases in a team development environment
+* [Basic](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-dao.md): Connecting to a database, basic queries, transactions, and schema manipulation
+* [Query Builder](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-query-builder.md)
+* [Active Record](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-active-record.md)
+* [Migrations](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-migrations.md): Apply version control to your databases in a team development environment
 
 Requirements
 -------------------
 
  * **PHP 5.4+**
- * Caching **(optional):** suggested to use [Rock Cache](https://github.com/romeOz/rock-cache). Should be installed: `composer require romeoz/rock-cache:*`
- * Validation **(optional):** suggested to use [Rock Validate](https://github.com/romeOz/rock-validate). Should be installed: `composer require romeoz/rock-validate:*`
- * Sanitization **(optional):** suggested to use [Rock Sanitize](https://github.com/romeOz/rock-sanitize). Should be installed: `composer require romeoz/rock-sanitize:*`
- * Behaviors **(optional):** suggested to use [Rock Behaviors](https://github.com/romeOz/rock-behaviors). Should be installed: `composer require romeoz/rock-behaviors:*`
- * Session Storage as DB **(optional):** suggested to use [Rock Session](https://github.com/romeOz/rock-session). Should be installed: `composer require romeoz/rock-session:*`
+ * Caching **(optional):** suggested to use [Rock Cache](https://github.com/romeOz/rock-cache). Should be installed:
+  
+```
+composer require romeoz/rock-cache:*
+```
+ * Validation **(optional):** suggested to use [Rock Validate](https://github.com/romeOz/rock-validate). Should be installed: 
+ 
+```
+composer require romeoz/rock-validate:*
+```
+ * Sanitization **(optional):** suggested to use [Rock Sanitize](https://github.com/romeOz/rock-sanitize). Should be installed: 
+ 
+```
+composer require romeoz/rock-sanitize:*
+```
+ * Behaviors **(optional):** suggested to use [Rock Behaviors](https://github.com/romeOz/rock-behaviors). Should be installed: 
+ 
+```
+composer require romeoz/rock-behaviors:*
+```
+ * Session Storage as DB **(optional):** suggested to use [Rock Session](https://github.com/romeOz/rock-session). Should be installed: 
+ 
+```
+composer require romeoz/rock-session:*
+```
 
 License
 -------------------
