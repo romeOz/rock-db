@@ -1,0 +1,39 @@
+language: php
+
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+  - hhvm
+  - hhvm-nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: hhvm-nightly
+
+# try running against postgres 9.4
+addons:
+  postgresql: "9.4"
+
+install:
+  - composer self-update && composer --version
+  - composer install --prefer-dist
+  - composer require satooshi/php-coveralls:*@dev
+  #- tests/data/travis/cubrid-setup.sh
+
+before_script:
+  - mysql -e 'CREATE DATABASE rocktest;';
+  - psql -U postgres -c 'CREATE DATABASE rocktest;';
+
+script:
+  - mkdir -p build/logs
+  - |
+    if (php --version | grep -i HipHop > /dev/null); then
+      vendor/bin/phpunit --verbose --exclude-group php,mssql,cubrid
+    else
+      vendor/bin/phpunit --verbose --coverage-clover build/logs/clover.xml --exclude-group hhvm,mssql,cubrid
+    fi
+
+after_script:
+  - vendor/bin/coveralls -v
