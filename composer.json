@@ -27,12 +27,14 @@
         "romeoz/rock-cache" : "*@dev",
         "romeoz/rock-validate" : "*@dev",
         "romeoz/rock-sanitize": "*@dev",
+        "romeoz/rock-behaviors": "*@dev",
         "romeoz/rock-session": "*@dev"
     },
     "suggest": {
         "romeoz/rock-cache": "required by Rock Cache",
         "romeoz/rock-validate": "required by Rock Valiadte",
         "romeoz/rock-sanitize": "required by Rock Sanitize",
+        "romeoz/rock-behaviors": "required by Rock Behaviors",
         "romeoz/rock-session": "required by Rock Session",
         "romeoz/rock-di": "required by module Rock Dependency Injection"
     },
