@@ -181,7 +181,9 @@ class Session extends \rock\session\Session
                     ->execute();
             }
         } catch (\Exception $e) {
-            Log::warn(BaseException::convertExceptionToString($e));
+            if (class_exists('\rock\log\Log')) {
+                Log::warn(BaseException::convertExceptionToString($e));
+            }
             return false;
         }
 
