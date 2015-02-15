@@ -1,7 +1,7 @@
 <?php
 namespace rockunit\cubrid;
 
-use rockunit\db\ActiveRecordTest;
+use rockunit\ActiveRecordTest;
 
 /**
  * @group db

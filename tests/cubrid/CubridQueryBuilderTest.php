@@ -3,7 +3,7 @@
 namespace rockunit\cubrid;
 
 use rock\db\cubrid\Schema;
-use rockunit\db\QueryBuilderTest;
+use rockunit\QueryBuilderTest;
 
 /**
  * @group db

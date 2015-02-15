@@ -2,9 +2,9 @@
 namespace rockunit\sqlite;
 
 use rock\db\ActiveQuery;
-use rockunit\db\ActiveRecordTest;
-use rockunit\db\models\Category;
-use rockunit\db\models\Order;
+use rockunit\ActiveRecordTest;
+use rockunit\models\Category;
+use rockunit\models\Order;
 
 /**
  * @group db

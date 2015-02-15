@@ -4,10 +4,10 @@ namespace rockunit\sqlite;
 use rock\base\Alias;
 use rock\db\Connection;
 use rock\db\Transaction;
-use rock\di\Container;
-use rockunit\db\ConnectionTest;
-use rockunit\db\models\ActiveRecord;
-use rockunit\db\models\Customer;
+use rock\helpers\Instance;
+use rockunit\ConnectionTest;
+use rockunit\models\ActiveRecord;
+use rockunit\models\Customer;
 
 /**
  * @group db
@@ -142,6 +142,6 @@ class SqliteConnectionTest extends ConnectionTest
             $config['slaves'][] = $slave;
         }
 
-        return Container::load($config);
+        return Instance::ensure($config);
     }
 }

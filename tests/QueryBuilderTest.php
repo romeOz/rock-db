@@ -12,8 +12,8 @@ use rock\db\sqlite\QueryBuilder as SqliteQueryBuilder;
 use rock\db\mssql\QueryBuilder as MssqlQueryBuilder;
 use rock\db\pgsql\QueryBuilder as PgsqlQueryBuilder;
 use rock\db\cubrid\QueryBuilder as CubridQueryBuilder;
-use rockunit\db\models\Customer;
-use rockunit\db\models\Order;
+use rockunit\models\Customer;
+use rockunit\models\Order;
 
 /**
  * @group db

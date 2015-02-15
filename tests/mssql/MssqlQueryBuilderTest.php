@@ -3,7 +3,7 @@
 namespace rockunit\mssql;
 
 use rock\db\Query;
-use rockunit\db\QueryBuilderTest;
+use rockunit\QueryBuilderTest;
 
 /**
  * @group db

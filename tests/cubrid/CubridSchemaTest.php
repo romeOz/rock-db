@@ -3,7 +3,7 @@ namespace rockunit\cubrid;
 
 use rock\db\cubrid\Schema;
 use rock\db\Expression;
-use rockunit\db\SchemaTest;
+use rockunit\SchemaTest;
 
 /**
  * @group db

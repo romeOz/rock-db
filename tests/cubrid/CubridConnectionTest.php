@@ -1,7 +1,7 @@
 <?php
 namespace rockunit\cubrid;
 
-use rockunit\db\ConnectionTest;
+use rockunit\ConnectionTest;
 
 /**
  * @group db

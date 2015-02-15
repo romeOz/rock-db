@@ -4,7 +4,7 @@ namespace rockunit\pgsql;
 
 use rock\db\Expression;
 use rock\db\pgsql\Schema;
-use rockunit\db\SchemaTest;
+use rockunit\SchemaTest;
 
 /**
  * @group db

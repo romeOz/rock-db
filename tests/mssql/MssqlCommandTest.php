@@ -2,7 +2,7 @@
 
 namespace rockunit\mssql;
 
-use rockunit\db\CommandTest;
+use rockunit\CommandTest;
 
 /**
  * @group db

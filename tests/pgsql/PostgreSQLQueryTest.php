@@ -3,7 +3,7 @@
 namespace rockunit\pgsql;
 
 use rock\db\Query;
-use rockunit\db\QueryTest;
+use rockunit\QueryTest;
 
 /**
  * @group db

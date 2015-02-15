@@ -5,8 +5,8 @@ namespace rockunit\pgsql;
 use rock\behaviors\TimestampBehavior;
 use rock\db\ActiveRecord;
 use rock\db\pgsql\Schema;
-use rockunit\db\ActiveRecordTest;
-use rockunit\db\ActiveRecordTestTrait;
+use rockunit\ActiveRecordTest;
+use rockunit\ActiveRecordTestTrait;
 
 /**
  * @group db

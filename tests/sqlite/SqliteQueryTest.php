@@ -3,7 +3,7 @@ namespace rockunit\sqlite;
 
 use rock\db\Expression;
 use rock\db\Query;
-use rockunit\db\QueryTest;
+use rockunit\QueryTest;
 
 /**
  * @group db

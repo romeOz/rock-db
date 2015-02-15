@@ -2,7 +2,7 @@
 
 namespace rockunit\mssql;
 
-use rockunit\db\ConnectionTest;
+use rockunit\ConnectionTest;
 
 /**
  * @group db

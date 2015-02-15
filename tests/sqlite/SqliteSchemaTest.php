@@ -1,7 +1,7 @@
 <?php
 namespace rockunit\sqlite;
 
-use rockunit\db\SchemaTest;
+use rockunit\SchemaTest;
 
 /**
  * @group db

@@ -11,8 +11,8 @@ use rock\db\DbException;
 use rock\db\SelectBuilder;
 use rock\events\Event;
 use rock\helpers\Trace;
-use rockunit\db\models\Customer;
-use rockunit\db\models\Order;
+use rockunit\models\Customer;
+use rockunit\models\Order;
 
 /**
  * This trait provides unit tests shared by the different AR implementations

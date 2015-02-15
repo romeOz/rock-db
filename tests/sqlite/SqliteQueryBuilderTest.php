@@ -5,7 +5,7 @@ namespace rockunit\sqlite;
 use rock\db\DbException;
 use rock\db\Query;
 use rock\db\sqlite\Schema;
-use rockunit\db\QueryBuilderTest;
+use rockunit\QueryBuilderTest;
 
 /**
  * @group db
