@@ -10,14 +10,12 @@ class SessionsMigration extends Migration
     public $table = 'sessions';
     public function up()
     {
-        if ($this->connection->driverName === 'pgsql') {
-            if ((bool)$this->connection->createCommand("SELECT * FROM pg_catalog.pg_tables WHERE LIKE '{$this->table}'")->execute()) {
-                return;
-            }
-        } else {
-            if ((bool)$this->connection->createCommand("SHOW TABLES LIKE '{$this->table}'")->execute()) {
-                return;
-            }
+        $sql = $this->connection->driverName === 'pgsql'
+            ? "SELECT * FROM pg_catalog.pg_tables WHERE tablename LIKE '{$this->table}'"
+            : "SHOW TABLES LIKE '{$this->table}'";
+
+        if ((bool)$this->connection->createCommand($sql)->execute()) {
+            return;
         }
 
         $tableOptions = null;
@@ -30,7 +28,7 @@ class SessionsMigration extends Migration
             [
                 'id' => Schema::TYPE_CHAR . '(40) NOT NULL',
                 'expire' => Schema::TYPE_INTEGER,
-                'data' => Schema::TYPE_BLOB,
+                'data' => $this->connection->driverName === 'pgsql' ? 'bytea': Schema::TYPE_BLOB,
             ],
             $tableOptions,
             true
