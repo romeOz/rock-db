@@ -5,7 +5,8 @@ use PDO;
 use rock\base\BaseException;
 use rock\base\ObjectInterface;
 use rock\cache\CacheInterface;
-use rock\di\Container;
+use rock\components\ComponentsTrait;
+use rock\helpers\Instance;
 use rock\helpers\Trace;
 use rock\log\Log;
 
@@ -124,7 +125,7 @@ use rock\log\Log;
  */
 class Connection implements ObjectInterface
 {
-    use \rock\components\ComponentsTrait;
+    use ComponentsTrait;
 
     /**
      * @event Event an event that is triggered after a DB connection is established
@@ -796,7 +797,7 @@ class Connection implements ObjectInterface
      *
      * This method implements the load balancing among the given list of the servers.
      *
-*@param array $pool the list of connection configurations in the server pool
+     * @param array $pool the list of connection configurations in the server pool
      * @param array $sharedConfig the configuration common to those given in `$pool`.
      * @return Connection the opened DB connection, or null if no server is available
      * @throws DbException if a configuration does not specify "dsn"
@@ -811,7 +812,7 @@ class Connection implements ObjectInterface
             $sharedConfig['class'] = get_class($this);
         }
 
-        $cache = is_string($this->serverStatusCache) ? Container::load($this->serverStatusCache) : $this->serverStatusCache;
+        $cache = Instance::ensure($this->serverStatusCache, null, false);
 
         shuffle($pool);
 
@@ -828,7 +829,7 @@ class Connection implements ObjectInterface
             }
 
             /* @var $connection Connection */
-            $connection = Container::load($config);
+            $connection = Instance::ensure($config);
 
             try {
                 $connection->open();
