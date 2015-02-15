@@ -81,21 +81,21 @@ class DatabaseTestCase extends \PHPUnit_Framework_TestCase
         return $this->connection;
     }
 
+    /**
+     * @param $config
+     * @param $fixture
+     * @param bool $open
+     * @param array $migrations
+     * @return Connection
+     * @throws \rock\helpers\InstanceException
+     */
     public function prepareDatabase($config, $fixture, $open = true, array $migrations = [])
     {
         if (!isset($config['class'])) {
             $config['class'] = Connection::className();
         }
-//        if (is_string($this->connection)) {
-//            Container::add($this->connection, $config);
-//        }
-//
-//        /** @var Connection $connection */
-//        $connection = Container::load($config);
-
-        //var_dump();
-        //var_dump($this->connection);
-        $connection = Instance::ensure($config);//Instance::ensure($this->connection, Connection::className());
+        /** @var Connection $connection */
+        $connection = Instance::ensure($config);
         if (!$open) {
             return $connection;
         }

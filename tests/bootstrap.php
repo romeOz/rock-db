@@ -13,3 +13,5 @@ date_default_timezone_set('UTC');
 
 Alias::setAlias('rockunit', __DIR__);
 defined('ROCKUNIT_RUNTIME') or define('ROCKUNIT_RUNTIME', __DIR__ . '/runtime');
+
+$_SERVER['REMOTE_ADDR'] = '127.0.0.1';

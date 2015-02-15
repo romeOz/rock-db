@@ -8,6 +8,6 @@ class ActiveRecord extends \rock\db\ActiveRecord
 
     public static function getConnection()
     {
-        return self::$connection;
+        return static::$connection;
     }
 }

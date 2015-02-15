@@ -3,7 +3,7 @@
 namespace rockunit\pgsql;
 
 use rock\behaviors\TimestampBehavior;
-use rock\db\ActiveRecord;
+use rockunit\models\ActiveRecord;
 use rock\db\pgsql\Schema;
 use rockunit\ActiveRecordTest;
 use rockunit\ActiveRecordTestTrait;
@@ -181,7 +181,9 @@ class UserAR extends ActiveRecord
     public function behaviors()
     {
         return [
-            TimestampBehavior::className(),
+            [
+                'class' => TimestampBehavior::className(),
+            ],
         ];
     }
 }

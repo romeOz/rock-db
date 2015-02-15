@@ -4,6 +4,7 @@ namespace rockunit\sqlite;
 use rock\base\Alias;
 use rock\db\Connection;
 use rock\db\Transaction;
+use rock\helpers\FileHelper;
 use rock\helpers\Instance;
 use rockunit\ConnectionTest;
 use rockunit\models\ActiveRecord;
@@ -121,6 +122,7 @@ class SqliteConnectionTest extends ConnectionTest
         $databases = self::getParam('databases');
         $fixture = $databases[$this->driverName]['fixture'];
         $basePath = Alias::getAlias('@rockunit/runtime');
+        FileHelper::createDirectory($basePath);
 
         $config = [
             'class' => Connection::className(),
