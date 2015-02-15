@@ -1,15 +1,4 @@
 <?php
-use rock\execute\CacheExecute;
-use rock\log\Log;
-use rock\rbac\PhpManager;
-use rockunit\session\mocks\SessionMock;
-use rockunit\mocks\CookieMock;
-use rockunit\migrations\AccessItemsMigration;
-use rockunit\migrations\AccessRolesItemsMigration;
-use rockunit\migrations\AccessUsersItemsMigration;
-use rockunit\migrations\SessionsMigration;
-use rockunit\migrations\UsersMigration;
-
 return [
     'databases' => [
         'cubrid' => [
@@ -20,8 +9,8 @@ return [
         ],
         'mysql' => [
             'dsn' => 'mysql:host=127.0.0.1;dbname=rocktest',
-            'username' => 'root',
-            'password' => 'demo',
+            'username' => 'travis',
+            'password' => '',
             'fixture' => __DIR__ . '/mysql.sql',
 //            'migrations' => [
 //                SessionsMigration::className(),
