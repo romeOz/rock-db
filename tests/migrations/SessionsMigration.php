@@ -10,15 +10,15 @@ class SessionsMigration extends Migration
     public $table = 'sessions';
     public function up()
     {
-//        if ($this->connection->driverName === 'pgsql') {
-//            if ((bool)$this->connection->createCommand("SELECT * FROM pg_catalog.pg_tables WHERE LIKE '{$this->table}'")->execute()) {
-//                return;
-//            }
-//        } else {
-//            if ((bool)$this->connection->createCommand("SHOW TABLES LIKE '{$this->table}'")->execute()) {
-//                return;
-//            }
-//        }
+        if ($this->connection->driverName === 'pgsql') {
+            if ((bool)$this->connection->createCommand("SELECT * FROM pg_catalog.pg_tables WHERE LIKE '{$this->table}'")->execute()) {
+                return;
+            }
+        } else {
+            if ((bool)$this->connection->createCommand("SHOW TABLES LIKE '{$this->table}'")->execute()) {
+                return;
+            }
+        }
 
         $tableOptions = null;
         if ($this->connection->driverName === 'mysql') {
