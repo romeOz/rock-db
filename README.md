@@ -93,31 +93,11 @@ Requirements
 -------------------
 
  * **PHP 5.4+**
- * Caching **(optional):** suggested to use [Rock Cache](https://github.com/romeOz/rock-cache). Should be installed:
-  
-```
-composer require romeoz/rock-cache:*
-```
- * Validation **(optional):** suggested to use [Rock Validate](https://github.com/romeOz/rock-validate). Should be installed: 
- 
-```
-composer require romeoz/rock-validate:*
-```
- * Sanitization **(optional):** suggested to use [Rock Sanitize](https://github.com/romeOz/rock-sanitize). Should be installed: 
- 
-```
-composer require romeoz/rock-sanitize:*
-```
- * Behaviors **(optional):** suggested to use [Rock Behaviors](https://github.com/romeOz/rock-behaviors). Should be installed: 
- 
-```
-composer require romeoz/rock-behaviors:*
-```
- * Session Storage as DB **(optional):** suggested to use [Rock Session](https://github.com/romeOz/rock-session). Should be installed: 
- 
-```
-composer require romeoz/rock-session:*
-```
+ * [Rock Cache](https://github.com/romeOz/rock-cache) **(optional)**. Should be installed: `composer require romeoz/rock-cache:*`
+ * [Rock Validate](https://github.com/romeOz/rock-validate) **(optional)**. Should be installed: `composer require romeoz/rock-validate:*`
+ * [Rock Sanitize](https://github.com/romeOz/rock-sanitize) **(optional)**. Should be installed: `composer require romeoz/rock-sanitize:*`
+ * [Rock Behaviors](https://github.com/romeOz/rock-behaviors) **(optional)**. Should be installed: `composer require romeoz/rock-behaviors:*`
+ * [Rock Session](https://github.com/romeOz/rock-session) **(optional)**. Should be installed: `composer require romeoz/rock-session:*`
 
 License
 -------------------
