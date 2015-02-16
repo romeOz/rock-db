@@ -10,12 +10,26 @@ class SessionsMigration extends Migration
     public $table = 'sessions';
     public function up()
     {
-        $sql = $this->connection->driverName === 'pgsql'
-            ? "SELECT * FROM pg_catalog.pg_tables WHERE tablename LIKE '{$this->table}'"
-            : "SHOW TABLES LIKE '{$this->table}'";
+        switch ($this->connection->driverName) {
+            case 'pgsql':
+                $sql = "SELECT * FROM pg_catalog.pg_tables WHERE tablename LIKE '{$this->table}'";
+                break;
+            case 'sqlite':
+                $sql =  "SELECT * FROM sqlite_master WHERE tbl_name LIKE '{$this->table}'";
+                //$this->down();
+                break;
+            default:
+                $sql = "SHOW TABLES LIKE '{$this->table}'";
+        }
 
-        if ((bool)$this->connection->createCommand($sql)->execute()) {
-            return;
+        if ($this->connection->driverName === 'sqlite') {
+            if ($this->connection->createCommand($sql)->queryAll()) {
+                return;
+            }
+        } else {
+            if ((bool)$this->connection->createCommand($sql)->execute()) {
+                return;
+            }
         }
 
         $tableOptions = null;
@@ -33,6 +47,7 @@ class SessionsMigration extends Migration
             $tableOptions,
             true
         );
+
         $this->addPrimaryKey("{$this->table}_id",$this->table, 'id');
     }
 
