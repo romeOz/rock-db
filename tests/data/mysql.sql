@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS `profile` CASCADE;
 DROP TABLE IF EXISTS `null_values` CASCADE;
 DROP TABLE IF EXISTS `type` CASCADE;
 DROP TABLE IF EXISTS `constraints` CASCADE;
+DROP TABLE IF EXISTS `animal` CASCADE;
 
 DROP TABLE IF EXISTS `access_users_items` CASCADE;
 DROP TABLE IF EXISTS `access_roles_items` CASCADE;
@@ -131,6 +132,12 @@ CREATE TABLE `type` (
   `bit_col` BIT(8) NOT NULL DEFAULT b'10000010'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `animal` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `type` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 INSERT INTO `profile` (description) VALUES ('profile customer 1');
 INSERT INTO `profile` (description) VALUES ('profile customer 3');
 
@@ -169,6 +176,8 @@ INSERT INTO `order_item_with_null_fk` (order_id, item_id, quantity, subtotal) VA
 INSERT INTO `order_item_with_null_fk` (order_id, item_id, quantity, subtotal) VALUES (2, 3, 1, 8.0);
 INSERT INTO `order_item_with_null_fk` (order_id, item_id, quantity, subtotal) VALUES (3, 2, 1, 40.0);
 
+INSERT INTO `animal` (`type`) VALUES ('rockunit\\models\\Cat');
+INSERT INTO `animal` (`type`) VALUES ('rockunit\\models\\Dog');
 
 /**
  * (MySQL-)Database Schema for validator tests

@@ -8,10 +8,13 @@ use rock\events\Event;
 use rock\helpers\Trace;
 use rockunit\common\CommonTestTrait;
 use rockunit\models\ActiveRecord;
+use rockunit\models\Animal;
+use rockunit\models\Cat;
 use rockunit\models\Category;
 use rockunit\models\Customer;
 use rockunit\models\CustomerFilter;
 use rockunit\models\CustomerRules;
+use rockunit\models\Dog;
 use rockunit\models\Item;
 use rockunit\models\NullValues;
 use rockunit\models\Order;
@@ -699,5 +702,15 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(2, count($orders[0]->orderItems));
         $this->assertEquals(3, count($orders[1]->orderItems));
         $this->assertEquals(1, count($orders[2]->orderItems));
+    }
+
+    public function testPopulateRecordCallWhenQueryingOnParentClass()
+    {
+        (new Cat())->save(false);
+        (new Dog())->save(false);
+        $animal = Animal::find()->where(['type' => Dog::className()])->one();
+        $this->assertEquals('bark', $animal->getDoes());
+        $animal = Animal::find()->where(['type' => Cat::className()])->one();
+        $this->assertEquals('meow', $animal->getDoes());
     }
 }
