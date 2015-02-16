@@ -132,13 +132,17 @@ trait ActiveQueryTrait
             if ($this->indexBy === null) {
                 foreach ($rows as $row) {
                     $model = $class::instantiate($row);
-                    $class::populateRecord($model, $row, $connection);
+                    /** @var ActiveRecord|\rock\sphinx\ActiveRecord $modelClass */
+                    $modelClass = get_class($model);
+                    $modelClass::populateRecord($model, $row);
                     $models[] = $model;
                 }
             } else {
                 foreach ($rows as $row) {
                     $model = $class::instantiate($row);
-                    $class::populateRecord($model, $row, $connection);
+                    /** @var ActiveRecord|\rock\sphinx\ActiveRecord $modelClass */
+                    $modelClass = get_class($model);
+                    $modelClass::populateRecord($model, $row);
                     if (is_string($this->indexBy)) {
                         $key = $model->{$this->indexBy};
                     } else {
