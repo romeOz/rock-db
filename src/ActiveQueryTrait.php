@@ -134,7 +134,7 @@ trait ActiveQueryTrait
                     $model = $class::instantiate($row);
                     /** @var ActiveRecord|\rock\sphinx\ActiveRecord $modelClass */
                     $modelClass = get_class($model);
-                    $modelClass::populateRecord($model, $row);
+                    $modelClass::populateRecord($model, $row, $connection);
                     $models[] = $model;
                 }
             } else {
@@ -142,7 +142,7 @@ trait ActiveQueryTrait
                     $model = $class::instantiate($row);
                     /** @var ActiveRecord|\rock\sphinx\ActiveRecord $modelClass */
                     $modelClass = get_class($model);
-                    $modelClass::populateRecord($model, $row);
+                    $modelClass::populateRecord($model, $row, $connection);
                     if (is_string($this->indexBy)) {
                         $key = $model->{$this->indexBy};
                     } else {
