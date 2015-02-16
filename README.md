@@ -54,7 +54,7 @@ In your composer.json:
 Quick Start
 -------------------
 
-###Query Builder
+####Query Builder
 
 ```php
 $rows = (new \rock\db\Query())
@@ -64,7 +64,7 @@ $rows = (new \rock\db\Query())
     ->all();
 ```
 
-###Active Record
+####Active Record
 
 ```php
 // find
