@@ -11,8 +11,8 @@ return [
         ],
         'mysql' => [
             'dsn' => 'mysql:host=127.0.0.1;dbname=rocktest',
-            'username' => 'root',
-            'password' => 'demo',
+            'username' => 'travis',
+            'password' => '',
             'fixture' => __DIR__ . '/mysql.sql',
             'migrations' => [
                 SessionsMigration::className(),
@@ -30,8 +30,8 @@ return [
         ],
         'pgsql' => [
             'dsn' => 'pgsql:host=localhost;dbname=rocktest;port=5432;',
-            'username' => 'rock',
-            'password' => 'rock',
+            'username' => 'postgres',
+            'password' => 'postgres',
             'fixture' => __DIR__ . '/postgres.sql',
             'migrations' => [
                 SessionsMigration::className(),
