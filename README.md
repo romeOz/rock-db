@@ -30,6 +30,7 @@ Features
  * Stores session data in a database table
  * **Validation and Sanitization rules for AR (Model)**
  * **Query Caching**
+ * **Data Providers**
  * **Module for [Rock Framework](https://github.com/romeOz/rock)**
  
 > Bolded features are different from [Yii2 Database](https://github.com/yiisoft/yii2).
@@ -86,6 +87,7 @@ Documentation
 * [Query Builder](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-query-builder.md)
 * [Active Record](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-active-record.md)
 * [Migrations](https://github.com/yiisoft/yii2/blob/master/docs/guide/db-migrations.md): Apply version control to your databases in a team development environment
+* [Data Providers](https://github.com/romeOz/rock-db/blob/master/docs/data-provider.md)
 
 Requirements
 -------------------
