@@ -809,7 +809,7 @@ class Command implements ObjectInterface
             $message = $e->getMessage() . "\nThe SQL being executed was: $rawSql";
 
             $token['valid']     = false;
-            $token['exception'] = defined('DEBUG') && DEBUG === true ? $e: $message;
+            $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e: $message;
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
         }
@@ -895,7 +895,7 @@ class Command implements ObjectInterface
             $message = $e->getMessage() . "\nThe SQL being executed was: $rawSql";
             Trace::endProfile('db.query', $token);
             $token['valid']     = false;
-            $token['exception'] = defined('DEBUG') && DEBUG === true ? $e : $message;
+            $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
         }
