@@ -119,10 +119,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function all($connection = null, $subAttributes = false)
     {
         // before
-        /** @var ActiveRecord $class */
-        $class = $this->modelClass;
-        $activeRecord = $class::instantiate([]);
-        if (!$activeRecord->beforeFind()) {
+        /** @var ActiveRecord $model */
+        $model = new $this->modelClass;
+        if (!$model->beforeFind()) {
             return [];
         }
 
@@ -302,13 +301,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function one($connection = null, $subAttributes = false)
     {
-        /** @var ActiveRecord $class */
-        $class = $this->modelClass;
-        /** @var ActiveRecord $activeRecord */
-        $model  = $class::instantiate([]);
-//        if (!$this->beforeFind()) {
-//            return null;
-//        }
+        /** @var ActiveRecord $model */
+        $model  = new $this->modelClass;
         if (!$model->beforeFind()) {
             return null;
         }
