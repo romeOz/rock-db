@@ -540,6 +540,22 @@ class Query implements QueryInterface
     }
 
     /**
+     * Returns alias of table
+     * @param string $table
+     * @param string|null $default default value
+     * @return null
+     */
+    public static function alias($table, $default = null)
+    {
+        if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)((?:{{%)?[\w\-_\.]+(?:}})?)$/', $table, $matches) && !empty($matches[2])) {
+            return $matches[2];
+        }
+
+        return $default;
+    }
+
+
+    /**
      * Sets the WHERE part of the query.
      *
      * The method requires a $condition parameter, and optionally a $params parameter

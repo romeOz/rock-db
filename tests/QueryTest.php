@@ -289,4 +289,27 @@ class QueryTest extends DatabaseTestCase
         $this->assertNotEmpty($query->beginCache()->endCache()->all());
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
     }
+
+    /**
+     * @param $expected
+     * @param $table
+     * @param null $default
+     * @dataProvider providerAlias
+     */
+    public function testAlias($expected, $table, $default = null)
+    {
+        $this->assertSame($expected, Query::alias($table, $default));
+    }
+
+    public function providerAlias()
+    {
+        return [
+            [null, '{{%foo}}'],
+            ['{{%foo}}', '{{%foo}}', '{{%foo}}'],
+            ['{{%bar}}', '{{%foo}} {{%bar}}'],
+            ['{{%bar}}', '{{%foo}} as {{%bar}}'],
+            ['bar', 'foo as bar'],
+            ['bar', 'foo bar'],
+        ];
+    }
 }
