@@ -40,14 +40,14 @@ Installation
 
 From the Command Line:
 
-`composer require romeoz/rock-db:*@dev`
+`composer require romeoz/rock-db:*`
 
 In your composer.json:
 
 ```json
 {
     "require": {
-        "romeoz/rock-db": "*@dev"
+        "romeoz/rock-db": "*"
     }
 }
 ```

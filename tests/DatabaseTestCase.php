@@ -6,7 +6,6 @@ namespace rockunit;
 use rock\base\Alias;
 use rock\db\Connection;
 use rock\db\Migration;
-use rock\di\Container;
 use rock\helpers\ArrayHelper;
 use rock\helpers\Instance;
 
