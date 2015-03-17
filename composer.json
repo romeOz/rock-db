@@ -26,7 +26,8 @@
         "romeoz/rock-validate" : "0.10.*",
         "romeoz/rock-sanitize": "0.10.*",
         "romeoz/rock-behaviors": "0.10.*",
-        "romeoz/rock-session": "0.10.*"
+        "romeoz/rock-session": "0.10.*",
+        "romeoz/rock-url": "0.10.*"
     },
     "suggest": {
         "romeoz/rock-cache": "required by Rock Cache",
@@ -34,6 +35,7 @@
         "romeoz/rock-sanitize": "required by Rock Sanitize",
         "romeoz/rock-behaviors": "required by Rock Behaviors",
         "romeoz/rock-session": "required by Rock Session",
+        "romeoz/rock-url": "required by Rock Url",
         "romeoz/rock-di": "required by module Rock Dependency Injection"
     },
     "autoload": {

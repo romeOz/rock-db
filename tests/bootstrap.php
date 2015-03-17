@@ -13,6 +13,8 @@ date_default_timezone_set('UTC');
 require(dirname(__DIR__) . '/src/polyfills.php');
 
 Alias::setAlias('rockunit', __DIR__);
+$_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'] = 'site.com';
+$_SERVER['REQUEST_URI'] = '/';
 defined('ROCKUNIT_RUNTIME') or define('ROCKUNIT_RUNTIME', __DIR__ . '/runtime');
 
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';

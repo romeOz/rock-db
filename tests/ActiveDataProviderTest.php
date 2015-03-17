@@ -2,7 +2,9 @@
 
 namespace rockunit;
 
+use rock\base\BaseException;
 use rock\db\ActiveDataProvider;
+use rock\db\DbException;
 use rock\db\Query;
 use rockunit\models\ActiveRecord;
 use rockunit\models\Customer;
@@ -31,7 +33,10 @@ class ActiveDataProviderTest extends DatabaseTestCase
         );
 
         $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination());
+        $this->assertNotEmpty($provider->getPagination()->toArray());
+        $this->assertNotEmpty($provider->getPagination()['pageLast']);
+        $this->assertNotEmpty($provider->getPagination()['pageLast']);
+        $this->assertTrue(isset($provider->getPagination()['pageLast']));
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
         // to Array
@@ -52,7 +57,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
             ]
         );
         $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination());
+        $this->assertNotEmpty($provider->getPagination()->toArray());
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
 
@@ -90,13 +95,13 @@ class ActiveDataProviderTest extends DatabaseTestCase
             [
                 'query' => (new Query())->setConnection($this->getConnection(false))->from('customer'),
                 'only' => ['id', 'name'],
-                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+                'pagination' => ['limit' => 2, 'sort' => SORT_DESC, 'page' => 0]
             ]
         );
 
         // get
         $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination());
+        $this->assertNotEmpty($provider->getPagination()->toArray());
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
 
@@ -120,7 +125,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
 
         // get
         $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination());
+        $this->assertNotEmpty($provider->getPagination()->toArray());
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
 
@@ -144,5 +149,51 @@ class ActiveDataProviderTest extends DatabaseTestCase
         $this->assertSame(2, count($result));
         $this->assertContains('id', $provider->getKeys());
         $this->assertContains('name', $provider->getKeys());
+    }
+
+    public function testGetLink()
+    {
+
+        $provider = new ActiveDataProvider(
+            [
+                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
+                'only' => ['id', 'name'],
+                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+            ]
+        );
+        $expected = [
+            'self' => '/',
+            'first' => '/',
+            'prev' => '/',
+            'next' => '/?page=1',
+            'last' => '/?page=1',
+        ];
+        $this->assertSame($expected, $provider->getPagination()->getLinks());
+    }
+
+    public function testSetPropertyThrowException()
+    {
+        $this->setExpectedException(BaseException::className());
+        $provider = new ActiveDataProvider(
+            [
+                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
+                'only' => ['id', 'name'],
+                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+            ]
+        );
+        $provider->getPagination()['pageLast'] = 5;
+    }
+
+    public function testUnsetPropertyThrowException()
+    {
+        $this->setExpectedException(DbException::className());
+        $provider = new ActiveDataProvider(
+            [
+                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
+                'only' => ['id', 'name'],
+                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+            ]
+        );
+        unset($provider->getPagination()['pageLast']);
     }
 }

@@ -6,11 +6,6 @@ use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
 use rock\components\Model;
 use rock\helpers\ArrayHelper;
-use rock\helpers\Helper;
-use rock\helpers\Instance;
-use rock\helpers\Pagination;
-use rock\response\Response;
-use rock\url\Url;
 
 /**
  * ActiveDataProvider implements a data provider based on {@see \rock\db\Query} and {@see \rock\db\ActiveQuery}.
@@ -26,12 +21,12 @@ use rock\url\Url;
  *         'limit' => 20,
  *         'sort' => SORT_DESC,
  *         'pageLimit' => 5,
- *         'pageCurrent' => (int)$_GET['page']
+ *         'page' => (int)$_GET['page']
  *     ],
  * ]);
  *
  * $provider->get(); // returns list items in the current page
- * $provider->getPagination(); // returns data pagination
+ * $provider->getPagination(); // returns \rock\db\ActiveDataPagination
  * ```
  *
  * And the following example shows how to use ActiveDataProvider without ActiveRecord:
@@ -44,12 +39,12 @@ use rock\url\Url;
  *         'limit' => 20,
  *         'sort' => SORT_DESC,
  *         'pageLimit' => 5,
- *         'pageCurrent' => (int)$_GET['page'],
+ *         'page' => (int)$_GET['page'],
  *     ],
  * ]);
  *
  * $provider->get(); // returns list items in the current page
- * $provider->getPagination(); // returns data pagination
+ * $provider->getPagination(); // returns \rock\db\ActiveDataPagination
  * ```
  *
  */
@@ -59,7 +54,7 @@ class ActiveDataProvider implements ObjectInterface
 
     /**
      * Source. Can be array or Model.
-     * @var array|QueryInterface
+     * @var QueryInterface
      */
     public $query;
     /** @var  \rock\db\Connection|\rock\mongodb\Connection */
@@ -68,7 +63,7 @@ class ActiveDataProvider implements ObjectInterface
      * List data pagination.
      * @var array
      */
-    public $pagination;
+    public $pagination = [];
     /**
      * Prepare list items.
      * @var callable
@@ -88,27 +83,17 @@ class ActiveDataProvider implements ObjectInterface
      * @see getKeys()
      */
     public $key;
-    /** @var  Response|string|array */
-    public $response = 'response';
     /**
-     * List data pagination.
-     * @var array
+     * Calculate sub-attributes
+     * @var bool
      */
-    protected $dataPagination = [];
+    public $calculateSubAttributes = true;
     /**
+     * Total count items.
      * @var int
-    */
-    protected $totalCount = 0;
+     */
+    protected $totalCount;
     private $_keys;
-
-    public function init()
-    {
-        if (!isset($this->pagination['pageCurrent'])) {
-            $this->pagination['pageCurrent'] = 0;
-        }
-        
-        $this->response = Instance::ensure($this->response, '\rock\response\Response', false);
-    }
 
     /**
      * Source as array.
@@ -122,10 +107,9 @@ class ActiveDataProvider implements ObjectInterface
     }
 
     /**
-     * @param bool $subAttributes
      * @return array
      */
-    public function get($subAttributes = false)
+    public function get()
     {
         if (empty($this->query)) {
             return [];
@@ -135,13 +119,13 @@ class ActiveDataProvider implements ObjectInterface
         if (is_array($this->query)) {
             $result = $this->prepareArray();
         } elseif ($this->query instanceof QueryInterface) {
-            $result = $this->prepareModels($subAttributes);
+            $result = $this->prepareModels($this->calculateSubAttributes);
         }
 
         return $this->prepareDataWithCallback($result);
     }
 
-    public function toArray($subAttributes = false)
+    public function toArray()
     {
         if (empty($this->query)) {
             return [];
@@ -151,7 +135,7 @@ class ActiveDataProvider implements ObjectInterface
         if (is_array($this->query)) {
             $data = $this->prepareArray();
         } elseif ($this->query instanceof QueryInterface) {
-            $data = $this->prepareModels($subAttributes);
+            $data = $this->prepareModels($this->calculateSubAttributes);
         } elseif ($this->query instanceof ActiveRecordInterface) {
             $result = $this->prepareDataWithCallback($this->query->toArray($this->only, $this->exclude, $this->expand));
             if ($this->_keys === null) {
@@ -197,17 +181,31 @@ class ActiveDataProvider implements ObjectInterface
         }
 
         return $this->prepareDataWithCallback($data);
-
     }
+
+    /**
+     * @var ActiveDataPagination
+     */
+    protected $activePagination;
 
     /**
      * Returns data pagination.
      *
-     * @return array
+     * @return ActiveDataPagination
      */
     public function getPagination()
     {
-        return $this->dataPagination;
+        if (!isset($this->activePagination)) {
+            if (!isset($this->totalCount)) {
+                $this->toArray();
+            }
+            $config = $this->pagination;
+            $config['totalCount'] = (int)$this->totalCount;
+
+            $this->activePagination = new ActiveDataPagination($config);
+        }
+
+        return $this->activePagination;
     }
 
     /**
@@ -239,91 +237,39 @@ class ActiveDataProvider implements ObjectInterface
             $this->totalCount = 0;
             return [];
         }
-
         if (empty($this->pagination)) {
+            if ($this->_keys === null) {
+                $this->_keys = $this->prepareKeys($this->query);
+            }
             return $this->query;
         }
-        $this->calculatePagination();
+        $activePagination = $this->getPagination();
 
-        $result = array_slice($this->query, $this->dataPagination['offset'], $this->dataPagination['limit'], true);
+        $result = array_slice($this->query, $activePagination->offset, $activePagination->limit, true);
         if ($this->_keys === null) {
             $this->_keys = $this->prepareKeys($result);
         }
         return $result;
     }
 
-
     /**
-     * @param bool       $subAttributes
      * @return ActiveRecord|\rock\sphinx\ActiveRecord
      */
-    protected function prepareModels($subAttributes = false)
+    protected function prepareModels()
     {
         if (!$this->totalCount = $this->calculateTotalCount()) {
             return [];
         }
-        $this->calculatePagination();
-        $this->addHeaders($this->totalCount, $this->dataPagination);
+        $activePagination = $this->getPagination();
 
         $result = $this->query
-            ->limit($this->dataPagination['limit'])
-            ->offset($this->dataPagination['offset'])
-            ->all($this->connection, $subAttributes);
+            ->limit($activePagination->limit)
+            ->offset($activePagination->offset)
+            ->all($this->connection, $this->calculateSubAttributes);
         if ($this->_keys === null) {
             $this->_keys = $this->prepareKeys($result);
         }
         return $result;
-    }
-
-    protected function calculatePagination()
-    {
-        $this->dataPagination = Pagination::get(
-            $this->totalCount,
-            $this->pagination['pageCurrent'],
-            Helper::getValue($this->pagination['limit'], Pagination::LIMIT),
-            Helper::getValue($this->pagination['sort'], Pagination::SORT),
-            Helper::getValue($this->pagination['pageLimit'],Pagination::PAGE_LIMIT)
-        );
-        if (isset($this->pagination['pageArgUrl'])) {
-            $this->dataPagination['pageArgUrl'] = $this->pagination['pageArgUrl'];
-        }
-    }
-
-    protected function addHeaders($total, array $data)
-    {
-        if (!$this->response instanceof Response || $this->response->format == Response::FORMAT_HTML || empty($data)) {
-            return;
-        }
-
-        $absoluteUrl = class_exists('\rock\url\Url')
-            ? Url::set()->removeAllArgs()->getAbsoluteUrl(true)
-            : $_SERVER['REQUEST_URI'] . '?' . $_SERVER['QUERY_STRING'];
-        $links = [];
-        $links[] = "<{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageCurrent']}>; rel=self";
-        $this->response->content['_links']['self'] = "{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageCurrent']}";
-        if (!empty($data['pagePrev'])) {
-            $links[] = "<{$absoluteUrl}?{$data['pageArgUrl']}={$data['pagePrev']}>; rel=prev";
-            $this->response->content['_links']['prev'] = "{$absoluteUrl}?{$data['pageArgUrl']}={$data['pagePrev']}";
-        }
-        if (!empty($data['pageNext'])) {
-            $links[] = "<{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageNext']}>; rel=next";
-            $this->response->content['_links']['next'] = "{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageNext']}";
-        }
-        if (!empty($data['pageFirst'])) {
-            $links[] = "<{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageFirst']}>; rel=first";
-            $this->response->content['_links']['first'] = "{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageFirst']}";
-        }
-        if (!empty($data['pageLast'])) {
-            $links[] = "<{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageLast']}>; rel=last";
-            $this->response->content['_links']['last'] = "{$absoluteUrl}?{$data['pageArgUrl']}={$data['pageLast']}";
-        }
-
-        $this->response->getHeaders()
-            ->set('X-Pagination-Total-Count', $total)
-            ->set('X-Pagination-Page-Count', $data['pageCount'])
-            ->set('X-Pagination-Current-Page', $data['pageCurrent'])
-            ->set('X-Pagination-Per-Page', $data['limit'])
-            ->set('Link', implode(', ', $links));
     }
 
     /**
@@ -334,9 +280,9 @@ class ActiveDataProvider implements ObjectInterface
         $query = clone $this->query;
 
         return (int)$query->limit(-1)
-                          ->offset(-1)
-                          ->orderBy([])
-                          ->count('*', $this->connection);
+            ->offset(-1)
+            ->orderBy([])
+            ->count('*', $this->connection);
     }
 
     protected function prepareDataWithCallback(array $data)
@@ -350,7 +296,6 @@ class ActiveDataProvider implements ObjectInterface
 
         return $data;
     }
-
 
     /**
      * @inheritdoc
