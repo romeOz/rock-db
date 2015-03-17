@@ -5,6 +5,7 @@ namespace rock\db;
 
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\components\Linkable;
 use rock\helpers\Instance;
 use rock\helpers\Link;
 use rock\helpers\Pagination;
@@ -27,7 +28,7 @@ use rock\url\Url;
  *
  * @package rock\db
  */
-class ActiveDataPagination implements ObjectInterface, \ArrayAccess
+class ActiveDataPagination implements ObjectInterface, \ArrayAccess, Linkable
 {
     use ObjectTrait;
 
