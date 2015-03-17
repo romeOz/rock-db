@@ -124,10 +124,10 @@ class ActiveDataPagination implements ObjectInterface, \ArrayAccess
     public function getPage($recalculate = false)
     {
         if ($this->page === null || $recalculate) {
-            if (isset($this->request) && class_exists('\rock\rock\sanitize')) {
+            if (isset($this->request) && class_exists('\rock\rock\Sanitize')) {
                 $page = Request::get($this->pageArg, 0, Sanitize::positive()->int());
             } else {
-                $page = (int)isset($_GET[$this->pageArg]) ? $_GET[$this->pageArg] : 0;
+                $page = isset($_GET[$this->pageArg]) ? (int)$_GET[$this->pageArg] : 0;
                 if ($page < 0) {
                     $page = 0;
                 }
