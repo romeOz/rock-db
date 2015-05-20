@@ -303,14 +303,7 @@ class QueryBuilder implements ObjectInterface
      */
     public function createTable($table, $columns, $options = null, $exists = false)
     {
-        $cols = [];
-        foreach ($columns as $name => $type) {
-            if (is_string($name)) {
-                $cols[] = "\t" . $this->connection->quoteColumnName($name) . ' ' . $this->getColumnType($type);
-            } else {
-                $cols[] = "\t" . $type;
-            }
-        }
+        $cols = $this->calculateColumns($columns);
         $exists = $exists === true ? ' IF NOT EXISTS ' : null;
         $sql = "CREATE TABLE {$exists}" . $this->connection->quoteTableName($table) . " (\n" . implode(",\n", $cols) . "\n)";
 
@@ -336,8 +329,7 @@ class QueryBuilder implements ObjectInterface
      */
     public function dropTable($table, $exists = false)
     {
-        $exists = $exists === true ? ' IF EXISTS ' : null;
-        return "DROP TABLE {$exists}" . $this->connection->quoteTableName($table);
+        return "DROP TABLE " . $this->connection->quoteTableName($table);
     }
 
     /**
@@ -521,7 +513,7 @@ class QueryBuilder implements ObjectInterface
      * The sequence will be reset such that the primary key of the next new row inserted
      * will have the specified value or 1.
      *
-*@param string $table the name of the table whose primary key sequence will be reset
+     * @param string $table the name of the table whose primary key sequence will be reset
      * @param array|string $value the value for the primary key of the next new row inserted. If this is not set,
      * the next new row's primary key will have a value 1.
      * @return string the SQL statement for resetting sequence
@@ -535,7 +527,7 @@ class QueryBuilder implements ObjectInterface
     /**
      * Builds a SQL statement for enabling or disabling integrity check.
      *
-*@param boolean $check whether to turn on or off the integrity check.
+     * @param boolean $check whether to turn on or off the integrity check.
      * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
      * @param string $table the table name. Defaults to empty string, meaning that no table will be changed.
      * @return string the SQL statement for checking integrity
@@ -1257,7 +1249,7 @@ class QueryBuilder implements ObjectInterface
     /**
      * Creates an SQL expressions with the `EXISTS` operator.
      *
-*@param string $operator the operator to use (e.g. `EXISTS` or `NOT EXISTS`)
+     * @param string $operator the operator to use (e.g. `EXISTS` or `NOT EXISTS`)
      * @param array $operands contains only one element which is a {@see \rock\db\Query} object representing the sub-query.
      * @param array $params the binding parameters to be populated
      * @return string the generated SQL expression
@@ -1276,7 +1268,7 @@ class QueryBuilder implements ObjectInterface
     /**
      * Creates an SQL expressions like `"column" operator value`.
      *
-*@param string $operator the operator to use. Anything could be used e.g. `>`, `<=`, etc.
+     * @param string $operator the operator to use. Anything could be used e.g. `>`, `<=`, etc.
      * @param array $operands contains two column names.
      * @param array $params the binding parameters to be populated
      * @return string the generated SQL expression
@@ -1306,5 +1298,19 @@ class QueryBuilder implements ObjectInterface
             $params[$phName] = $value;
             return "$column $operator $phName";
         }
+    }
+
+    protected function calculateColumns($columns)
+    {
+        $cols = [];
+        foreach ($columns as $name => $type) {
+            if (is_string($name)) {
+                $cols[] = "\t" . $this->connection->quoteColumnName($name) . ' ' . $this->getColumnType($type);
+            } else {
+                $cols[] = "\t" . $type;
+            }
+        }
+
+        return $cols;
     }
 }

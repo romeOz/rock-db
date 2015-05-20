@@ -33,6 +33,26 @@ class QueryBuilder extends \rock\db\QueryBuilder
         Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
 
+    /**
+     * @inheritdoc
+     */
+    public function createTable($table, $columns, $options = null, $exists = false)
+    {
+        $cols = $this->calculateColumns($columns);
+        $exists = $exists === true ? "IF OBJECT_ID('{$table}', 'U') IS NOT NULL " : null;
+        $sql = "{$exists}CREATE TABLE " . $this->connection->quoteTableName($table) . " (\n" . implode(",\n", $cols) . "\n)";
+
+        return $options === null ? $sql : $sql . ' ' . $options;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function dropTable($table, $exists = false)
+    {
+        $exists = $exists === true ? "IF OBJECT_ID('{$table}', 'U') IS NOT NULL " : null;
+        return "{$exists}DROP TABLE " . $this->connection->quoteTableName($table);
+    }
 
     /**
      * @inheritdoc
