@@ -916,7 +916,7 @@ class Command implements ObjectInterface
     {
         $this->_clearCache = function($connection) use ($table, $rawSql){
             /** @var Connection $connection */
-            if (!$connection->autoClearCache || ($tables = $connection->queryCacheTags ? : [$table])) {
+            if (!$connection->autoClearCache || (!$tables = $connection->queryCacheTags ? : [$table])) {
                 return;
             }
             /** @var $cache CacheInterface */
