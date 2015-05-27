@@ -240,6 +240,11 @@ class Connection implements ObjectInterface
      */
     public $queryCache = 'cache';
     /**
+     * Automatic clear cache by tags (as tables).
+     * @var bool
+     */
+    public $autoClearCache = false;
+    /**
      * @var string the charset used for database connection. The property is only used
      * for MySQL, PostgreSQL and CUBRID databases. Defaults to null, meaning using default charset
      * as specified by the database.

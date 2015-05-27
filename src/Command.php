@@ -490,8 +490,10 @@ class Command implements ObjectInterface
     public function update($table, $columns, $condition = '', $params = [])
     {
         $sql = $this->connection->getQueryBuilder()->update($table, $columns, $condition, $params);
+        $command = $this->setSql($sql)->bindValues($params);
+        $this->clearCache($table, $command->getRawSql());
 
-        return $this->setSql($sql)->bindValues($params);
+        return $command;
     }
 
     /**
@@ -515,8 +517,10 @@ class Command implements ObjectInterface
     public function delete($table, $condition = '', $params = [])
     {
         $sql = $this->connection->getQueryBuilder()->delete($table, $condition, $params);
+        $command = $this->setSql($sql)->bindValues($params);
+        $this->clearCache($table, $command->getRawSql());
 
-        return $this->setSql($sql)->bindValues($params);
+        return $command;
     }
 
     /**
@@ -801,6 +805,9 @@ class Command implements ObjectInterface
 
             $this->pdoStatement->execute();
             $n = $this->pdoStatement->rowCount();
+            if (isset($this->_clearCache)) {
+                call_user_func($this->_clearCache, $this->connection);
+            }
 
             Trace::endProfile('db.query', $token);
 
@@ -900,5 +907,34 @@ class Command implements ObjectInterface
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
         }
+    }
+
+    /** @var  \Closure */
+    private $_clearCache;
+
+    protected function clearCache($table, $rawSql)
+    {
+        $this->_clearCache = function($connection) use ($table, $rawSql){
+            /** @var Connection $connection */
+            if (!$connection->autoClearCache) {
+                return;
+            }
+            /** @var $cache CacheInterface */
+            $cache = Instance::ensure($connection->queryCache, null, false);
+
+            if (!$cache instanceof CacheInterface) {
+                return;
+            }
+
+            if (!$cache->removeTag($table)) {
+                return;
+            }
+            $token = [
+                'dsn' => $connection->dsn,
+                'sql' => $rawSql,
+                'message' => "Clear cache by tags: {$table}",
+            ];
+            Trace::trace('cache.db', $token);
+        };
     }
 }
