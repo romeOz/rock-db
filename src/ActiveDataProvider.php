@@ -54,7 +54,7 @@ class ActiveDataProvider implements ObjectInterface
 
     /**
      * Source. Can be array or Model.
-     * @var QueryInterface
+     * @var Query
      */
     public $query;
     /** @var  \rock\db\Connection|\rock\mongodb\Connection */
@@ -88,6 +88,11 @@ class ActiveDataProvider implements ObjectInterface
      * @var bool
      */
     public $calculateSubAttributes = true;
+    /**
+     * @var int $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
+     * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
+     */
+    public $fetchMode;
     /**
      * Total count items.
      * @var int
@@ -225,6 +230,9 @@ class ActiveDataProvider implements ObjectInterface
      */
     public function getKeys()
     {
+        if (!isset($this->_keys)) {
+            $this->get();
+        }
         return $this->_keys;
     }
 
@@ -262,13 +270,16 @@ class ActiveDataProvider implements ObjectInterface
         }
         $activePagination = $this->getPagination();
 
-        $result = $this->query
+        $this->query
             ->limit($activePagination->limit)
-            ->offset($activePagination->offset)
-            ->all($this->connection, $this->calculateSubAttributes);
+            ->offset($activePagination->offset);
+        $result = $this->fetchMode
+            ? $this->query->createCommand($this->connection)->queryAll($this->fetchMode, $this->calculateSubAttributes)
+            : $this->query->all($this->connection, $this->calculateSubAttributes);
         if ($this->_keys === null) {
             $this->_keys = $this->prepareKeys($result);
         }
+
         return $result;
     }
 
@@ -320,6 +331,9 @@ class ActiveDataProvider implements ObjectInterface
             if (count($pks) === 1) {
                 $pk = $pks[0];
                 foreach ($models as $model) {
+                    if (!isset($model[$pk])) {
+                        continue;
+                    }
                     $keys[] = $model[$pk];
                 }
             } else {
@@ -336,10 +350,7 @@ class ActiveDataProvider implements ObjectInterface
                     }
                 }
             }
-
-            return $keys;
-        } else {
-            return array_keys($models);
         }
+        return $keys ? : array_keys($models);
     }
 }
