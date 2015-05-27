@@ -19,7 +19,7 @@ trait CacheTrait
      * If not set, it will use the value of {@see \rock\db\Connection::$queryCacheExpire}. See {@see \rock\db\Connection::$queryCacheExpire} for more details.
      * @return $this
      */
-    public function cache($expire = 0, array $tags = [])
+    public function cache($expire = null, array $tags = [])
     {
         $this->enableCache = true;
         $this->cacheExpire = $expire;
