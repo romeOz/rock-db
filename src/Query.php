@@ -227,7 +227,7 @@ class Query implements QueryInterface
      *
      * @param Connection $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param bool       $subattributes
+     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all($connection = null, $subattributes = false)
@@ -275,7 +275,7 @@ class Query implements QueryInterface
      *
      * @param Connection $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param boolean       $subattributes
+     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */

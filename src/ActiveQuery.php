@@ -113,7 +113,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param Connection $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param boolean       $subattributes
+     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all($connection = null, $subattributes = false)
@@ -294,7 +294,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param Connection $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param bool       $subattributes
+     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting
      * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
      * if the query results in nothing.

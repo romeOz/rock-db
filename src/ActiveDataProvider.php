@@ -84,10 +84,10 @@ class ActiveDataProvider implements ObjectInterface
      */
     public $key;
     /**
-     * Calculate sub-attributes
+     * Calculate sub-attributes (e.g `category.id => [category][id]`).
      * @var bool
      */
-    public $calculateSubAttributes = true;
+    public $subattributes = true;
     /**
      * @var int $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
@@ -98,6 +98,7 @@ class ActiveDataProvider implements ObjectInterface
      * @var int
      */
     protected $totalCount;
+    /** @var  int[] */
     private $_keys;
 
     /**
@@ -124,7 +125,7 @@ class ActiveDataProvider implements ObjectInterface
         if (is_array($this->query)) {
             $result = $this->prepareArray();
         } elseif ($this->query instanceof QueryInterface) {
-            $result = $this->prepareModels($this->calculateSubAttributes);
+            $result = $this->prepareModels($this->subattributes);
         }
 
         return $this->prepareDataWithCallback($result);
@@ -140,7 +141,7 @@ class ActiveDataProvider implements ObjectInterface
         if (is_array($this->query)) {
             $data = $this->prepareArray();
         } elseif ($this->query instanceof QueryInterface) {
-            $data = $this->prepareModels($this->calculateSubAttributes);
+            $data = $this->prepareModels($this->subattributes);
         } elseif ($this->query instanceof ActiveRecordInterface) {
             $result = $this->prepareDataWithCallback($this->query->toArray($this->only, $this->exclude, $this->expand));
             if ($this->_keys === null) {
@@ -274,8 +275,8 @@ class ActiveDataProvider implements ObjectInterface
             ->limit($activePagination->limit)
             ->offset($activePagination->offset);
         $result = $this->fetchMode
-            ? $this->query->createCommand($this->connection)->queryAll($this->fetchMode, $this->calculateSubAttributes)
-            : $this->query->all($this->connection, $this->calculateSubAttributes);
+            ? $this->query->createCommand($this->connection)->queryAll($this->fetchMode, $this->subattributes)
+            : $this->query->all($this->connection, $this->subattributes);
         if ($this->_keys === null) {
             $this->_keys = $this->prepareKeys($result);
         }

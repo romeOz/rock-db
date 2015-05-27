@@ -308,7 +308,7 @@ class Command implements ObjectInterface
      *
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool $subattributes
+     * @param bool $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
      * @throws DbException execution failed
@@ -324,7 +324,7 @@ class Command implements ObjectInterface
      *
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool    $subattributes
+     * @param bool    $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      * @throws DbException execution failed
