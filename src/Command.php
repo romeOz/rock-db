@@ -921,14 +921,11 @@ class Command implements ObjectInterface
             }
             /** @var $cache CacheInterface */
             $cache = Instance::ensure($connection->queryCache, null, false);
-
             if (!$cache instanceof CacheInterface) {
                 return;
             }
+            $cache->removeMultiTags($connection->queryCacheTags ? : [$table]);
 
-            if (!$cache->removeMultiTags($connection->queryCacheTags ? : [$table])) {
-                return;
-            }
             $token = [
                 'dsn' => $connection->dsn,
                 'sql' => $rawSql,

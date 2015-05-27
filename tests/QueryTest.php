@@ -290,23 +290,33 @@ class QueryTest extends DatabaseTestCase
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
     }
 
-    public function testAutoClearCache()
+    protected function autoClearCache($autoClearCache = true)
     {
         $connection = $this->getConnection();
         $cache = static::getCache();
         $cache->flush();
         $connection->queryCache = $cache;
 
-        $connection->autoClearCache = true;
+        $connection->autoClearCache = $autoClearCache;
         Trace::removeAll();
 
         $query = (new Query())->setConnection($connection)->from(['customer']);
-        //$this->assertNotEmpty($query->all());
         $this->assertNotEmpty($query->cache()->all());
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
         $query->createCommand($connection)->update('customer', ['address' => 'address1'], 'id=:id', ['id' => 1])->execute();
         $this->assertNotEmpty($query->cache()->all());
+    }
+
+    public function testAutoClearCacheSucess()
+    {
+        $this->autoClearCache(true);
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
+    }
+
+    public function testAutoClearCacheFail()
+    {
+        $this->autoClearCache(false);
+        $this->assertTrue(Trace::getIterator('db.query')->current()['cache']);
     }
 
     /**
