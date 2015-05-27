@@ -69,7 +69,8 @@ class Command implements ObjectInterface
      * This property is maintained by methods such as {@see \rock\db\Command::bindValue()}. It is mainly provided for logging purpose
      * and is used to generate {@see \rock\db\Command::$rawSql}. Do not modify it directly.
      */
-    public $params = [];    /**
+    public $params = [];
+    /**
      * @var array pending parameters to be bound to the current PDO statement.
      */
     private $_pendingParams = [];
@@ -94,7 +95,7 @@ class Command implements ObjectInterface
 
     /**
      * Specifies the SQL statement to be executed.
-     * 
+     *
      * The previous SQL execution (if any) will be cancelled, and {@see \rock\db\Command::$params} will be cleared as well.
      * @param string $sql the SQL statement to be set.
      * @return static this command instance
@@ -152,7 +153,7 @@ class Command implements ObjectInterface
      * For SQL statement with binding parameters, this method is invoked
      * automatically.
      *
-*@param boolean $forRead whether this method is called for a read query. If null, it means
+     * @param boolean $forRead whether this method is called for a read query. If null, it means
      * the SQL statement should be used to determine whether it is for read or write.
      * @throws DbException if there is any DB error
      */
@@ -294,7 +295,7 @@ class Command implements ObjectInterface
      * Executes the SQL statement and returns query result.
      * This method is for executing a SQL query that returns result set, such as `SELECT`.
      *
-*@return DataReader the reader object for fetching the query result
+     * @return DataReader the reader object for fetching the query result
      * @throws DbException execution failed
      */
     public function query()
@@ -305,39 +306,39 @@ class Command implements ObjectInterface
     /**
      * Executes the SQL statement and returns ALL rows at once.
      *
-*@param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
+     * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool $subAttributes
+     * @param bool $subattributes
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
      * @throws DbException execution failed
      */
-    public function queryAll($fetchMode = null, $subAttributes = false)
+    public function queryAll($fetchMode = null, $subattributes = false)
     {
-        return $this->queryInternal('fetchAll', $fetchMode, $subAttributes);
+        return $this->queryInternal('fetchAll', $fetchMode, $subattributes);
     }
 
     /**
      * Executes the SQL statement and returns the first row of the result.
      * This method is best used when only the first row of result is needed for a query.
      *
-*@param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
+     * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool    $subAttributes
+     * @param bool    $subattributes
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      * @throws DbException execution failed
      */
-    public function queryOne($fetchMode = null, $subAttributes = false)
+    public function queryOne($fetchMode = null, $subattributes = false)
     {
-        return $this->queryInternal('fetch', $fetchMode, $subAttributes);
+        return $this->queryInternal('fetch', $fetchMode, $subattributes);
     }
 
     /**
      * Executes the SQL statement and returns the value of the first column in the first row of data.
      * This method is best used when only a single value is needed for a query.
      *
-*@return string|null the value of the first column in the first row of the query result.
+     * @return string|null the value of the first column in the first row of the query result.
      * False is returned if there is no value.
      * @throws DbException execution failed
      */
@@ -356,7 +357,7 @@ class Command implements ObjectInterface
      * This method is best used when only the first column of result (i.e. the first element in each row)
      * is needed for a query.
      *
-*@return array the first column of the query result. Empty array is returned if the query results in nothing.
+     * @return array the first column of the query result. Empty array is returned if the query results in nothing.
      * @throws DbException execution failed
      */
     public function queryColumn()
@@ -364,12 +365,12 @@ class Command implements ObjectInterface
         return $this->queryInternal('fetchAll', \PDO::FETCH_COLUMN);
     }
 
-    protected function prepareResult($result, $subAttributes, $fetchMode)
+    protected function prepareResult($result, $fetchMode, $subAttributes)
     {
         if (!empty($result) && $subAttributes === true) {
-            if ($fetchMode & \PDO::FETCH_ASSOC) {
+            if ($fetchMode === \PDO::FETCH_ASSOC) {
                 return ArrayHelper::toMulti($result, $this->connection->aliasSeparator, true);
-            } elseif ($fetchMode & \PDO::FETCH_OBJ) {
+            } elseif ($fetchMode === \PDO::FETCH_OBJ) {
                 return ObjectHelper::toMulti((array)$result, $this->connection->aliasSeparator);
             }
         }
@@ -734,7 +735,7 @@ class Command implements ObjectInterface
 
     /**
      * Creates a SQL command for resetting the sequence value of a table's primary key.
-     * 
+     *
      * The sequence will be reset such that the primary key of the next new row inserted
      * will have the specified value or 1.
      *
@@ -770,7 +771,7 @@ class Command implements ObjectInterface
 
     /**
      * Executes the SQL statement.
-     * 
+     *
      * This method should only be used for executing non-query SQL statement, such as `INSERT`, `DELETE`, `UPDATE` SQLs.
      * No result set will be returned.
      *
@@ -821,11 +822,11 @@ class Command implements ObjectInterface
      * @param string $method method of PDOStatement to be called
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool    $subAttributes
+     * @param bool    $subattributes
      * @return mixed the method execution result
      * @throws DbException if the query causes any problem
      */
-    protected function queryInternal($method, $fetchMode = null, $subAttributes = false)
+    protected function queryInternal($method, $fetchMode = null, $subattributes = false)
     {
         $connection = $this->connection;
         $rawSql = $this->getRawSql();
@@ -845,12 +846,12 @@ class Command implements ObjectInterface
 
         if ($cache instanceof CacheInterface) {
             $cacheKey = json_encode([
-                                        __CLASS__,
-                                        $method,
-                                        $connection->dsn,
-                                        $connection->username,
-                                        $rawSql,
-                                    ]);
+                __CLASS__,
+                $method,
+                $connection->dsn,
+                $connection->username,
+                $rawSql,
+            ]);
             if (($result = $cache->get($cacheKey)) !== false) {
                 Trace::increment('cache.db', 'Cache query DB connection: ' . $connection->dsn);
                 Trace::endProfile('db.query', $token);
@@ -876,15 +877,15 @@ class Command implements ObjectInterface
                 if ($result === false) {
                     $result = null;
                 }
-                $result = $this->prepareResult($result, $subAttributes, $fetchMode);
+                $result = $this->prepareResult($result, $fetchMode, $subattributes);
                 $this->pdoStatement->closeCursor();
             }
 
             if (isset($cache, $cacheKey) && $cache instanceof CacheInterface) {
                 $cache->set($cacheKey,
-                            $result,
-                            $connection->queryCacheExpire,
-                            $connection->queryCacheTags ? : $this->getRawEntityNames()
+                    $result,
+                    $connection->queryCacheExpire,
+                    $connection->queryCacheTags ? : $this->getRawEntityNames()
                 );
             }
             Trace::endProfile('db.query', $token);

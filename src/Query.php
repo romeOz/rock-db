@@ -33,7 +33,7 @@ use rock\helpers\Instance;
  */
 class Query implements QueryInterface
 {
-    use \rock\components\ComponentsTrait {
+    use ComponentsTrait {
         ComponentsTrait::__call as parentCall;
     }
     use QueryTrait;
@@ -227,16 +227,16 @@ class Query implements QueryInterface
      *
      * @param Connection $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param bool       $subAttributes
+     * @param bool       $subattributes
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($connection = null, $subAttributes = false)
+    public function all($connection = null, $subattributes = false)
     {
         if (!$this->beforeFind()) {
             return [];
         }
         $command = $this->createCommand($connection);
-        return $this->prepareResult($command->queryAll(null, $subAttributes), $connection);
+        return $this->prepareResult($command->queryAll(null, $subattributes), $connection);
     }
 
     /**
@@ -275,17 +275,17 @@ class Query implements QueryInterface
      *
      * @param Connection $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param boolean       $subAttributes
+     * @param boolean       $subattributes
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */
-    public function one($connection = null, $subAttributes = false)
+    public function one($connection = null, $subattributes = false)
     {
         if (!$this->beforeFind()) {
             return null;
         }
         $command = $this->createCommand($connection);
-        $row = $command->queryOne(null, $subAttributes);
+        $row = $command->queryOne(null, $subattributes);
         if ($row) {
             $row = $this->typeCast($row, $connection);
         }

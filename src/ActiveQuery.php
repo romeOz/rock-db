@@ -113,10 +113,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param Connection $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param boolean       $subAttributes
+     * @param boolean       $subattributes
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($connection = null, $subAttributes = false)
+    public function all($connection = null, $subattributes = false)
     {
         // before
         /** @var ActiveRecord $model */
@@ -125,7 +125,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return [];
         }
 
-        return parent::all($connection, $subAttributes);
+        return parent::all($connection, $subattributes);
     }
 
     /**
@@ -294,19 +294,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param Connection $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param bool       $subAttributes
+     * @param bool       $subattributes
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting
      * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
      * if the query results in nothing.
      */
-    public function one($connection = null, $subAttributes = false)
+    public function one($connection = null, $subattributes = false)
     {
         /** @var ActiveRecord $model */
         $model  = new $this->modelClass;
         if (!$model->beforeFind()) {
             return null;
         }
-        $row = parent::one($connection, $subAttributes);
+        $row = parent::one($connection, $subattributes);
         if ($row !== null) {
             $models = $this->prepareResult([$row], $connection);
             return reset($models) ?: null;
