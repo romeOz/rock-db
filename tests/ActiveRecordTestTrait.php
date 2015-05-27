@@ -1281,7 +1281,7 @@ trait ActiveRecordTestTrait
         $customer = $query->one($connection, true);
         $this->assertSame($customer['order']['id'], 1);
         $this->assertTrue(Trace::getIterator('db.query')->current()['cache']);
-        $this->assertNotEmpty($query->endCache()->one($connection));
+        $this->assertNotEmpty($query->notCache()->one($connection));
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
         $this->assertSame(Trace::getIterator('db.query')->current()['count'], 3);
 
@@ -1291,8 +1291,8 @@ trait ActiveRecordTestTrait
         $connection->enableQueryCache = false;
         $connection->queryCache = $cache;
         \rockunit\models\ActiveRecord::$connection = $connection;
-        $customerClass::find()->with(['orders'])->asArray()->beginCache()->all();
-        $customerClass::find()->with(['orders'=>function(ActiveQuery $query){$query->endCache();}])->asArray()->beginCache()->all();
+        $customerClass::find()->with(['orders'])->asArray()->cache()->all();
+        $customerClass::find()->with(['orders'=>function(ActiveQuery $query){$query->notCache();}])->asArray()->cache()->all();
         $trace = Trace::getIterator('db.query');
         $this->assertTrue($trace->current()['cache']);
         $trace->next();

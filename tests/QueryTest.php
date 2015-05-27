@@ -266,7 +266,7 @@ class QueryTest extends DatabaseTestCase
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
         $this->assertNotEmpty($query->one($connection));
         $this->assertTrue(Trace::getIterator('db.query')->current()['cache']);
-        $this->assertNotEmpty($query->endCache()->one($connection));
+        $this->assertNotEmpty($query->notCache()->one($connection));
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
         $this->assertSame(Trace::getIterator('db.query')->current()['count'], 3);
         $cache->flush();
@@ -282,11 +282,11 @@ class QueryTest extends DatabaseTestCase
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
         $cache->flush();
         Trace::removeAll();
-        $this->assertNotEmpty($query->beginCache()->all());
+        $this->assertNotEmpty($query->cache()->all());
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
-        $this->assertNotEmpty($query->beginCache()->all());
+        $this->assertNotEmpty($query->cache()->all());
         $this->assertTrue(Trace::getIterator('db.query')->current()['cache']);
-        $this->assertNotEmpty($query->beginCache()->endCache()->all());
+        $this->assertNotEmpty($query->cache()->notCache()->all());
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
     }
 

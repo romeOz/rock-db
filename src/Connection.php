@@ -211,13 +211,13 @@ class Connection implements ObjectInterface
      * Note that in order to enable query caching, a valid cache component as specified
      * by {@see \rock\db\Connection::$queryCache} must be enabled and {@see \rock\db\Connection::$enableQueryCache} must be set true.
      *
-     * Methods {@see \rock\db\QueryInterface::beginCache()} and {@see \rock\db\QueryInterface::endCache()} can be used as shortcuts to turn on
+     * Methods {@see \rock\db\QueryInterface::cache()} and {@see \rock\db\QueryInterface::notCache()} can be used as shortcuts to turn on
      * and off query caching on the fly.
      * @see queryCacheExpire
      * @see queryCache
      * @see queryCacheTags
-     * @see beginCache()
-     * @see endCache()
+     * @see cache()
+     * @see notCache()
      */
     public $enableQueryCache = false;
     /**
@@ -268,9 +268,11 @@ class Connection implements ObjectInterface
      * @var string
      */
     public $aliasSeparator = '__';
-
+    /**
+     * Convert result to type.
+     * @var bool
+     */
     public $typeCast = true;
-    
     /**
      * @var array mapping between PDO driver names and {@see \rock\db\Schema} classes.
      * The keys of the array are PDO driver names while the values the corresponding
