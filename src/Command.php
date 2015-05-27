@@ -926,7 +926,7 @@ class Command implements ObjectInterface
                 return;
             }
 
-            if (!$cache->removeTag($table)) {
+            if (!$cache->removeMultiTags($connection->queryCacheTags ? : [$table])) {
                 return;
             }
             $token = [

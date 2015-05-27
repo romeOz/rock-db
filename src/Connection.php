@@ -501,8 +501,8 @@ class Connection implements ObjectInterface
         }
         if ($this->charset !== null && in_array($this->getDriverName(), ['pgsql', 'mysql', 'mysqli', 'cubrid'])) {
             $this->pdo->exec('SET NAMES ' . $this->pdo->quote($this->charset));
-        }        $this->trigger(self::EVENT_AFTER_OPEN);
-        //Event::trigger($this, self::EVENT_AFTER_OPEN);
+        }
+        $this->trigger(self::EVENT_AFTER_OPEN);
     }
 
     /**
