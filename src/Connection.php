@@ -513,7 +513,7 @@ class Connection implements ObjectInterface, ConnectionInterface
      * @param array $params the parameters to be bound to the SQL statement
      * @return Command the DB command
      */
-    public function createCommand($sql = null, $params = [])
+    public function createCommand($sql = null, array $params = [])
     {
         //$this->open();
         $command = new Command([
