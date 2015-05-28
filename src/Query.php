@@ -609,7 +609,7 @@ class Query implements QueryInterface
      * @see orWhere()
      * @see QueryInterface::where()
      */
-    public function where($condition, $params = [])
+    public function where($condition, array $params = [])
     {
         $this->where = $condition;
         $this->addParams($params);
@@ -626,7 +626,7 @@ class Query implements QueryInterface
      * @see where()
      * @see orWhere()
      */
-    public function andWhere($condition, $params = [])
+    public function andWhere($condition, array $params = [])
     {
         if ($this->where === null) {
             $this->where = $condition;
@@ -647,7 +647,7 @@ class Query implements QueryInterface
      * @see where()
      * @see andWhere()
      */
-    public function orWhere($condition, $params = [])
+    public function orWhere($condition, array $params = [])
     {
         if ($this->where === null) {
             $this->where = $condition;
@@ -679,7 +679,7 @@ class Query implements QueryInterface
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return Query the query object itself
      */
-    public function join($type, $table, $on = '', $params = [])
+    public function join($type, $table, $on = '', array $params = [])
     {
         $this->join[] = [$type, $table, $on];
         return $this->addParams($params);
@@ -704,7 +704,7 @@ class Query implements QueryInterface
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return Query the query object itself
      */
-    public function innerJoin($table, $on = '', $params = [])
+    public function innerJoin($table, $on = '', array $params = [])
     {
         $this->join[] = ['INNER JOIN', $table, $on];
         return $this->addParams($params);
@@ -729,7 +729,7 @@ class Query implements QueryInterface
      * @param array $params the parameters (name => value) to be bound to the query
      * @return Query the query object itself
      */
-    public function leftJoin($table, $on = '', $params = [])
+    public function leftJoin($table, $on = '', array $params = [])
     {
         $this->join[] = ['LEFT JOIN', $table, $on];
         return $this->addParams($params);
@@ -754,7 +754,7 @@ class Query implements QueryInterface
      * @param array $params the parameters (name => value) to be bound to the query
      * @return Query the query object itself
      */
-    public function rightJoin($table, $on = '', $params = [])
+    public function rightJoin($table, $on = '', array $params = [])
     {
         $this->join[] = ['RIGHT JOIN', $table, $on];
         return $this->addParams($params);
@@ -806,7 +806,7 @@ class Query implements QueryInterface
      * @see andHaving()
      * @see orHaving()
      */
-    public function having($condition, $params = [])
+    public function having($condition, array $params = [])
     {
         $this->having = $condition;
         $this->addParams($params);
@@ -823,7 +823,7 @@ class Query implements QueryInterface
      * @see having()
      * @see orHaving()
      */
-    public function andHaving($condition, $params = [])
+    public function andHaving($condition, array $params = [])
     {
         if ($this->having === null) {
             $this->having = $condition;
@@ -844,7 +844,7 @@ class Query implements QueryInterface
      * @see having()
      * @see andHaving()
      */
-    public function orHaving($condition, $params = [])
+    public function orHaving($condition, array $params = [])
     {
         if ($this->having === null) {
             $this->having = $condition;
@@ -880,14 +880,11 @@ class Query implements QueryInterface
      * (SELECT * FORM article) UNION (SELECT * FORM news) ORDER BY id DESC
      * ```
      */
-    public function unionOrderBy($columns)
+    public function unionOrderBy(array $columns)
     {
         $columns = $this->normalizeOrderBy($columns);
-        if ($this->unionOrderBy === null) {
-            $this->unionOrderBy = $columns;
-        } else {
-            $this->unionOrderBy = array_merge($this->unionOrderBy, $columns);
-        }
+        $this->unionOrderBy = array_merge($this->unionOrderBy, $columns);
+
         return $this;
     }
 
@@ -985,9 +982,9 @@ class Query implements QueryInterface
         ]);
     }
 
-    public function getRawSql($connection = null)
+    public function getRawSql(ConnectionInterface $connection = null)
     {
-        if ($connection instanceof Connection) {
+        if (isset($connection)) {
             $this->setConnection($connection);
         }
         $connection = $this->getConnection();
