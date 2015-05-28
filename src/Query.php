@@ -999,7 +999,7 @@ class Query implements QueryInterface
     /**
      * This method is called when the AR object is created and populated with the query result.
      *
-     * The default implementation will trigger an {@see \rock\db\BaseActiveRecord::EVENT_BEFORE_FIND} event.
+     * The default implementation will trigger an {@see \rock\db\common\BaseActiveRecord::EVENT_BEFORE_FIND} event.
      * When overriding this method, make sure you call the parent implementation to ensure the
      * event is triggered.
      */
@@ -1013,7 +1013,7 @@ class Query implements QueryInterface
     /**
      * This method is called when the AR object is created and populated with the query result.
      *
-     * The default implementation will trigger an {@see \rock\db\BaseActiveRecord::EVENT_AFTER_FIND} event.
+     * The default implementation will trigger an {@see \rock\db\common\BaseActiveRecord::EVENT_AFTER_FIND} event.
      * When overriding this method, make sure you call the parent implementation to ensure the
      * event is triggered.
      *

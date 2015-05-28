@@ -213,7 +213,7 @@ class Connection implements ObjectInterface, ConnectionInterface
      * Note that in order to enable query caching, a valid cache component as specified
      * by {@see \rock\db\Connection::$queryCache} must be enabled and {@see \rock\db\Connection::$enableQueryCache} must be set true.
      *
-     * Methods {@see \rock\db\QueryInterface::cache()} and {@see \rock\db\QueryInterface::notCache()} can be used as shortcuts to turn on
+     * Methods {@see \rock\db\common\QueryInterface::cache()} and {@see \rock\db\common\QueryInterface::notCache()} can be used as shortcuts to turn on
      * and off query caching on the fly.
      * @see queryCacheExpire
      * @see queryCache

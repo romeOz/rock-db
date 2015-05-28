@@ -620,13 +620,13 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAllViaTable()
     {
-        /* @var $orderClass \rock\db\ActiveRecordInterface */
+        /* @var $orderClass \rock\db\common\ActiveRecordInterface */
         $orderClass = $this->getOrderClass();
-        /* @var $orderItemClass \rock\db\ActiveRecordInterface */
+        /* @var $orderItemClass \rock\db\common\ActiveRecordInterface */
         $orderItemClass = $this->getOrderItemClass();
-        /* @var $itemClass \rock\db\ActiveRecordInterface */
+        /* @var $itemClass \rock\db\common\ActiveRecordInterface */
         $itemClass = $this->getItemClass();
-        /* @var $orderItemsWithNullFKClass \rock\db\ActiveRecordInterface */
+        /* @var $orderItemsWithNullFKClass \rock\db\common\ActiveRecordInterface */
         $orderItemsWithNullFKClass = $this->getOrderItemWithNullFKmClass();
 
         // via table with delete

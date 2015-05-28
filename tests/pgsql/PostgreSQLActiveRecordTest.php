@@ -18,7 +18,7 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
 
     public function testBooleanAttribute()
     {
-        /* @var $customerClass \rock\db\ActiveRecordInterface */
+        /* @var $customerClass \rock\db\common\ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
         $customer = new $customerClass();
@@ -45,7 +45,7 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
 
     public function testFindAsArray()
     {
-        /* @var $customerClass \rock\db\ActiveRecordInterface */
+        /* @var $customerClass \rock\db\common\ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
 
         // asArray
