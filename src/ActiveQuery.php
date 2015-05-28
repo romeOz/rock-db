@@ -117,7 +117,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function getConnection()
     {
-        if ($this->connection instanceof Connection) {
+        if ($this->connection instanceof ConnectionInterface) {
             return $this->calculateCacheParams($this->connection);
         }
         /** @var ActiveRecord $modelClass */
@@ -264,7 +264,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param array $models the models to be checked
      * @return array the distinctive models
      */
-    private function removeDuplicatedModels($models)
+    private function removeDuplicatedModels(array $models)
     {
         $hash = [];
         /** @var ActiveRecord $class */
@@ -688,7 +688,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return static the query object itself
      */
-    public function onCondition($condition, $params = [])
+    public function onCondition($condition, array $params = [])
     {
         $this->on = $condition;
         $this->addParams($params);
@@ -705,7 +705,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @see onCondition()
      * @see orOnCondition()
      */
-    public function andOnCondition($condition, $params = [])
+    public function andOnCondition($condition, array $params = [])
     {
         if ($this->on === null) {
             $this->on = $condition;
@@ -726,7 +726,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @see onCondition()
      * @see andOnCondition()
      */
-    public function orOnCondition($condition, $params = [])
+    public function orOnCondition($condition, array $params = [])
     {
         if ($this->on === null) {
             $this->on = $condition;
