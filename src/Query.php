@@ -56,16 +56,11 @@ class Query implements QueryInterface
     const EVENT_AFTER_FIND = 'afterFind';
 
     /**
-     * @var ConnectionInterface|Connection|string
-     */
-    protected $connection = 'db';
-
-    /**
      * @var array the columns being selected. For example, `['id', 'name']`.
      * This is used to construct the SELECT clause in a SQL statement. If not set, it means selecting all columns.
      * @see select()
      */
-    public $select;
+    public $select = [];
     /**
      * @var string additional option that should be appended to the 'SELECT' keyword. For example,
      * in MySQL, the option 'SQL_CALC_FOUND_ROWS' can be used.
@@ -81,12 +76,12 @@ class Query implements QueryInterface
      * This is used to construct the FROM clause in a SQL statement.
      * @see from()
      */
-    public $from;
+    public $from = [];
     /**
      * @var array how to group the query results. For example, `['company', 'department']`.
      * This is used to construct the GROUP BY clause in a SQL statement.
      */
-    public $groupBy;
+    public $groupBy = [];
     /**
      * @var array how to join with other tables. Each array element represents the specification
      * of one join which has the following structure:
@@ -104,7 +99,7 @@ class Query implements QueryInterface
      * ]
      * ```
      */
-    public $join;
+    public $join = [];
     /**
      * @var string|array the condition to be applied in the GROUP BY clause.
      * It can be either a string or an array. Please refer to {@see \rock\db\Query::where()} on how to specify the condition.
@@ -117,22 +112,24 @@ class Query implements QueryInterface
      * - `query`: either a string or a {@see \rock\db\Query} object representing a query
      * - `all`: boolean, whether it should be `UNION ALL` or `UNION`
      */
-    public $union;
+    public $union = [];
     /**
      * @var integer
      */
     public $unionLimit;
-    /**
-     * @var integer
-     */
+    /** @var integer */
     public $unionOffset;
     /** @var array */
-    public $unionOrderBy;
+    public $unionOrderBy = [];
     /**
      * @var array list of query parameter values indexed by parameter placeholders.
      * For example, `[':name' => 'Dan', ':age' => 31]`.
      */
     public $params = [];
+    /**
+     * @var ConnectionInterface|Connection|string
+     */
+    protected $connection = 'db';
 
     /**
      * @param ConnectionInterface $connection DB/Sphinx connection instance
@@ -537,11 +534,8 @@ class Query implements QueryInterface
         if (!is_array($columns)) {
             $columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
         }
-        if ($this->select === null) {
-            $this->select = $columns;
-        } else {
-            $this->select = array_merge($this->select, $columns);
-        }
+        $this->select = array_merge($this->select, $columns);
+
         return $this;
     }
 
@@ -798,11 +792,8 @@ class Query implements QueryInterface
         if (!is_array($columns)) {
             $columns = preg_split('/\s*,\s*/', trim($columns), -1, PREG_SPLIT_NO_EMPTY);
         }
-        if ($this->groupBy === null) {
-            $this->groupBy = $columns;
-        } else {
-            $this->groupBy = array_merge($this->groupBy, $columns);
-        }
+        $this->groupBy = array_merge($this->groupBy, $columns);
+
         return $this;
     }
 
@@ -937,7 +928,7 @@ class Query implements QueryInterface
      * @return static the query object itself
      * @see addParams()
      */
-    public function params($params)
+    public function params(array $params)
     {
         $this->params = $params;
         return $this;
@@ -950,7 +941,7 @@ class Query implements QueryInterface
      * @return static the query object itself
      * @see params()
      */
-    public function addParams($params)
+    public function addParams(array $params)
     {
         if (!empty($params)) {
             if (empty($this->params)) {

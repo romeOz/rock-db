@@ -145,7 +145,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params parameters to be bound to the SQL statement during execution.
      * @return ActiveQuery the newly created {@see \rock\db\ActiveQuery} instance
      */
-    public static function findBySql($sql, $params = [])
+    public static function findBySql($sql, array $params = [])
     {
         $query = static::find();
         $query->sql = $sql;
@@ -198,7 +198,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return integer the number of rows updated
      */
-    public static function updateAll($attributes, $condition = '', $params = [])
+    public static function updateAll(array $attributes, $condition = '', array $params = [])
     {
         $command = static::getConnection()->createCommand();
         $command->update(static::tableName(), $attributes, $condition, $params);
@@ -222,7 +222,7 @@ class ActiveRecord extends BaseActiveRecord
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
      * @return integer the number of rows updated
      */
-    public static function updateAllCounters($counters, $condition = '', $params = [])
+    public static function updateAllCounters(array $counters, $condition = '', array $params = [])
     {
         $n = 0;
         foreach ($counters as $name => $value) {
@@ -250,7 +250,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return integer the number of rows deleted
      */
-    public static function deleteAll($condition = '', $params = [])
+    public static function deleteAll($condition = '', array $params = [])
     {
         $command = static::getConnection()->createCommand();
         $command->delete(static::tableName(), $condition, $params);
@@ -445,7 +445,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return boolean whether the attributes are valid and the record is inserted successfully.
      * @throws \Exception in case insert failed.
      */
-    public function insert($runValidation = true, $attributes = null)
+    public function insert($runValidation = true, array $attributes = null)
     {
         if ($runValidation && !$this->validate($attributes)) {
             if (class_exists('\rock\log\Log')) {
@@ -479,7 +479,7 @@ class ActiveRecord extends BaseActiveRecord
      * meaning all attributes that are loaded from DB will be saved.
      * @return boolean whether the record is inserted successfully.
      */
-    protected function insertInternal($attributes = null)
+    protected function insertInternal(array $attributes = null)
     {
         if (!$this->beforeSave(true)) {
             return false;
@@ -564,7 +564,7 @@ class ActiveRecord extends BaseActiveRecord
      * being updated is outdated.
      * @throws \Exception in case update failed.
      */
-    public function update($runValidation = true, $attributeNames = null)
+    public function update($runValidation = true, array $attributeNames = null)
     {
         if ($runValidation && !$this->validate($attributeNames)) {
             if (class_exists('\rock\log\Log')) {

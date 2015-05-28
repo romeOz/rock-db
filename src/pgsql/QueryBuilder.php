@@ -57,7 +57,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
     /**
      * @inheritdoc
      */
-    public function createTable($table, $columns, $options = null, $exists = false)
+    public function createTable($table, array $columns, $options = null, $exists = false)
     {
         $cols = $this->calculateColumns($columns);
         $exists = $exists === true ? ' IF NOT EXISTS ' : null;
@@ -180,7 +180,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
     /**
      * @inheritdoc
      */
-    public function batchInsert($table, $columns, $rows)
+    public function batchInsert($table, array $columns, array $rows)
     {
         $schema = $this->connection->getSchema();
         if (($tableSchema = $schema->getTableSchema($table)) !== null) {

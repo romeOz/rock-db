@@ -272,7 +272,7 @@ class Command implements ObjectInterface
      * e.g. `[':name' => 'John', ':profile' => [$profile, \PDO::PARAM_LOB]]`.
      * @return static the current command being executed
      */
-    public function bindValues($values)
+    public function bindValues(array $values)
     {
         if (empty($values)) {
             return $this;
@@ -366,9 +366,9 @@ class Command implements ObjectInterface
         return $this->queryInternal('fetchAll', \PDO::FETCH_COLUMN);
     }
 
-    protected function prepareResult($result, $fetchMode, $subAttributes)
+    protected function prepareResult($result, $fetchMode, $subattributes)
     {
-        if (!empty($result) && $subAttributes === true) {
+        if (!empty($result) && $subattributes === true) {
             if ($fetchMode === \PDO::FETCH_ASSOC) {
                 return ArrayHelper::toMulti($result, $this->connection->aliasSeparator, true);
             } elseif ($fetchMode === \PDO::FETCH_OBJ) {
@@ -435,7 +435,7 @@ class Command implements ObjectInterface
      * @param array $columns the column data (name => value) to be inserted into the table.
      * @return Command the command object itself
      */
-    public function insert($table, $columns)
+    public function insert($table, array $columns)
     {
         $params = [];
         $sql = $this->connection->getQueryBuilder()->insert($table, $columns, $params);
@@ -462,7 +462,7 @@ class Command implements ObjectInterface
      * @param array $rows the rows to be batch inserted into the table
      * @return Command the command object itself
      */
-    public function batchInsert($table, $columns, $rows)
+    public function batchInsert($table, array $columns, array $rows)
     {
         $sql = $this->connection->getQueryBuilder()->batchInsert($table, $columns, $rows);
 
@@ -488,7 +488,7 @@ class Command implements ObjectInterface
      * @param array $params the parameters to be bound to the command
      * @return Command the command object itself
      */
-    public function update($table, $columns, $condition = '', $params = [])
+    public function update($table, array $columns, $condition = '', array $params = [])
     {
         $sql = $this->connection->getQueryBuilder()->update($table, $columns, $condition, $params);
         $command = $this->setSql($sql)->bindValues($params);
@@ -515,7 +515,7 @@ class Command implements ObjectInterface
      * @param array $params the parameters to be bound to the command
      * @return Command the command object itself
      */
-    public function delete($table, $condition = '', $params = [])
+    public function delete($table, $condition = '', array $params = [])
     {
         $sql = $this->connection->getQueryBuilder()->delete($table, $condition, $params);
         $command = $this->setSql($sql)->bindValues($params);
@@ -543,7 +543,7 @@ class Command implements ObjectInterface
      * @param boolean   $exists
      * @return Command the command object itself
      */
-    public function createTable($table, $columns, $options = null, $exists = false)
+    public function createTable($table, array $columns, $options = null, $exists = false)
     {
         $sql = $this->connection->getQueryBuilder()->createTable($table, $columns, $options, $exists);
 
@@ -682,7 +682,7 @@ class Command implements ObjectInterface
      * The method will properly quote the table and column names.
      * @param string $name the name of the foreign key constraint.
      * @param string $table the table that the foreign key constraint will be added to.
-     * @param string $columns the name of the column to that the constraint will be added on. If there are multiple columns, separate them with commas.
+     * @param string|array $columns the name of the column to that the constraint will be added on. If there are multiple columns, separate them with commas.
      * @param string $refTable the table that the foreign key references to.
      * @param string $refColumns the name of the column that the foreign key references to. If there are multiple columns, separate them with commas.
      * @param string $delete the ON DELETE option. Most DBMS support these options: RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL

@@ -78,7 +78,7 @@ class QueryBuilder implements ObjectInterface
      * parameters to be bound to the SQL statement (the second array element). The parameters returned
      * include those provided in `$params`.
      */
-    public function build($query, $params = [])
+    public function build($query, array $params = [])
     {
         $query = $query->prepare($this);
 
@@ -104,12 +104,12 @@ class QueryBuilder implements ObjectInterface
      * Creates an INSERT SQL statement.
      * For example,
      *
-     * ~~~
+     * ```php
      * $sql = $queryBuilder->insert('user', [
      *  'name' => 'Sam',
      *  'age' => 30,
      * ], $params);
-     * ~~~
+     * ```
      *
      * The method will properly escape the table and column names.
      *
@@ -119,7 +119,7 @@ class QueryBuilder implements ObjectInterface
      * They should be bound to the DB command later.
      * @return string the INSERT SQL
      */
-    public function insert($table, $columns, &$params)
+    public function insert($table, array $columns, array &$params)
     {
         $schema = $this->connection->getSchema();
         if (($tableSchema = $schema->getTableSchema($table)) !== null) {
@@ -167,7 +167,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $rows the rows to be batch inserted into the table
      * @return string the batch INSERT SQL statement
      */
-    public function batchInsert($table, $columns, $rows)
+    public function batchInsert($table, array $columns, array $rows)
     {
         $schema = $this->connection->getSchema();
         if (($tableSchema = $schema->getTableSchema($table)) !== null) {
@@ -222,7 +222,7 @@ class QueryBuilder implements ObjectInterface
      * so that they can be bound to the DB command later.
      * @return string the UPDATE SQL
      */
-    public function update($table, $columns, $condition, &$params)
+    public function update($table, array $columns, $condition, array &$params)
     {
         if (($tableSchema = $this->connection->getTableSchema($table)) !== null) {
             $columnSchemas = $tableSchema->columns;
@@ -267,7 +267,7 @@ class QueryBuilder implements ObjectInterface
      * so that they can be bound to the DB command later.
      * @return string the DELETE SQL
      */
-    public function delete($table, $condition, &$params)
+    public function delete($table, $condition, array &$params)
     {
         $sql = 'DELETE FROM ' . $this->connection->quoteTableName($table);
         $where = $this->buildWhere($condition, $params);
@@ -302,7 +302,7 @@ class QueryBuilder implements ObjectInterface
      * @param boolean   $exists
      * @return string the SQL statement for creating a new DB table.
      */
-    public function createTable($table, $columns, $options = null, $exists = false)
+    public function createTable($table, array $columns, $options = null, $exists = false)
     {
         $cols = $this->calculateColumns($columns);
         $exists = $exists === true ? ' IF NOT EXISTS ' : null;
@@ -600,7 +600,7 @@ class QueryBuilder implements ObjectInterface
      * @param string $selectOption
      * @return string the SELECT clause built from {@see \rock\db\Query::$select}.
      */
-    public function buildSelect($columns, &$params, $distinct = false, $selectOption = null)
+    public function buildSelect(array $columns = [], array &$params, $distinct = false, $selectOption = null)
     {
         $select = $distinct ? 'SELECT DISTINCT' : 'SELECT';
         if ($selectOption !== null) {
@@ -648,7 +648,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the FROM clause built from {@see \rock\db\Query::$from}.
      */
-    public function buildFrom($tables, &$params)
+    public function buildFrom(array $tables = [], array &$params)
     {
         if (empty($tables)) {
             return '';
@@ -666,7 +666,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the JOIN clause built from {@see \rock\db\Query::$join}.
      * @throws DbException if the $joins parameter is not in proper format
      */
-    public function buildJoin($joins, &$params)
+    public function buildJoin(array $joins = [], array &$params)
     {
         if (empty($joins)) {
             return '';
@@ -700,7 +700,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params
      * @return array
      */
-    private function quoteTableNames($tables, &$params)
+    private function quoteTableNames(array $tables, array &$params)
     {
         foreach ($tables as $i => $table) {
             if ($table instanceof Query) {
@@ -727,7 +727,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the WHERE clause built from {@see \rock\db\Query::$where}.
      */
-    public function buildWhere($condition, &$params)
+    public function buildWhere($condition, array &$params)
     {
         $where = $this->buildCondition($condition, $params);
 
@@ -738,7 +738,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $columns
      * @return string the GROUP BY clause
      */
-    public function buildGroupBy($columns)
+    public function buildGroupBy(array $columns = [])
     {
         return empty($columns) ? '' : 'GROUP BY ' . $this->buildColumns($columns);
     }
@@ -748,7 +748,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the HAVING clause built from {@see \rock\db\Query::$having}.
      */
-    public function buildHaving($condition, &$params)
+    public function buildHaving($condition, array &$params)
     {
         $having = $this->buildCondition($condition, $params);
 
@@ -780,7 +780,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $columns
      * @return string the ORDER BY clause built from {@see \rock\db\Query::$orderBy}.
      */
-    public function buildOrderBy($columns)
+    public function buildOrderBy(array $columns = [])
     {
         if (empty($columns)) {
             return '';
@@ -844,7 +844,7 @@ class QueryBuilder implements ObjectInterface
      * @param int|null   $offset
      * @return string the UNION clause built from {@see \rock\db\Query::$union}.
      */
-    public function buildUnion($sql, $unions, &$params, $orderBy = null, $limit = null, $offset = null)
+    public function buildUnion($sql, array $unions = [], array &$params, array $orderBy = [], $limit = null, $offset = null)
     {
         if (empty($unions)) {
             return $sql;
@@ -913,7 +913,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the generated SQL expression
      */
-    public function buildCondition($condition, &$params)
+    public function buildCondition($condition, array &$params)
     {
         if (!is_array($condition)) {
             return (string) $condition;
@@ -941,7 +941,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the generated SQL expression
      */
-    public function buildHashCondition($condition, &$params)
+    public function buildHashCondition($condition, array &$params)
     {
         $parts = [];
         foreach ($condition as $column => $value) {
@@ -976,7 +976,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params the binding parameters to be populated
      * @return string the generated SQL expression
      */
-    public function buildAndCondition($operator, $operands, &$params)
+    public function buildAndCondition($operator, array $operands, array &$params)
     {
         $parts = [];
         foreach ($operands as $operand) {
@@ -1003,7 +1003,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if wrong number of operands have been given.
      */
-    public function buildNotCondition($operator, $operands, &$params)
+    public function buildNotCondition($operator, array $operands, array &$params)
     {
         if (count($operands) != 1) {
             throw new DbException("Operator '$operator' requires exactly one operand.");
@@ -1030,7 +1030,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if wrong number of operands have been given.
      */
-    public function buildBetweenCondition($operator, $operands, &$params)
+    public function buildBetweenCondition($operator, array $operands, array &$params)
     {
         if (!isset($operands[0], $operands[1], $operands[2])) {
             throw new DbException("Operator '$operator' requires three operands.");
@@ -1076,7 +1076,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if wrong number of operands have been given.
      */
-    public function buildInCondition($operator, $operands, &$params)
+    public function buildInCondition($operator, array $operands, array &$params)
     {
         if (!isset($operands[0], $operands[1])) {
             throw new DbException("Operator '$operator' requires two operands.");
@@ -1154,7 +1154,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params
      * @return string SQL
      */
-    protected function buildCompositeInCondition($operator, $columns, $values, &$params)
+    protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
     {
         $vss = [];
         foreach ($values as $value) {
@@ -1200,7 +1200,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if wrong number of operands have been given.
      */
-    public function buildLikeCondition($operator, $operands, &$params)
+    public function buildLikeCondition($operator, array $operands, array &$params)
     {
         if (!isset($operands[0], $operands[1])) {
             throw new DbException("Operator '$operator' requires two operands.");
@@ -1256,7 +1256,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if the operand is not a {@see \rock\db\Query} object.
      */
-    public function buildExistsCondition($operator, $operands, &$params)
+    public function buildExistsCondition($operator, array $operands, array &$params)
     {
         if ($operands[0] instanceof Query) {
             list($sql, $params) = $this->build($operands[0], $params);
@@ -1275,7 +1275,7 @@ class QueryBuilder implements ObjectInterface
      * @return string the generated SQL expression
      * @throws DbException if wrong number of operands have been given.
      */
-    public function buildSimpleCondition($operator, $operands, &$params)
+    public function buildSimpleCondition($operator, array $operands, array &$params)
     {
         if (count($operands) !== 2) {
             throw new DbException("Operator '$operator' requires two operands.");
@@ -1301,7 +1301,7 @@ class QueryBuilder implements ObjectInterface
         }
     }
 
-    protected function calculateColumns($columns)
+    protected function calculateColumns(array $columns)
     {
         $cols = [];
         foreach ($columns as $name => $type) {

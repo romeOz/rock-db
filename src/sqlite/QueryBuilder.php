@@ -52,7 +52,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      * @param array $rows the rows to be batch inserted into the table
      * @return string the batch INSERT SQL statement
      */
-    public function batchInsert($table, $columns, $rows)
+    public function batchInsert($table, array $columns, array $rows)
     {
         // SQLite supports batch insert natively since 3.7.11
         // http://www.sqlite.org/releaselog/3_7_11.html
@@ -299,7 +299,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      * @param int|null   $offset
      * @return string the UNION clause built from {@see \rock\db\Query::$union}.
      */
-    public function buildUnion($sql, $unions, &$params, $orderBy = null, $limit = null, $offset = null)
+    public function buildUnion($sql, array $unions = [], array &$params, array $orderBy = [], $limit = null, $offset = null)
     {
         if (empty($unions)) {
             return $sql;
