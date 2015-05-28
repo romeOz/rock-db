@@ -4,6 +4,7 @@ namespace rock\db;
 use rock\base\BaseException;
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\db\common\DbException;
 use rock\helpers\Trace;
 use rock\log\Log;
 

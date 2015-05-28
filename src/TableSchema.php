@@ -3,6 +3,7 @@ namespace rock\db;
 
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\db\common\DbException;
 
 /**
  * TableSchema represents the metadata of a database table.
@@ -75,7 +76,7 @@ class TableSchema implements ObjectInterface
     /**
      * Manually specifies the primary key for this table.
      *
-*@param string|array $keys the primary key (can be composite)
+     * @param string|array $keys the primary key (can be composite)
      * @throws DbException if the specified key cannot be found in the table.
      */
     public function fixPrimaryKey($keys)

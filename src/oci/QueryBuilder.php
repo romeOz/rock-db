@@ -2,7 +2,7 @@
 namespace rock\db\oci;
 
 use rock\db\Connection;
-use rock\db\DbException;
+use rock\db\common\DbException;
 
 /**
  * QueryBuilder is the query builder for Oracle databases.

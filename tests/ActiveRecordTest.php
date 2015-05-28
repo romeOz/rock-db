@@ -12,7 +12,6 @@ use rockunit\models\Animal;
 use rockunit\models\Cat;
 use rockunit\models\Category;
 use rockunit\models\Customer;
-use rockunit\models\CustomerFilter;
 use rockunit\models\CustomerRules;
 use rockunit\models\Dog;
 use rockunit\models\Item;

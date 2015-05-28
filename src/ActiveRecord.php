@@ -2,6 +2,10 @@
 namespace rock\db;
 
 use rock\base\BaseException;
+use rock\db\common\ActiveQueryInterface;
+use rock\db\common\BaseActiveRecord;
+use rock\db\common\ConnectionInterface;
+use rock\db\common\DbException;
 use rock\helpers\ArrayHelper;
 use rock\helpers\Helper;
 use rock\helpers\Inflector;
@@ -297,11 +301,11 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns the schema information of the DB table associated with this AR class.
      *
-     * @param null $connection
+     * @param ConnectionInterface|null $connection
      * @throws DbException
      * @return TableSchema the schema information of the DB table associated with this AR class.
      */
-    public static function getTableSchema($connection = null)
+    public static function getTableSchema(ConnectionInterface $connection = null)
     {
         $nameTable = static::tableName();
         if (preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/', static::tableName(), $matches)) { // with alias
@@ -384,7 +388,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @inheritdoc
      */
-    public static function populateRecord($record, $row, $connection = null)
+    public static function populateRecord($record, $row, ConnectionInterface $connection = null)
     {
         $columns = static::getTableSchema($connection)->columns;
         foreach ($row as $name => $value) {

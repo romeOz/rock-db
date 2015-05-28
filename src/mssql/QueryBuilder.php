@@ -1,7 +1,7 @@
 <?php
 namespace rock\db\mssql;
 
-use rock\db\DbException;;
+use rock\db\common\DbException;
 
 /**
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
@@ -219,7 +219,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
 
     /**
      * @return boolean whether the version of the MSSQL being used is older than 2012.
-     * @throws \rock\db\DbException
+     * @throws DbException;
      */
     protected function isOldMssql()
     {

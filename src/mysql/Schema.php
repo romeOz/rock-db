@@ -2,7 +2,7 @@
 namespace rock\db\mysql;
 
 use rock\db\ColumnSchema;
-use rock\db\DbException;
+use rock\db\common\DbException;
 use rock\db\Expression;
 use rock\db\TableSchema;
 

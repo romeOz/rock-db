@@ -1,5 +1,9 @@
 <?php
 namespace rock\db;
+use rock\db\common\ActiveQueryInterface;
+use rock\db\common\ActiveQueryTrait;
+use rock\db\common\ActiveRelationTrait;
+use rock\db\common\ConnectionInterface;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -109,14 +113,28 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        if ($this->connection instanceof Connection) {
+            return $this->calculateCacheParams($this->connection);
+        }
+        /** @var ActiveRecord $modelClass */
+        $modelClass = $this->modelClass;
+        //$this->connection = $modelClass::getDb();
+        return $this->calculateCacheParams($modelClass::getConnection());
+    }
+
+    /**
      * Executes query and returns all results as an array.
      *
-     * @param Connection $connection the DB connection used to create the DB command.
+     * @param ConnectionInterface $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
      * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($connection = null, $subattributes = false)
+    public function all(ConnectionInterface $connection = null, $subattributes = false)
     {
         // before
         /** @var ActiveRecord $model */
@@ -207,7 +225,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    public function prepareResult($rows, $connection = null)
+    public function prepareResult($rows, ConnectionInterface $connection = null)
     {
         if (empty($rows)) {
             return [];
@@ -292,14 +310,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Executes query and returns a single row of result.
      *
-     * @param Connection $connection the DB connection used to create the DB command.
+     * @param ConnectionInterface $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
      * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting
      * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
      * if the query results in nothing.
      */
-    public function one($connection = null, $subattributes = false)
+    public function one(ConnectionInterface $connection = null, $subattributes = false)
     {
         /** @var ActiveRecord $model */
         $model  = new $this->modelClass;
@@ -318,13 +336,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @param Connection $connection the DB connection used to create the DB command.
+     * @param ConnectionInterface $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
      * @return Command the created DB command instance.
      */
-    public function createCommand($connection = null)
+    public function createCommand(ConnectionInterface $connection = null)
     {
-        if ($connection instanceof Connection) {
+        if (isset($connection)) {
             $this->setConnection($connection);
         }
         $connection = $this->getConnection();
@@ -346,33 +364,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $command;
     }
 
-    /**
-     * @return Connection
-     */
-    public function getConnection()
-    {
-        if ($this->connection instanceof Connection) {
-            return $this->calculateCacheParams($this->connection);
-        }
-        /** @var ActiveRecord $modelClass */
-        $modelClass = $this->modelClass;
-        //$this->connection = $modelClass::getDb();
-        return $this->calculateCacheParams($modelClass::getConnection());
-    }
-
     /** @var  QueryBuilder */
     private $queryBuild;
 
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @param Connection|null $connection the DB connection used to create the DB command.
+     * @param ConnectionInterface|null $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
      * @return Command the created DB command instance.
      */
-    protected function createCommandInternal($connection)
+    protected function createCommandInternal(ConnectionInterface $connection = null)
     {
-        if ($connection instanceof Connection) {
+        if (isset($connection)) {
             $this->setConnection($connection);
         }
         $connection = $this->getConnection();
@@ -755,7 +759,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @return static
      * @see via()
      */
-    public function viaTable($tableName, $link, $callable = null)
+    public function viaTable($tableName, $link, callable $callable = null)
     {
         $relation = new ActiveQuery(
             get_class($this->primaryModel),

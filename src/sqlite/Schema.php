@@ -2,7 +2,7 @@
 namespace rock\db\sqlite;
 
 use rock\db\ColumnSchema;
-use rock\db\DbException;
+use rock\db\common\DbException;;
 use rock\db\Expression;
 use rock\db\TableSchema;
 use rock\db\Transaction;

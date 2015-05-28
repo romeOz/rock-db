@@ -5,6 +5,7 @@ namespace rock\db;
 
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\db\common\DbException;
 use rock\helpers\Helper;
 use rock\helpers\Instance;
 

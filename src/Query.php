@@ -4,6 +4,13 @@ namespace rock\db;
 
 use rock\components\ComponentsTrait;
 use rock\components\ModelEvent;
+use rock\db\common\AfterFindEvent;
+use rock\db\common\CommonCacheTrait;
+use rock\db\common\ConnectionInterface;
+use rock\db\common\QueryInterface;
+use rock\db\common\QueryTrait;
+use rock\helpers\ArrayHelper;
+use rock\helpers\Helper;
 use rock\helpers\Instance;
 
 /**
@@ -37,7 +44,7 @@ class Query implements QueryInterface
         ComponentsTrait::__call as parentCall;
     }
     use QueryTrait;
-    use CacheTrait;
+    use CommonCacheTrait;
 
     /**
      * @event Event an event that is triggered after the record is created and populated with query result.
@@ -49,7 +56,7 @@ class Query implements QueryInterface
     const EVENT_AFTER_FIND = 'afterFind';
 
     /**
-     * @var Connection|string
+     * @var ConnectionInterface|Connection|string
      */
     protected $connection = 'db';
 
@@ -127,17 +134,53 @@ class Query implements QueryInterface
      */
     public $params = [];
 
+    /**
+     * @param ConnectionInterface $connection DB/Sphinx connection instance
+     * @return static the query object itself
+     */
+    public function setConnection(ConnectionInterface $connection)
+    {
+        $this->connection = $this->calculateCacheParams($connection);
+        return $this;
+    }
+
+    /**
+     * @return Connection connection instance
+     */
+    public function getConnection()
+    {
+        $this->connection = Instance::ensure($this->connection, Connection::className());
+        return $this->calculateCacheParams($this->connection);
+    }
+
+    /**
+     * @param array      $rows
+     * @param ConnectionInterface $connection
+     * @return array
+     */
+    public function typeCast($rows, ConnectionInterface $connection = null)
+    {
+        if (isset($connection)) {
+            $this->setConnection($connection);
+        }
+        $connection = $this->getConnection();
+        if ($connection->typeCast) {
+            $rows = is_array($rows) ? ArrayHelper::toType($rows) : Helper::toType($rows);
+        }
+
+        return $rows;
+    }
 
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return Command the created DB command instance.
      */
-    public function createCommand($connection = null)
+    public function createCommand(ConnectionInterface $connection = null)
     {
-        if ($connection instanceof Connection) {
+        if (isset($connection)) {
             $this->setConnection($connection);
         }
         $connection = $this->getConnection();
@@ -180,11 +223,11 @@ class Query implements QueryInterface
      * ```
      *
      * @param integer $batchSize the number of records to be fetched in each batch.
-     * @param Connection $connection the database connection. If not set, the "db" application component will be used.
+     * @param ConnectionInterface $connection the database connection. If not set, the "db" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
      */
-    public function batch($batchSize = 100, $connection = null)
+    public function batch($batchSize = 100, ConnectionInterface $connection = null)
     {
         return Instance::ensure([
             'class' => BatchQueryResult::className(),
@@ -207,11 +250,11 @@ class Query implements QueryInterface
      * ```
      *
      * @param integer $batchSize the number of records to be fetched in each batch.
-     * @param Connection $connection the database connection. If not set, the "db" application component will be used.
+     * @param ConnectionInterface $connection the database connection. If not set, the "db" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
      */
-    public function each($batchSize = 100, $connection = null)
+    public function each($batchSize = 100, ConnectionInterface $connection = null)
     {
         return Instance::ensure([
             'class' => BatchQueryResult::className(),
@@ -225,12 +268,12 @@ class Query implements QueryInterface
     /**
      * Executes the query and returns all results as an array.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($connection = null, $subattributes = false)
+    public function all(ConnectionInterface $connection = null, $subattributes = false)
     {
         if (!$this->beforeFind()) {
             return [];
@@ -245,10 +288,10 @@ class Query implements QueryInterface
      * into the format as required by this query.
      *
      * @param array $rows the raw query result from database
-     * @param Connection|null  $connection
+     * @param ConnectionInterface|null  $connection
      * @return array the converted query result
      */
-    public function prepareResult($rows, $connection = null)
+    public function prepareResult($rows, ConnectionInterface $connection = null)
     {
         if (!empty($rows)) {
             $rows = $this->typeCast($rows, $connection);
@@ -273,13 +316,13 @@ class Query implements QueryInterface
     /**
      * Executes the query and returns a single row of result.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */
-    public function one($connection = null, $subattributes = false)
+    public function one(ConnectionInterface $connection = null, $subattributes = false)
     {
         if (!$this->beforeFind()) {
             return null;
@@ -297,12 +340,12 @@ class Query implements QueryInterface
      * Returns the query result as a scalar value.
      * The value returned will be the first column in the first row of the query results.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return string|null the value of the first column in the first row of the query result.
      * False is returned if the query result is empty.
      */
-    public function scalar($connection = null)
+    public function scalar(ConnectionInterface $connection = null)
     {
         if (!$this->beforeFind()) {
             return null;
@@ -316,11 +359,11 @@ class Query implements QueryInterface
     /**
      * Executes the query and returns the first column of the result.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return array the first column of the query result. An empty array is returned if the query results in nothing.
      */
-    public function column($connection = null)
+    public function column(ConnectionInterface $connection = null)
     {
         if (!$this->beforeFind()) {
             return [];
@@ -335,11 +378,11 @@ class Query implements QueryInterface
      *
      * @param string $q the COUNT expression. Defaults to '*'.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given (or null), the `db` application component will be used.
      * @return integer number of records
      */
-    public function count($q = '*', $connection = null)
+    public function count($q = '*', ConnectionInterface $connection = null)
     {
         return $this->queryScalar("COUNT($q)", $connection);
     }
@@ -349,11 +392,11 @@ class Query implements QueryInterface
      *
      * @param string $q the column name or expression.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return integer the sum of the specified column values
      */
-    public function sum($q, $connection = null)
+    public function sum($q, ConnectionInterface $connection = null)
     {
         return $this->queryScalar("SUM($q)", $connection);
     }
@@ -363,11 +406,11 @@ class Query implements QueryInterface
      *
      * @param string $q the column name or expression.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return integer the average of the specified column values.
      */
-    public function average($q, $connection = null)
+    public function average($q, ConnectionInterface $connection = null)
     {
         return $this->queryScalar("AVG($q)", $connection);
     }
@@ -377,11 +420,11 @@ class Query implements QueryInterface
      *
      * @param string $q the column name or expression.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return integer the minimum of the specified column values.
      */
-    public function min($q, $connection = null)
+    public function min($q, ConnectionInterface $connection = null)
     {
         return $this->queryScalar("MIN($q)", $connection);
     }
@@ -391,11 +434,11 @@ class Query implements QueryInterface
      *
      * @param string $q the column name or expression.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return integer the maximum of the specified column values.
      */
-    public function max($q, $connection = null)
+    public function max($q, ConnectionInterface $connection = null)
     {
         return $this->queryScalar("MAX($q)", $connection);
     }
@@ -403,11 +446,11 @@ class Query implements QueryInterface
     /**
      * Returns a value indicating whether the query result contains any row of data.
      *
-     * @param Connection $connection the database connection used to generate the SQL statement.
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
      * @return boolean whether the query result contains any row of data.
      */
-    public function exists($connection = null)
+    public function exists(ConnectionInterface $connection = null)
     {
         $select = $this->select;
         $this->select = [new Expression('1')];
@@ -421,10 +464,10 @@ class Query implements QueryInterface
      * Restores the value of select to make this query reusable.
      *
      * @param string|Expression $selectExpression
-     * @param Connection|\rock\sphinx\Connection|null $connection
+     * @param ConnectionInterface|null $connection
      * @return bool|string
      */
-    protected function queryScalar($selectExpression, $connection)
+    protected function queryScalar($selectExpression, ConnectionInterface $connection = null)
     {
         $select = $this->select;
         $limit = $this->limit;

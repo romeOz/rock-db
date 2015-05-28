@@ -3,8 +3,9 @@
 namespace rockunit;
 
 use rock\base\BaseException;
-use rock\db\ActiveDataProvider;
-use rock\db\DbException;
+
+use rock\db\common\ActiveDataProvider;
+use rock\db\common\DbException;
 use rock\db\Query;
 use rockunit\models\ActiveRecord;
 use rockunit\models\Customer;

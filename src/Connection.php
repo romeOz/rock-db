@@ -6,6 +6,8 @@ use rock\base\BaseException;
 use rock\base\ObjectInterface;
 use rock\cache\CacheInterface;
 use rock\components\ComponentsTrait;
+use rock\db\common\ConnectionInterface;
+use rock\db\common\DbException;
 use rock\helpers\Instance;
 use rock\helpers\Trace;
 use rock\log\Log;
@@ -123,7 +125,7 @@ use rock\log\Log;
  * @property Transaction $transaction The currently active transaction. Null if no active transaction. This
  * property is read-only.
  */
-class Connection implements ObjectInterface
+class Connection implements ObjectInterface, ConnectionInterface
 {
     use ComponentsTrait;
 

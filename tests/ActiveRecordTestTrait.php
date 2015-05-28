@@ -3,11 +3,11 @@ namespace rockunit;
 
 use rock\cache\CacheInterface;
 use rock\db\ActiveQuery;
-use rock\db\ActiveQueryInterface;
-use rock\db\ActiveRecordInterface;
-use rock\db\BaseActiveRecord;
+use rock\db\common\ActiveQueryInterface;
+use rock\db\common\ActiveRecordInterface;
+use rock\db\common\BaseActiveRecord;
 use rock\db\Connection;
-use rock\db\DbException;
+use rock\db\common\DbException;
 use rock\db\SelectBuilder;
 use rock\events\Event;
 use rock\helpers\Trace;
@@ -522,7 +522,7 @@ trait ActiveRecordTestTrait
 
     public function testFindNestedRelation()
     {
-        /* @var $customerClass \rock\db\ActiveRecordInterface */
+        /* @var $customerClass \rock\db\common\ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
 
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
@@ -814,9 +814,9 @@ trait ActiveRecordTestTrait
     {
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
 
-        /* @var $customerClass \rock\db\BaseActiveRecord */
+        /* @var $customerClass \rock\db\common\BaseActiveRecord */
         $customerClass = $this->getCustomerClass();
-        /* @var $orderClass \rock\db\BaseActiveRecord */
+        /* @var $orderClass \rock\db\common\BaseActiveRecord */
         $orderClass = $this->getOrderWithNullFKClass();
 
         // in this test all orders are owned by customer 1
@@ -840,9 +840,9 @@ trait ActiveRecordTestTrait
     {
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
 
-        /* @var $customerClass \rock\db\BaseActiveRecord */
+        /* @var $customerClass \rock\db\common\BaseActiveRecord */
         $customerClass = $this->getCustomerClass();
-        /* @var $orderClass \rock\db\BaseActiveRecord */
+        /* @var $orderClass \rock\db\common\BaseActiveRecord */
         $orderClass = $this->getOrderClass();
 
         // in this test all orders are owned by customer 1
@@ -1205,7 +1205,7 @@ trait ActiveRecordTestTrait
 
     public function testFindEmptyInCondition()
     {
-        /* @var $customerClass \rock\db\ActiveRecordInterface */
+        /* @var $customerClass \rock\db\common\ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
 
@@ -1226,7 +1226,7 @@ trait ActiveRecordTestTrait
     {
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
 
-        /* @var $orderClass \rock\db\ActiveRecordInterface */
+        /* @var $orderClass \rock\db\common\ActiveRecordInterface */
         $orderClass = $this->getOrderClass();
 
         /* @var $order Order */

@@ -2,7 +2,8 @@
 namespace rock\db\oci;
 
 use rock\db\ColumnSchema;
-use rock\db\DbException;
+use rock\db\common\DbException;
+use rock\db\Connection;
 use rock\db\TableSchema;
 
 /**

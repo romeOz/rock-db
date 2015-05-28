@@ -1,8 +1,8 @@
 <?php
 namespace rock\db\sqlite;
 
+use rock\db\common\DbException;
 use rock\db\Connection;
-use rock\db\DbException;
 use rock\db\Query;
 
 /**

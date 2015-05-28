@@ -3,7 +3,7 @@
 namespace rockunit;
 
 use rock\db\Connection;
-use rock\db\DbException;
+use rock\db\common\DbException;
 use rock\db\Transaction;
 
 /**

@@ -3,6 +3,7 @@ namespace rock\db;
 
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\db\common\DbException;
 
 /**
  * QueryBuilder builds a SELECT SQL statement based on the specification given as a {@see \rock\db\Query} object.

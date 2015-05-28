@@ -1,7 +1,7 @@
 <?php
 namespace rock\db\cubrid;
 
-use rock\db\DbException;
+use rock\db\common\DbException;
 
 /**
  * QueryBuilder is the query builder for CUBRID databases (version 9.3.x and higher).

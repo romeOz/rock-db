@@ -4,6 +4,7 @@ namespace rock\db;
 
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
+use rock\db\common\DbException;
 
 /**
  * DataReader represents a forward-only stream of rows from a query result set.
@@ -210,7 +211,7 @@ class DataReader implements \Iterator, \Countable, ObjectInterface
      * Resets the iterator to the initial state.
      * This method is required by the interface Iterator.
      *
-*@throws DbException if this method is invoked twice
+     * @throws DbException if this method is invoked twice
      */
     public function rewind()
     {

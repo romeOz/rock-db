@@ -3,7 +3,7 @@
 namespace rockunit;
 
 use rock\db\DataReader;
-use rock\db\DbException;
+use rock\db\common\DbException;
 use rock\helpers\Trace;
 use rockunit\common\CommonTestTrait;
 

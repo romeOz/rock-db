@@ -4,6 +4,7 @@ namespace rock\db;
 use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
 use rock\cache\CacheInterface;
+use rock\db\common\DbException;
 use rock\helpers\ArrayHelper;
 use rock\helpers\Instance;
 use rock\helpers\ObjectHelper;
