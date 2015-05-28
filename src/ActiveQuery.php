@@ -1,5 +1,6 @@
 <?php
 namespace rock\db;
+
 use rock\db\common\ActiveQueryInterface;
 use rock\db\common\ActiveQueryTrait;
 use rock\db\common\ActiveRelationTrait;
