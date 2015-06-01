@@ -482,7 +482,9 @@ class Query implements QueryInterface
         if (empty($this->groupBy) && empty($this->union) && !$this->distinct) {
             return $command->queryScalar();
         } else {
-            return (new Query)->select([$selectExpression])
+            /** @var Query $self */
+            $self = new static;
+            return $self->select([$selectExpression])
                 ->from(['c' => $this])
                 ->createCommand($command->connection)
                 ->queryScalar();
