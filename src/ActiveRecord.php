@@ -390,18 +390,17 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function populateRecord($record, $row, ConnectionInterface $connection = null)
     {
+        if (!isset($connection)) {
+            $connection = static::getConnection();
+        }
         $columns = static::getTableSchema($connection)->columns;
-        foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $row[$name] = $columns[$name]->phpTypecast($value);
-            } elseif (is_array($value)) {
-                $row[$name] = ArrayHelper::map(
-                    $value,
-                    function($value){
-                        return Helper::toType($value);
-                    },
-                    true
-                );
+        if ($connection->typeCast) {
+            foreach ($row as $name => $value) {
+                if (isset($columns[$name])) {
+                    $row[$name] = $columns[$name]->phpTypecast($value);
+                } elseif (is_array($value)) {
+                    $row[$name] = ArrayHelper::toType($value);
+                }
             }
         }
         parent::populateRecord($record, $row);
