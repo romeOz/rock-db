@@ -633,7 +633,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
             $on = [];
             foreach ($child->link as $childColumn => $parentColumn) {
-                $on[] = "$parentAlias.[[$parentColumn]] = $childAlias.[[$childColumn]]";
+                $parentOperand = strpos($parentColumn, '.') === false ? "$parentAlias.[[$parentColumn]]" : "[[$parentColumn]]";
+                $childOperand = strpos($childColumn, '.') === false ? "$childAlias.[[$childColumn]]" : "[[$childColumn]]";
+                $on[] = "$parentOperand = $childOperand";
             }
             $on = implode(' AND ', $on);
             if (!empty($child->on)) {
