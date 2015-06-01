@@ -7,7 +7,6 @@ use rock\db\common\BaseActiveRecord;
 use rock\db\common\ConnectionInterface;
 use rock\db\common\DbException;
 use rock\helpers\ArrayHelper;
-use rock\helpers\Helper;
 use rock\helpers\Inflector;
 use rock\helpers\Instance;
 use rock\helpers\ObjectHelper;
@@ -393,8 +392,8 @@ class ActiveRecord extends BaseActiveRecord
         if (!isset($connection)) {
             $connection = static::getConnection();
         }
-        $columns = static::getTableSchema($connection)->columns;
         if ($connection->typeCast) {
+            $columns = static::getTableSchema($connection)->columns;
             foreach ($row as $name => $value) {
                 if (isset($columns[$name])) {
                     $row[$name] = $columns[$name]->phpTypecast($value);
