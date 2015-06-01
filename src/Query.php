@@ -377,7 +377,8 @@ class Query implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given (or null), the `db` application component will be used.
-     * @return integer number of records
+     * @return integer|string number of records. The result may be a string depending on the
+     * underlying database engine and to support integer values higher than a 32bit PHP integer can handle.
      */
     public function count($q = '*', ConnectionInterface $connection = null)
     {
@@ -391,7 +392,7 @@ class Query implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @return integer the sum of the specified column values
+     * @return integer the sum of the specified column values.
      */
     public function sum($q, ConnectionInterface $connection = null)
     {
