@@ -615,7 +615,6 @@ class ActiveRecord extends BaseActiveRecord
         if (!$this->isTransactional(self::OP_DELETE)) {
             return $this->deleteInternal();
         }
-
         $transaction = static::getConnection()->beginTransaction();
         try {
             $result = $this->deleteInternal();
@@ -640,23 +639,22 @@ class ActiveRecord extends BaseActiveRecord
      */
     protected function deleteInternal()
     {
-        $result = false;
-        if ($this->beforeDelete()) {
-            // we do not check the return value of deleteAll() because it's possible
-            // the record is already deleted in the database and thus the method will return 0
-            $condition = $this->getOldPrimaryKey(true);
-            $lock = $this->optimisticLock();
-            if ($lock !== null) {
-                $condition[$lock] = $this->$lock;
-            }
-            $result = $this->deleteAll($condition);
-            if ($lock !== null && !$result) {
-                throw new DbException('The object being deleted is outdated.');
-            }
-            $this->setOldAttributes(null);
-            $this->afterDelete();
+        if (!$this->beforeDelete()) {
+            return false;
         }
-
+        // we do not check the return value of deleteAll() because it's possible
+        // the record is already deleted in the database and thus the method will return 0
+        $condition = $this->getOldPrimaryKey(true);
+        $lock = $this->optimisticLock();
+        if ($lock !== null) {
+            $condition[$lock] = $this->$lock;
+        }
+        $result = $this->deleteAll($condition);
+        if ($lock !== null && !$result) {
+            throw new DbException('The object being deleted is outdated.');
+        }
+        $this->setOldAttributes(null);
+        $this->afterDelete();
         return $result;
     }
 
