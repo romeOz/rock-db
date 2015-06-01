@@ -18,13 +18,6 @@ DROP TABLE IF EXISTS "null_values" CASCADE;
 DROP TABLE IF EXISTS "constraints" CASCADE;
 DROP TABLE IF EXISTS "bool_values" CASCADE;
 DROP TABLE IF EXISTS "animal";
-DROP TABLE IF EXISTS "default_pk" CASCADE;
-DROP VIEW IF EXISTS "animal_view";
-DROP SCHEMA IF EXISTS "schema1" CASCADE;
-DROP SCHEMA IF EXISTS "schema2" CASCADE;
-
-CREATE SCHEMA "schema1";
-CREATE SCHEMA "schema2";
 
 CREATE TABLE "constraints"
 (
@@ -33,11 +26,6 @@ CREATE TABLE "constraints"
 );
 
 CREATE TABLE "profile" (
-  id serial not null primary key,
-  description varchar(128) NOT NULL
-);
-
-CREATE TABLE "schema1"."profile" (
   id serial not null primary key,
   description varchar(128) NOT NULL
 );
@@ -141,22 +129,12 @@ CREATE TABLE "animal" (
  type varchar(255) not null
 );
 
-CREATE TABLE "default_pk" (
-  id integer not null default 5 primary key,
-  type varchar(255) not null
-);
-
-CREATE VIEW "animal_view" AS SELECT * FROM "animal";
-
 INSERT INTO "animal" (type) VALUES ('rockunit\\models\\Cat');
 INSERT INTO "animal" (type) VALUES ('rockunit\\models\\Dog');
 
 
 INSERT INTO "profile" (description) VALUES ('profile customer 1');
 INSERT INTO "profile" (description) VALUES ('profile customer 3');
-
-INSERT INTO "schema1"."profile" (description) VALUES ('profile customer 1');
-INSERT INTO "schema1"."profile" (description) VALUES ('profile customer 3');
 
 INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, true, 1);
 INSERT INTO "customer" (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, true);
