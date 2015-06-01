@@ -76,7 +76,7 @@ abstract class Schema implements ObjectInterface
      */
     protected function createColumnSchema()
     {
-        return Instance::ensure(ColumnSchema::className(), ColumnSchema::className());
+        return new ColumnSchema(['connection' => $this->connection]);
     }
 
     /**
