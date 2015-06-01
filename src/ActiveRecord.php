@@ -91,14 +91,13 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Loads default values from database table schema
      *
-     * To enable loading defaults for every newly created record, you can add a call to this method to {@see \rock\base\ObjectInterface::init()}:
+     * You may call this method to load default values after creating a new instance:
      *
      * ```php
-     * public function init()
-     * {
-     *     parent::init();
-     *     $this->loadDefaultValues();
-     * }
+     * // class Customer extends \rock\db\ActiveRecord
+     * $customer = new Customer();
+     * $customer->loadDefaultValues();
+     * ```
      * ```
      *
      * @param boolean $skipIfSet whether existing value should be preserved.
