@@ -28,6 +28,7 @@ class Schema extends \rock\db\Schema
         'money' => self::TYPE_MONEY,
         // approximate numbers
         'float' => self::TYPE_FLOAT,
+        'double' => self::TYPE_DOUBLE,
         'real' => self::TYPE_FLOAT,
         // date and time
         'date' => self::TYPE_DATE,

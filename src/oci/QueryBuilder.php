@@ -21,6 +21,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
         Schema::TYPE_INTEGER => 'NUMBER(10)',
         Schema::TYPE_BIGINT => 'NUMBER(20)',
         Schema::TYPE_FLOAT => 'NUMBER',
+        Schema::TYPE_DOUBLE => 'NUMBER',
         Schema::TYPE_DECIMAL => 'NUMBER',
         Schema::TYPE_DATETIME => 'TIMESTAMP',
         Schema::TYPE_TIMESTAMP => 'TIMESTAMP',

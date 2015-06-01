@@ -50,8 +50,8 @@ class Schema extends \rock\db\Schema
 
         'real' => self::TYPE_FLOAT,
         'float4' => self::TYPE_FLOAT,
-        'double precision' => self::TYPE_FLOAT,
-        'float8' => self::TYPE_FLOAT,
+        'double precision' => self::TYPE_DOUBLE,
+        'float8' => self::TYPE_DOUBLE,
         'decimal' => self::TYPE_DECIMAL,
         'numeric' => self::TYPE_DECIMAL,
 
