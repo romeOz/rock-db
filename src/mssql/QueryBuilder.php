@@ -2,6 +2,7 @@
 namespace rock\db\mssql;
 
 use rock\db\common\DbException;
+use rock\db\Query;
 
 /**
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
@@ -236,7 +237,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      *
      * @param string $operator
      * @param array $columns
-     * @param array $values
+     * @param Query $values
      * @param array $params
      * @return string SQL
      * @throws DbException
@@ -257,7 +258,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      * @param array $params
      * @return string SQL
      */
-    protected function buildCompositeInCondition($operator, $columns, $values, &$params)
+    protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
     {
         $quotedColumns = [];
         foreach ($columns as $i => $column) {

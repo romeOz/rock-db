@@ -295,7 +295,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      *
      * @param string $operator
      * @param array $columns
-     * @param array $values
+     * @param Query $values
      * @param array $params
      * @return string SQL
      * @throws DbException
@@ -316,7 +316,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
      * @param array $params
      * @return string SQL
      */
-    protected function buildCompositeInCondition($operator, $columns, $values, array &$params)
+    protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
     {
         $quotedColumns = [];
         foreach ($columns as $i => $column) {

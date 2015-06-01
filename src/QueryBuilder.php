@@ -1126,7 +1126,7 @@ class QueryBuilder implements ObjectInterface
      *
      * @param string $operator
      * @param array $columns
-     * @param array $values
+     * @param Query $values
      * @param array $params
      * @return string SQL
      */
@@ -1156,7 +1156,7 @@ class QueryBuilder implements ObjectInterface
      * @param array $params
      * @return string SQL
      */
-    protected function buildCompositeInCondition($operator, $columns, $values, array &$params)
+    protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
     {
         $vss = [];
         foreach ($values as $value) {
