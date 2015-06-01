@@ -860,13 +860,14 @@ class Command implements ObjectInterface
                 $connection->username,
                 $rawSql,
             ]);
-            if (($result = $cache->get($cacheKey)) !== false) {
+            $result = $cache->get($cacheKey);
+            if (is_array($result) && isset($result[0])) {
                 Trace::increment('cache.db', 'Cache query DB connection: ' . $connection->dsn);
                 Trace::endProfile('db.query', $token);
                 $token['cache'] = true;
                 Trace::trace('db.query', $token);
 
-                return $result;
+                return $result[0];
             }
         }
 
@@ -890,8 +891,9 @@ class Command implements ObjectInterface
             }
 
             if (isset($cache, $cacheKey) && $cache instanceof CacheInterface) {
-                $cache->set($cacheKey,
-                    $result,
+                $cache->set(
+                    $cacheKey,
+                    [$result],
                     $connection->queryCacheExpire,
                     $connection->queryCacheTags ? : $this->getRawEntityNames()
                 );
