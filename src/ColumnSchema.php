@@ -12,10 +12,6 @@ class ColumnSchema implements ObjectInterface
     use ObjectTrait;
 
     /**
-     * @var Connection the database connection
-     */
-    public $connection;
-    /**
      * @var string name of this column (without quotes).
      */
     public $name;
