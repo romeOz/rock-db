@@ -613,7 +613,11 @@ class QueryBuilder implements ObjectInterface
 
         foreach ($columns as $i => $column) {
             if ($column instanceof Expression) {
-                $columns[$i] = $column->expression;
+                if (is_int($i)) {
+                    $columns[$i] = $column->expression;
+                } else {
+                    $columns[$i] = $column->expression . ' AS ' . $this->connection->quoteColumnName($i);
+                }
                 $params = array_merge($params, $column->params);
             } elseif ($column instanceof Query) {
                 list($sql, $params) = $this->build($column, $params);
