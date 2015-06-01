@@ -246,7 +246,7 @@ class QueryBuilder extends \rock\db\QueryBuilder
     protected function buildSubqueryInCondition($operator, $columns, $values, array &$params)
     {
         if (is_array($columns)) {
-            throw new DbException(__METHOD__ . ' is not supported by SQLite.');
+            throw new DbException(__METHOD__ . ' is not supported by MSSQL.');
         }
         return parent::buildSubqueryInCondition($operator, $columns, $values, $params);
     }
