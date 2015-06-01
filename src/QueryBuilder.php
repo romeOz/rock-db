@@ -1065,7 +1065,6 @@ class QueryBuilder implements ObjectInterface
 
     /**
      * Creates an SQL expressions with the `IN` operator.
-     *
      * @param string $operator the operator to use (e.g. `IN` or `NOT IN`)
      * @param array $operands the first operand is the column name. If it is an array
      * a composite IN condition will be generated.
@@ -1081,38 +1080,17 @@ class QueryBuilder implements ObjectInterface
         if (!isset($operands[0], $operands[1])) {
             throw new DbException("Operator '$operator' requires two operands.");
         }
-
         list($column, $values) = $operands;
-
         if ($values === [] || $column === []) {
             return $operator === 'IN' ? '0=1' : '';
         }
-
         if ($values instanceof Query) {
-            // sub-query
-            list($sql, $params) = $this->build($values, $params);
-            $column = (array) $column;
-            if (is_array($column)) {
-                foreach ($column as $i => $col) {
-                    if (strpos($col, '(') === false) {
-                        $column[$i] = $this->connection->quoteColumnName($col);
-                    }
-                }
-                return '(' . implode(', ', $column) . ") $operator ($sql)";
-            } else {
-                if (strpos($column, '(') === false) {
-                    $column = $this->connection->quoteColumnName($column);
-                }
-                return "$column $operator ($sql)";
-            }
+            return $this->buildSubqueryInCondition($operator, $column, $values, $params);
         }
-
         $values = (array) $values;
-
         if (count($column) > 1) {
             return $this->buildCompositeInCondition($operator, $column, $values, $params);
         }
-
         if (is_array($column)) {
             $column = reset($column);
         }
@@ -1136,7 +1114,6 @@ class QueryBuilder implements ObjectInterface
         if (strpos($column, '(') === false) {
             $column = $this->connection->quoteColumnName($column);
         }
-
         if (count($values) > 1) {
             return "$column $operator (" . implode(', ', $values) . ')';
         } else {
@@ -1144,7 +1121,6 @@ class QueryBuilder implements ObjectInterface
             return $column . $operator . reset($values);
         }
     }
-
     /**
      * Builds SQL for IN condition
      *
@@ -1154,27 +1130,54 @@ class QueryBuilder implements ObjectInterface
      * @param array $params
      * @return string SQL
      */
-    protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
+    protected function buildSubqueryInCondition($operator, $columns, $values, array &$params)
     {
-        $quotedColumns = [];
-        foreach ($columns as $i => $column) {
-            $quotedColumns[$i] = strpos($column, '(') === false ? $this->connection->quoteColumnName($column) : $column;
+        list($sql, $params) = $this->build($values, $params);
+        if (is_array($columns)) {
+            foreach ($columns as $i => $col) {
+                if (strpos($col, '(') === false) {
+                    $columns[$i] = $this->connection->quoteColumnName($col);
+                }
+            }
+            return '(' . implode(', ', $columns) . ") $operator ($sql)";
+        } else {
+            if (strpos($columns, '(') === false) {
+                $columns = $this->connection->quoteColumnName($columns);
+            }
+            return "$columns $operator ($sql)";
         }
+    }
+    /**
+     * Builds SQL for IN condition
+     *
+     * @param string $operator
+     * @param array $columns
+     * @param array $values
+     * @param array $params
+     * @return string SQL
+     */
+    protected function buildCompositeInCondition($operator, $columns, $values, array &$params)
+    {
         $vss = [];
         foreach ($values as $value) {
             $vs = [];
-            foreach ($columns as $i => $column) {
+            foreach ($columns as $column) {
                 if (isset($value[$column])) {
                     $phName = self::PARAM_PREFIX . count($params);
                     $params[$phName] = $value[$column];
-                    $vs[] = $quotedColumns[$i] . ($operator === 'IN' ? ' = ' : ' != ') . $phName;
+                    $vs[] = $phName;
                 } else {
-                    $vs[] = $quotedColumns[$i] . ($operator === 'IN' ? ' IS' : ' IS NOT') . ' NULL';
+                    $vs[] = 'NULL';
                 }
             }
-            $vss[] = '(' . implode($operator === 'IN' ? ' AND ' : ' OR ', $vs) . ')';
+            $vss[] = '(' . implode(', ', $vs) . ')';
         }
-        return '(' . implode($operator === 'IN' ? ' OR ' : ' AND ', $vss) . ')';
+        foreach ($columns as $i => $column) {
+            if (strpos($column, '(') === false) {
+                $columns[$i] = $this->connection->quoteColumnName($column);
+            }
+        }
+        return '(' . implode(', ', $columns) . ") $operator (" . implode(', ', $vss) . ')';
     }
 
     /**
