@@ -1156,27 +1156,25 @@ class QueryBuilder implements ObjectInterface
      */
     protected function buildCompositeInCondition($operator, array $columns, array $values, array &$params)
     {
+        $quotedColumns = [];
+        foreach ($columns as $i => $column) {
+            $quotedColumns[$i] = strpos($column, '(') === false ? $this->connection->quoteColumnName($column) : $column;
+        }
         $vss = [];
         foreach ($values as $value) {
             $vs = [];
-            foreach ($columns as $column) {
+            foreach ($columns as $i => $column) {
                 if (isset($value[$column])) {
                     $phName = self::PARAM_PREFIX . count($params);
                     $params[$phName] = $value[$column];
-                    $vs[] = $phName;
+                    $vs[] = $quotedColumns[$i] . ($operator === 'IN' ? ' = ' : ' != ') . $phName;
                 } else {
-                    $vs[] = 'NULL';
+                    $vs[] = $quotedColumns[$i] . ($operator === 'IN' ? ' IS' : ' IS NOT') . ' NULL';
                 }
             }
-            $vss[] = '(' . implode(', ', $vs) . ')';
+            $vss[] = '(' . implode($operator === 'IN' ? ' AND ' : ' OR ', $vs) . ')';
         }
-        foreach ($columns as $i => $column) {
-            if (strpos($column, '(') === false) {
-                $columns[$i] = $this->connection->quoteColumnName($column);
-            }
-        }
-
-        return '(' . implode(', ', $columns) . ") $operator (" . implode(', ', $vss) . ')';
+        return '(' . implode($operator === 'IN' ? ' OR ' : ' AND ', $vss) . ')';
     }
 
     /**
