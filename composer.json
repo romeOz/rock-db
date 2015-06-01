@@ -22,12 +22,12 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.6.*",
-        "romeoz/rock-cache" : "0.10.*",
-        "romeoz/rock-validate" : "0.10.*",
-        "romeoz/rock-sanitize": "0.10.*",
-        "romeoz/rock-behaviors": "0.10.*",
-        "romeoz/rock-session": "0.10.*",
-        "romeoz/rock-url": "0.10.*"
+        "romeoz/rock-cache" : "dev-master",
+        "romeoz/rock-validate" : "dev-master",
+        "romeoz/rock-sanitize": "dev-master",
+        "romeoz/rock-behaviors": "dev-master",
+        "romeoz/rock-session": "dev-master",
+        "romeoz/rock-url": "dev-master"
     },
     "suggest": {
         "romeoz/rock-cache": "required by Rock Cache",
