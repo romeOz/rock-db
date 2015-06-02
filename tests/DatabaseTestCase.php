@@ -25,6 +25,9 @@ class DatabaseTestCase extends \PHPUnit_Framework_TestCase
         $databases = static::getParam('databases');
         $this->database = $databases[$this->driverName];
         $pdo_database = 'pdo_'.$this->driverName;
+        if ($this->driverName === 'oci') {
+            $pdo_database = 'oci8';
+        }
 
         if (!extension_loaded('pdo') || !extension_loaded($pdo_database)) {
             $this->markTestSkipped('pdo and '.$pdo_database.' extension are required.');
@@ -101,7 +104,13 @@ class DatabaseTestCase extends \PHPUnit_Framework_TestCase
 
         $connection->open();
         if ($fixture !== null) {
-            $lines = explode(';', file_get_contents($fixture));
+            if ($this->driverName === 'oci') {
+                list($drops, $creates) = explode('/* STATEMENTS */', file_get_contents($fixture), 2);
+                list($statements, $triggers, $data) = explode('/* TRIGGERS */', $creates, 3);
+                $lines = array_merge(explode('--', $drops), explode(';', $statements), explode('/', $triggers), explode(';', $data));
+            } else {
+                $lines = explode(';', file_get_contents($fixture));
+            }
             foreach ($lines as $line) {
                 if (trim($line) !== '') {
                     $connection->pdo->exec($line);

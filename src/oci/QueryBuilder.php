@@ -150,4 +150,41 @@ EOD;
 
         return $sql;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function batchInsert($table, array $columns, array $rows)
+    {
+        $schema = $this->connection->getSchema();
+        if (($tableSchema = $schema->getTableSchema($table)) !== null) {
+            $columnSchemas = $tableSchema->columns;
+        } else {
+            $columnSchemas = [];
+        }
+        $values = [];
+        foreach ($rows as $row) {
+            $vs = [];
+            foreach ($row as $i => $value) {
+                if (isset($columns[$i], $columnSchemas[$columns[$i]]) && !is_array($value)) {
+                    $value = $columnSchemas[$columns[$i]]->dbTypecast($value);
+                }
+                if (is_string($value)) {
+                    $value = $schema->quoteValue($value);
+                } elseif ($value === false) {
+                    $value = 0;
+                } elseif ($value === null) {
+                    $value = 'NULL';
+                }
+                $vs[] = $value;
+            }
+            $values[] = '(' . implode(', ', $vs) . ')';
+        }
+        foreach ($columns as $i => $name) {
+            $columns[$i] = $schema->quoteColumnName($name);
+        }
+        $tableAndColumns = ' INTO ' . $schema->quoteTableName($table)
+            . ' (' . implode(', ', $columns) . ') VALUES ';
+        return 'INSERT ALL ' . $tableAndColumns . implode($tableAndColumns, $values) . ' SELECT 1 FROM SYS.DUAL';
+    }
 }

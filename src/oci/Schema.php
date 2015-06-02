@@ -4,6 +4,7 @@ namespace rock\db\oci;
 use rock\db\ColumnSchema;
 use rock\db\common\DbException;
 use rock\db\Connection;
+use rock\db\Expression;
 use rock\db\TableSchema;
 
 /**
@@ -32,7 +33,6 @@ class Schema extends \rock\db\Schema
     {
         // does nothing as Oracle does not support this
     }
-
     /**
      * @inheritdoc
      */
@@ -40,7 +40,6 @@ class Schema extends \rock\db\Schema
     {
         return strpos($name, '"') !== false ? $name : '"' . $name . '"';
     }
-
     /**
      * @inheritdoc
      */
@@ -48,7 +47,6 @@ class Schema extends \rock\db\Schema
     {
         return new QueryBuilder($this->connection);
     }
-
     /**
      * @inheritdoc
      */
@@ -56,16 +54,13 @@ class Schema extends \rock\db\Schema
     {
         $table = new TableSchema();
         $this->resolveTableNames($table, $name);
-
         if ($this->findColumns($table)) {
             $this->findConstraints($table);
-
             return $table;
         } else {
             return null;
         }
     }
-
     /**
      * Resolves the table name and schema name (if any).
      *
@@ -82,10 +77,8 @@ class Schema extends \rock\db\Schema
             $table->schemaName = $this->defaultSchema;
             $table->name = $name;
         }
-
         $table->fullName = $table->schemaName !== $this->defaultSchema ? $table->schemaName . '.' . $table->name : $table->name;
     }
-
     /**
      * Collects the table column metadata.
      * @param TableSchema $table the table schema
@@ -95,18 +88,8 @@ class Schema extends \rock\db\Schema
     {
         $schemaName = $table->schemaName;
         $tableName = $table->name;
-
         $sql = <<<EOD
-SELECT a.column_name, a.data_type ||
-    case
-        when data_precision is not null
-            then '(' || a.data_precision ||
-                    case when a.data_scale > 0 then ',' || a.data_scale else '' end
-                || ')'
-        when data_type = 'DATE' then ''
-        when data_type = 'NUMBER' then ''
-        else '(' || to_char(a.data_length) || ')'
-    end as data_type,
+SELECT a.column_name, a.data_type, a.data_precision, a.data_scale, a.data_length,
     a.nullable, a.data_default,
     (   SELECT D.constraint_type
         FROM ALL_CONS_COLUMNS C
@@ -125,48 +108,45 @@ WHERE
     and b.object_name = '{$tableName}'
 ORDER by a.column_id
 EOD;
-
         try {
             $columns = $this->connection->createCommand($sql)->queryAll();
         } catch (\Exception $e) {
             return false;
         }
-
         if (empty($columns)) {
             return false;
         }
-
         foreach ($columns as $column) {
+            if ($this->connection->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
+                $column = array_change_key_case($column, CASE_UPPER);
+            }
             $c = $this->createColumn($column);
             $table->columns[$c->name] = $c;
             if ($c->isPrimaryKey) {
                 $table->primaryKey[] = $c->name;
                 $table->sequenceName = $this->getTableSequenceName($table->name);
-                $c->autoIncrement = true;
             }
         }
         return true;
     }
-
     /**
      * Sequence name of table
      *
      * @param $tablename
-     * @internal param \rock\db\TableSchema $table ->name the table schema
+     * @internal param \yii\db\TableSchema $table ->name the table schema
      * @return string whether the sequence exists
      */
     protected function getTableSequenceName($tablename)
     {
-
         $seq_name_sql="select ud.referenced_name as sequence_name
                         from   user_dependencies ud
                                join user_triggers ut on (ut.trigger_name = ud.name)
                         where ut.table_name='{$tablename}'
                               and ud.type='TRIGGER'
                               and ud.referenced_type='SEQUENCE'";
-        return $this->connection->createCommand($seq_name_sql)->queryScalar();
+        $sequenceName = $this->connection->createCommand($seq_name_sql)->queryScalar();
+        return $sequenceName === false ? null : $sequenceName;
     }
-
     /**
      * @Overrides method in class 'Schema'
      * @see http://www.php.net/manual/en/function.PDO-lastInsertId.php -> Oracle does not support this
@@ -180,14 +160,14 @@ EOD;
     {
         if ($this->connection->isActive) {
             // get the last insert id from the master connection
-            return $this->connection->useMaster(function (Connection $connection) use ($sequenceName) {
-                return $connection->createCommand("SELECT {$sequenceName}.CURRVAL FROM DUAL")->queryScalar();
+            $sequenceName = $this->quoteSimpleTableName($sequenceName);
+            return $this->connection->useMaster(function (Connection $db) use ($sequenceName) {
+                return $db->createCommand("SELECT {$sequenceName}.CURRVAL FROM DUAL")->queryScalar();
             });
         } else {
             throw new DbException('DB Connection is not active.');
         }
     }
-
     /**
      * Creates ColumnSchema instance
      *
@@ -201,23 +181,32 @@ EOD;
         $c->allowNull = $column['NULLABLE'] === 'Y';
         $c->isPrimaryKey = strpos($column['KEY'], 'P') !== false;
         $c->comment = $column['COLUMN_COMMENT'] === null ? '' : $column['COLUMN_COMMENT'];
-
-        $this->extractColumnType($c, $column['DATA_TYPE']);
-        $this->extractColumnSize($c, $column['DATA_TYPE']);
-
+        $this->extractColumnType($c, $column['DATA_TYPE'], $column['DATA_PRECISION'], $column['DATA_SCALE'], $column['DATA_LENGTH']);
+        $this->extractColumnSize($c, $column['DATA_TYPE'], $column['DATA_PRECISION'], $column['DATA_SCALE'], $column['DATA_LENGTH']);
         $c->phpType = $this->getColumnPhpType($c);
-
         if (!$c->isPrimaryKey) {
             if (stripos($column['DATA_DEFAULT'], 'timestamp') !== false) {
                 $c->defaultValue = null;
             } else {
-                $c->defaultValue = $c->phpTypecast($column['DATA_DEFAULT']);
+                $defaultValue = $column['DATA_DEFAULT'];
+                if ($c->type === 'timestamp' && $defaultValue === 'CURRENT_TIMESTAMP') {
+                    $c->defaultValue = new Expression('CURRENT_TIMESTAMP');
+                } else {
+                    if ($defaultValue !== null) {
+                        if (($len = strlen($defaultValue)) > 2 && $defaultValue[0] === "'"
+                            && $defaultValue[$len - 1] === "'"
+                        ) {
+                            $defaultValue = substr($column['DATA_DEFAULT'], 1, -1);
+                        } else {
+                            $defaultValue = trim($defaultValue);
+                        }
+                    }
+                    $c->defaultValue = $c->phpTypecast($defaultValue);
+                }
             }
         }
-
         return $c;
     }
-
     /**
      * Finds constraints and fills them into TableSchema object passed
      * @param TableSchema $table
@@ -225,7 +214,7 @@ EOD;
     protected function findConstraints($table)
     {
         $sql = <<<EOD
-        SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.r_constraint_name,
+        SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.constraint_name, D.r_constraint_name,
                 E.table_name as table_ref, f.column_name as column_ref,
                 C.table_name
         FROM ALL_CONS_COLUMNS C
@@ -238,14 +227,26 @@ EOD;
         order by d.constraint_name, c.position
 EOD;
         $command = $this->connection->createCommand($sql);
+        $constraints = [];
         foreach ($command->queryAll() as $row) {
+            if ($this->connection->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
+                $row = array_change_key_case($row, CASE_UPPER);
+            }
             if ($row['CONSTRAINT_TYPE'] === 'R') {
-                $name = $row["COLUMN_NAME"];
-                $table->foreignKeys[$name] = [$row["TABLE_REF"], $row["COLUMN_REF"]];
+                $name = $row['CONSTRAINT_NAME'];
+                if (!isset($constraints[$name])) {
+                    $constraints[$name] = [
+                        'tableName' => $row["TABLE_REF"],
+                        'columns' => [],
+                    ];
+                }
+                $constraints[$name]['columns'][$row["COLUMN_NAME"]] = $row["COLUMN_REF"];
             }
         }
+        foreach ($constraints as $constraint) {
+            $table->foreignKeys[] = array_merge([$constraint['tableName']], $constraint['columns']);
+        }
     }
-
     /**
      * @inheritdoc
      */
@@ -264,60 +265,57 @@ EOD;
             $command = $this->connection->createCommand($sql);
             $command->bindParam(':schema', $schema);
         }
-
         $rows = $command->queryAll();
         $names = [];
         foreach ($rows as $row) {
+            if ($this->connection->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
+                $row = array_change_key_case($row, CASE_UPPER);
+            }
             $names[] = $row['TABLE_NAME'];
         }
-
         return $names;
     }
-
     /**
      * Extracts the data types for the given column
      * @param ColumnSchema $column
      * @param string $dbType DB type
+     * @param string $precision total number of digits
+     * @param string $scale number of digits on the right of the decimal separator
+     * @param string $length length for character types
      */
-    protected function extractColumnType($column, $dbType)
+    protected function extractColumnType($column, $dbType, $precision, $scale, $length)
     {
         $column->dbType = $dbType;
-
-        if (strpos($dbType, 'FLOAT') !== false) {
+        if (strpos($dbType, 'FLOAT') !== false || strpos($dbType, 'DOUBLE') !== false) {
             $column->type = 'double';
-        } elseif (strpos($dbType, 'NUMBER') !== false || strpos($dbType, 'INTEGER') !== false) {
-            if (strpos($dbType, '(') && preg_match('/\((.*)\)/', $dbType, $matches)) {
-                $values = explode(',', $matches[1]);
-                if (isset($values[1]) && (((int) $values[1]) > 0)) {
-                    $column->type = 'double';
-                } else {
-                    $column->type = 'integer';
-                }
+        } elseif ($dbType == 'NUMBER' || strpos($dbType, 'INTEGER') !== false) {
+            if ($scale !== null && $scale > 0) {
+                $column->type = 'decimal';
             } else {
-                $column->type = 'double';
+                $column->type = 'integer';
             }
         } elseif (strpos($dbType, 'BLOB') !== false) {
             $column->type = 'binary';
         } elseif (strpos($dbType, 'CLOB') !== false) {
             $column->type = 'text';
+        } elseif (strpos($dbType, 'TIMESTAMP') !== false) {
+            $column->type = 'timestamp';
         } else {
             $column->type = 'string';
         }
     }
-
     /**
      * Extracts size, precision and scale information from column's DB type.
      * @param ColumnSchema $column
      * @param string $dbType the column's DB type
+     * @param string $precision total number of digits
+     * @param string $scale number of digits on the right of the decimal separator
+     * @param string $length length for character types
      */
-    protected function extractColumnSize($column, $dbType)
+    protected function extractColumnSize($column, $dbType, $precision, $scale, $length)
     {
-        if (strpos($dbType, '(') && preg_match('/\((.*)\)/', $dbType, $matches)) {
-            $values = explode(',', $matches[1]);
-            $column->size = $column->precision = (int) $values[0];
-            if (isset($values[1])) {
-                $column->scale = (int) $values[1];
-            }
-        }
+        $column->size = trim($length) == '' ? null : (int)$length;
+        $column->precision = trim($precision) == '' ? null : (int)$precision;
+        $column->scale = trim($scale) == '' ? null : (int)$scale;
     }
 }
