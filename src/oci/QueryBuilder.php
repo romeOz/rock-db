@@ -186,8 +186,8 @@ EOD;
             }
         }
         return 'INSERT INTO ' . $schema->quoteTableName($table)
-        . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-        . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : 'DEFAULT VALUES');
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' DEFAULT VALUES');
     }
 
     /**
