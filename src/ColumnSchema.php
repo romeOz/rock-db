@@ -119,6 +119,7 @@ class ColumnSchema implements ObjectInterface
                     return $value;
                 }
                 if (is_float($value)) {
+                    // ensure type cast always has . as decimal separator in all locales
                     return str_replace(',', '.', (string)$value);
                 }
             return (string)$value;
