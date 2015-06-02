@@ -35,4 +35,25 @@ class PostgreSQLQueryTest extends QueryTest
         $this->assertEquals(1, (new Query())->from('bool_values')->where('bool_col = :bool_col', ['bool_col' => true])->count('*', $db));
         $this->assertEquals(1, (new Query())->from('bool_values')->where('bool_col = :bool_col', ['bool_col' => false])->count('*', $db));
     }
+
+    public function testTypeCast()
+    {
+        $connection = $this->getConnection();
+
+        // disable type cast
+
+        $connection->typeCast = false;
+
+        // find one
+        $customer = (new Query)->from('customer')->one($connection);
+        $this->assertInternalType('int', $customer['id']);
+        $this->assertInternalType('int', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
+
+        // find all
+        $customer = (new Query)->from('customer')->all($connection);
+        $this->assertInternalType('int', $customer[0]['id']);
+        $this->assertInternalType('int', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
+    }
 }

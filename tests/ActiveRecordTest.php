@@ -83,6 +83,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         return OrderItem::className();
     }
+
     public function getOrderWithNullFKClass()
     {
         return OrderWithNullFK::className();
@@ -92,7 +93,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         return OrderItemWithNullFK::className();
     }
-    
+
     /**
      * can be overridden to do things after save()
      */
@@ -633,7 +634,6 @@ class ActiveRecordTest extends DatabaseTestCase
     // different order in via table
     public function testFindEagerViaRelationPreserveOrderB()
     {
-        /** @var \PHPUnit_Framework_TestCase $this */
         /* @var $orderClass ActiveRecordInterface */
         $orderClass = $this->getOrderClass();
 
@@ -733,7 +733,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(1, count($customer->ordersWithNullFK));
         $orderWithNullFK = $orderWithNullFKClass::findOne(3);
 
-        $this->assertEquals(3,$orderWithNullFK->id);
+        $this->assertEquals(3, $orderWithNullFK->id);
         $this->assertNull($orderWithNullFK->customer_id);
 
         // has many with delete
@@ -779,7 +779,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $orderWithNullFKClass = $this->getOrderWithNullFKClass();
         /* @var $orderItemsWithNullFKClass ActiveRecordInterface */
         $orderItemsWithNullFKClass = $this->getOrderItemWithNullFKmClass();
-        
+
         // has many with delete
         $customer = $customerClass::findOne(2);
         $this->assertEquals(2, count($customer->orders));
@@ -792,7 +792,6 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertNull($orderClass::findOne(2));
         $this->assertNull($orderClass::findOne(3));
 
-
         // has many without delete
         $customer = $customerClass::findOne(2);
         $this->assertEquals(2, count($customer->ordersWithNullFK));
@@ -801,8 +800,9 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->afterSave();
         $this->assertEquals(0, count($customer->ordersWithNullFK));
         $this->assertEquals(3, $orderWithNullFKClass::find()->count());
-        $this->assertEquals(2, $orderWithNullFKClass::find()->where(['AND', ['id' => [2, 3]], ['customer_id' => null]])->count());
-
+        $this->assertEquals(2, $orderWithNullFKClass::find()
+            ->where(['AND', ['id' => [2, 3]], ['customer_id' => null]])
+            ->count());
 
         // via model with delete
         /* @var $order Order */
@@ -820,10 +820,12 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(2, count($order->booksWithNullFK));
         $orderItemCount = $orderItemsWithNullFKClass::find()->count();
         $this->assertEquals(5, $itemClass::find()->count());
-        $order->unlinkAll('booksWithNullFK',false);
+        $order->unlinkAll('booksWithNullFK', false);
         $this->afterSave();
         $this->assertEquals(0, count($order->booksWithNullFK));
-        $this->assertEquals(2, $orderItemsWithNullFKClass::find()->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])->count());
+        $this->assertEquals(2, $orderItemsWithNullFKClass::find()
+            ->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])
+            ->count());
         $this->assertEquals($orderItemCount, $orderItemsWithNullFKClass::find()->count());
         $this->assertEquals(5, $itemClass::find()->count());
     }
@@ -854,8 +856,6 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAllAndConditionDelete()
     {
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
-
         /* @var $customerClass \rock\db\common\BaseActiveRecord */
         $customerClass = $this->getCustomerClass();
         /* @var $orderClass \rock\db\common\BaseActiveRecord */
@@ -885,7 +885,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $customerClass ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
 
         /** @var Customer $customer */
         $customer = new $customerClass;
@@ -911,7 +911,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $customerClass ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
         $customer = new $customerClass;
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
@@ -930,7 +930,6 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $customerClass ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
 
         // save
         /* @var $customer Customer */
@@ -975,7 +974,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $customerClass ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
         /* @var $customer Customer */
         $customer = $customerClass::findOne(2);
         $this->assertTrue($customer instanceof $customerClass);
@@ -1010,7 +1009,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $orderItemClass ActiveRecordInterface */
         $orderItemClass = $this->getOrderItemClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
         // updateCounters
         $pk = ['order_id' => 2, 'item_id' => 4];
         $orderItem = $orderItemClass::findOne($pk);
@@ -1041,7 +1040,7 @@ class ActiveRecordTest extends DatabaseTestCase
     {
         /* @var $customerClass ActiveRecordInterface */
         $customerClass = $this->getCustomerClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
         // delete
         $customer = $customerClass::findOne(2);
         $this->assertTrue($customer instanceof $customerClass);
@@ -1106,7 +1105,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $customerClass = $this->getCustomerClass();
         /* @var $orderClass BaseActiveRecord */
         $orderClass = $this->getOrderClass();
-        /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
+
 
         $afterFindCalls = [];
         Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND, function (Event $event) use (&$afterFindCalls) {
@@ -1218,7 +1217,12 @@ class ActiveRecordTest extends DatabaseTestCase
             $customerClass::find()->select('*'),
             [$orderClass::find()->select(['id']), true]
         ]);
-        $customer = $customerClass::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray()->all(null, true);
+        $customer = $customerClass::find()
+            ->select($selectBuilder)
+            ->where(['customer.id' => 1])
+            ->joinWith('orders', false)
+            ->asArray()
+            ->all(null, true);
         $this->assertNotNull($customer);
         $this->assertSame($customer[0]['order']['id'], 1);
         $this->assertEquals([
@@ -1288,7 +1292,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $customerClass = $this->getCustomerClass();
         /* @var $orderClass BaseActiveRecord */
         $orderClass = $this->getOrderClass();
-   
+
         /** @var CacheInterface $cache */
         $cache = static::getCache();
         $cache->flush();
@@ -1321,7 +1325,9 @@ class ActiveRecordTest extends DatabaseTestCase
         $connection->queryCache = $cache;
         \rockunit\models\ActiveRecord::$connection = $connection;
         $customerClass::find()->with(['orders'])->asArray()->cache()->all();
-        $customerClass::find()->with(['orders'=>function(ActiveQuery $query){$query->notCache();}])->asArray()->cache()->all();
+        $customerClass::find()->with(['orders' => function (ActiveQuery $query) {
+            $query->notCache();
+        }])->asArray()->cache()->all();
         $trace = Trace::getIterator('db.query');
         $this->assertTrue($trace->current()['cache']);
         $trace->next();
@@ -1393,10 +1399,10 @@ class ActiveRecordTest extends DatabaseTestCase
         // find custom column
         if ($this->driverName === 'oci') {
             $customer = Customer::find()->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
-                    ->where(['name' => 'user3'])->one();
+                ->where(['name' => 'user3'])->one();
         } else {
             $customer = Customer::find()->select(['*', '([[status]]*2) AS [[status2]]'])
-                    ->where(['name' => 'user3'])->one();
+                ->where(['name' => 'user3'])->one();
         }
         $this->assertEquals(3, $customer->id);
         $this->assertEquals(4, $customer->status2);
@@ -1651,10 +1657,10 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // inner join filtering and eager loading
         $orders = Order::find()->innerJoinWith([
-                                                   'customer' => function (ActiveQuery $query) {
-                                                       $query->where('{{customer}}.[[id]]=2');
-                                                   },
-                                               ])->orderBy('order.id')->all();
+            'customer' => function (ActiveQuery $query) {
+                $query->where('{{customer}}.[[id]]=2');
+            },
+        ])->orderBy('order.id')->all();
         $this->assertEquals(2, count($orders));
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -1663,20 +1669,20 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // inner join filtering, eager loading, conditions on both primary and relation
         $orders = Order::find()->innerJoinWith([
-                                                   'customer' => function (ActiveQuery $query) {
-                                                       $query->where('{{customer}}.[[id]]=2');
-                                                   },
-                                               ])->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+            'customer' => function (ActiveQuery $query) {
+                $query->where('{{customer}}.[[id]]=2');
+            },
+        ])->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertEquals(1, count($orders));
         $this->assertEquals(2, $orders[0]->id);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
 
         // inner join filtering without eager loading
         $orders = Order::find()->innerJoinWith([
-                                                   'customer' => function (ActiveQuery $query) {
-                                                       $query->where('{{customer}}.[[id]]=2');
-                                                   },
-                                               ], false)->orderBy('order.id')->all();
+            'customer' => function (ActiveQuery $query) {
+                $query->where('{{customer}}.[[id]]=2');
+            },
+        ], false)->orderBy('order.id')->all();
         $this->assertEquals(2, count($orders));
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -1685,10 +1691,10 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // inner join filtering without eager loading, conditions on both primary and relation
         $orders = Order::find()->innerJoinWith([
-                                                   'customer' => function (ActiveQuery $query) {
-                                                       $query->where('{{customer}}.[[id]]=2');
-                                                   },
-                                               ], false)->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+            'customer' => function (ActiveQuery $query) {
+                $query->where('{{customer}}.[[id]]=2');
+            },
+        ], false)->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertEquals(1, count($orders));
         $this->assertEquals(2, $orders[0]->id);
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
@@ -1705,13 +1711,13 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // join with sub-relation
         $orders = Order::find()->innerJoinWith([
-                                                   'items' => function (ActiveQuery $q) {
-                                                       $q->orderBy('item.id');
-                                                   },
-                                                   'items.category' => function (ActiveQuery $q) {
-                                                       $q->where('category.id = 2');
-                                                   },
-                                               ])->orderBy('order.id')->all();
+            'items' => function (ActiveQuery $q) {
+                $q->orderBy('item.id');
+            },
+            'items.category' => function (ActiveQuery $q) {
+                $q->where('category.id = 2');
+            },
+        ])->orderBy('order.id')->all();
         $this->assertEquals(1, count($orders));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
         $this->assertEquals(2, $orders[0]->id);
@@ -1721,10 +1727,10 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // join with table alias
         $orders = Order::find()->joinWith([
-                                              'customer' => function (ActiveQuery $q) {
-                                                  $q->from('customer c');
-                                              }
-                                          ])->orderBy('c.id DESC, order.id')->all();
+            'customer' => function (ActiveQuery $q) {
+                $q->from('customer c');
+            }
+        ])->orderBy('c.id DESC, order.id')->all();
         $this->assertEquals(3, count($orders));
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -1777,29 +1783,31 @@ class ActiveRecordTest extends DatabaseTestCase
         // https://github.com/yiisoft/yii2/issues/2880
         $query = Order::findOne(1);
         $customer = $query->getCustomer()->joinWith([
-                                                        'orders' => function (ActiveQuery $q) { $q->orderBy([]); }
-                                                    ])->one();
+            'orders' => function (ActiveQuery $q) {
+                $q->orderBy([]);
+            }
+        ])->one();
         $this->assertEquals(1, $customer->id);
         $order = Order::find()->joinWith([
-                                             'items' => function (ActiveQuery $q) {
-                                                 $q->from(['items' => 'item'])
-                                                     ->orderBy('items.id');
-                                             },
-                                         ])->orderBy('order.id')->one();
+            'items' => function (ActiveQuery $q) {
+                $q->from(['items' => 'item'])
+                    ->orderBy('items.id');
+            },
+        ])->orderBy('order.id')->one();
 
         // join with sub-relation called inside Closure
         $orders = Order::find()
             ->joinWith([
-                  'items' => function (ActiveQuery $q) {
-                      $q->orderBy('item.id');
-                      $q->joinWith([
-                           'category'=> function (ActiveQuery $q) {
-                               $q->where('category.id = 2');
-                           }
-                       ]);
-                  }
+                'items' => function (ActiveQuery $q) {
+                    $q->orderBy('item.id');
+                    $q->joinWith([
+                        'category' => function (ActiveQuery $q) {
+                            $q->where('category.id = 2');
+                        }
+                    ]);
+                }
             ])
-        ->orderBy('order.id')
+            ->orderBy('order.id')
             ->all();
         $this->assertEquals(1, count($orders));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
@@ -1854,10 +1862,10 @@ class ActiveRecordTest extends DatabaseTestCase
         Order::find()
             ->joinWith('itemsInOrder1')
             ->joinWith([
-               'items' => function (ActiveQuery $q) {
-                   $q->orderBy('item.id');
-               },
-           ])->all();
+                'items' => function (ActiveQuery $q) {
+                    $q->orderBy('item.id');
+                },
+            ])->all();
     }
 
     public function testInverseOf()
@@ -1927,8 +1935,8 @@ class ActiveRecordTest extends DatabaseTestCase
 //            // PostgreSQL has non-standard timestamp representation
 //            $this->assertEquals('12:00:00 AM 01/01/2002', $model->time);
 //        } else {
-            $this->assertEquals('2002-01-01 00:00:00', $model->time);
-       // }
+        $this->assertEquals('2002-01-01 00:00:00', $model->time);
+        // }
 
         $model = new Type();
         $model->char_col2 = 'not something';
@@ -1970,9 +1978,9 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(2, count($order->booksWithNullFKViaTable));
         $orderItemCount = $orderItemsWithNullFKClass::find()->count();
         $this->assertEquals(5, $itemClass::find()->count());
-        $order->unlinkAll('booksWithNullFKViaTable',false);
+        $order->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertEquals(0, count($order->booksWithNullFKViaTable));
-        $this->assertEquals(2,$orderItemsWithNullFKClass::find()->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])->count());
+        $this->assertEquals(2, $orderItemsWithNullFKClass::find()->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])->count());
         $this->assertEquals($orderItemCount, $orderItemsWithNullFKClass::find()->count());
         $this->assertEquals(5, $itemClass::find()->count());
     }
@@ -2021,7 +2029,9 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(2, count($orders[0]->orderItems));
         $this->assertEquals(3, count($orders[1]->orderItems));
         $this->assertEquals(1, count($orders[2]->orderItems));
-        $orders = Order::find()->with(['orderItems' => function (ActiveQuery $q) { $q->indexBy('item_id'); }])->orderBy('id')->all();
+        $orders = Order::find()->with(['orderItems' => function (ActiveQuery $q) {
+            $q->indexBy('item_id');
+        }])->orderBy('id')->all();
         $this->assertEquals(3, count($orders));
         $this->assertEquals(2, count($orders[0]->orderItems));
         $this->assertEquals(3, count($orders[1]->orderItems));
@@ -2069,7 +2079,7 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testTypeCast()
     {
-        $connection = clone ActiveRecord::$connection;
+        $connection = ActiveRecord::$connection;
 
         // enable type cast
 
@@ -2080,12 +2090,20 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertInternalType('int', $customer->id);
         $this->assertInternalType('int', $customer->profile_id);
         $this->assertInternalType('string', $customer->name);
+        $customer = Customer::find()->asArray()->one($connection);
+        $this->assertInternalType('int', $customer['id']);
+        $this->assertInternalType('int', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
 
         // find all
         $customer = Customer::find()->all($connection);
         $this->assertInternalType('int', $customer[0]->id);
         $this->assertInternalType('int', $customer[0]->profile_id);
         $this->assertInternalType('string', $customer[0]->name);
+        $customer = Customer::find()->asArray()->all($connection);
+        $this->assertInternalType('int', $customer[0]['id']);
+        $this->assertInternalType('int', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
 
         // disable type cast
 
@@ -2096,11 +2114,19 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertInternalType('string', $customer->id);
         $this->assertInternalType('string', $customer->profile_id);
         $this->assertInternalType('string', $customer->name);
+        $customer = Customer::find()->asArray()->one($connection);
+        $this->assertInternalType('string', $customer['id']);
+        $this->assertInternalType('string', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
 
         // find all
         $customer = Customer::find()->all($connection);
         $this->assertInternalType('string', $customer[0]->id);
         $this->assertInternalType('string', $customer[0]->profile_id);
         $this->assertInternalType('string', $customer[0]->name);
+        $customer = Customer::find()->asArray()->all($connection);
+        $this->assertInternalType('string', $customer[0]['id']);
+        $this->assertInternalType('string', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
     }
 }

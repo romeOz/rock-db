@@ -170,7 +170,7 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
 
     public function testTypeCast()
     {
-        $connection = clone ActiveRecord::$connection;
+        $connection = ActiveRecord::$connection;
 
         // disable type cast
 
@@ -181,12 +181,20 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
         $this->assertInternalType('int', $customer->id);
         $this->assertInternalType('int', $customer->profile_id);
         $this->assertInternalType('string', $customer->name);
+        $customer = Customer::find()->asArray()->one($connection);
+        $this->assertInternalType('int', $customer['id']);
+        $this->assertInternalType('int', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
 
         // find all
         $customer = Customer::find()->all($connection);
         $this->assertInternalType('int', $customer[0]->id);
         $this->assertInternalType('int', $customer[0]->profile_id);
         $this->assertInternalType('string', $customer[0]->name);
+        $customer = Customer::find()->asArray()->all($connection);
+        $this->assertInternalType('int', $customer[0]['id']);
+        $this->assertInternalType('int', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
     }
 }
 

@@ -279,6 +279,43 @@ class QueryTest extends DatabaseTestCase
         $this->assertEquals(1, $count);
     }
 
+    public function testTypeCast()
+    {
+        $connection = $this->getConnection();
+
+        // enable type cast
+
+        $connection->typeCast = true;
+
+        // find one
+        $customer = (new Query)->from('customer')->one($connection);
+        $this->assertInternalType('int', $customer['id']);
+        $this->assertInternalType('int', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
+
+        // find all
+        $customer = (new Query)->from('customer')->all($connection);
+        $this->assertInternalType('int', $customer[0]['id']);
+        $this->assertInternalType('int', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
+
+        // disable type cast
+
+        $connection->typeCast = false;
+
+        // find one
+        $customer = (new Query)->from('customer')->one($connection);
+        $this->assertInternalType('string', $customer['id']);
+        $this->assertInternalType('string', $customer['profile_id']);
+        $this->assertInternalType('string', $customer['name']);
+
+        // find all
+        $customer = (new Query)->from('customer')->all($connection);
+        $this->assertInternalType('string', $customer[0]['id']);
+        $this->assertInternalType('string', $customer[0]['profile_id']);
+        $this->assertInternalType('string', $customer[0]['name']);
+    }
+
     public function testCache()
     {
         $cache = static::getCache();
