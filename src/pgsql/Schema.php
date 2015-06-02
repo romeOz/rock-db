@@ -196,12 +196,13 @@ SQL;
         //http://www.postgresql.org/message-id/26677.1086673982@sss.pgh.pa.us
         $sql = <<<SQL
 select
+    ct.conname as constraint_name,
     a.attname as column_name,
     fc.relname as foreign_table_name,
     fns.nspname as foreign_table_schema,
     fa.attname as foreign_column_name
 from
-    (SELECT ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
        FROM pg_constraint ct
     ) AS ct
     inner join pg_class c on c.oid=ct.conrelid
@@ -224,14 +225,17 @@ SQL;
             } else {
                 $foreignTable = $constraint['foreign_table_name'];
             }
-            $constraints[$foreignTable][$constraint['column_name']] = $constraint['foreign_column_name'];
-        }
-        foreach ($constraints as $foreignTable => $columns) {
-            $citem = [$foreignTable];
-            foreach ($columns as $column => $foreignColumn) {
-                $citem[$column] = $foreignColumn;
+            $name = $constraint['constraint_name'];
+            if (!isset($constraints[$name])) {
+                $constraints[$name] = [
+                    'tableName' => $foreignTable,
+                    'columns' => [],
+                ];
             }
-            $table->foreignKeys[] = $citem;
+            $constraints[$name]['columns'][$constraint['column_name']] = $constraint['foreign_column_name'];
+        }
+        foreach ($constraints as $constraint) {
+            $table->foreignKeys[] = array_merge([$constraint['tableName']], $constraint['columns']);
         }
     }
 
