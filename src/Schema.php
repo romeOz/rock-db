@@ -416,8 +416,7 @@ abstract class Schema implements ObjectInterface
         $result = [];
         foreach ($tableSchema->primaryKey as $name) {
             if ($tableSchema->columns[$name]->autoIncrement) {
-                $id = $tableSchema->columns[$name]->phpTypecast($this->connection->getLastInsertID($tableSchema->sequenceName));
-                $result[$name] = $id;
+                $result[$name] = $this->connection->getLastInsertID($tableSchema->sequenceName);
                 break;
             }
         }
