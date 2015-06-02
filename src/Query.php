@@ -365,9 +365,25 @@ class Query implements QueryInterface
         if (!$this->beforeFind()) {
             return [];
         }
-        $columns = $this->createCommand($connection)->queryColumn();
-        $this->afterFind($columns);
-        return $columns;
+        if (!is_string($this->indexBy)) {
+            $columns = $this->createCommand($connection)->queryColumn();
+            $this->afterFind($columns);
+            return $columns;
+        }
+        if (is_array($this->select) && count($this->select) === 1) {
+            $this->select[] = $this->indexBy;
+        }
+        $rows = $this->createCommand($connection)->queryAll();
+        $results = [];
+        foreach ($rows as $row) {
+            if (array_key_exists($this->indexBy, $row)) {
+                $results[$row[$this->indexBy]] = reset($row);
+            } else {
+                $results[] = reset($row);
+            }
+        }
+        $this->afterFind($results);
+        return $results;
     }
 
     /**
