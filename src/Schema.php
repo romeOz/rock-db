@@ -410,14 +410,13 @@ abstract class Schema implements ObjectInterface
             return false;
         }
         $tableSchema = $this->getTableSchema($table);
-        if ($tableSchema->sequenceName === null) {
-            return [];
-        }
         $result = [];
         foreach ($tableSchema->primaryKey as $name) {
             if ($tableSchema->columns[$name]->autoIncrement) {
                 $result[$name] = $this->connection->getLastInsertID($tableSchema->sequenceName);
                 break;
+            } else {
+                $result[$name] = $columns[$name];
             }
         }
         return $result;
