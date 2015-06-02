@@ -40,9 +40,9 @@ script:
   - mkdir -p build/logs
   - |
     if (php --version | grep -i HipHop > /dev/null); then
-      vendor/bin/phpunit --verbose --exclude-group php,mssql,cubrid
+      vendor/bin/phpunit --verbose --exclude-group php,mssql,oci,cubrid
     else
-      vendor/bin/phpunit --verbose --coverage-clover build/logs/clover.xml --exclude-group hhvm,mssql,cubrid
+      vendor/bin/phpunit --verbose --coverage-clover build/logs/clover.xml --exclude-group hhvm,mssql,oci,cubrid
     fi
 
 after_script:
