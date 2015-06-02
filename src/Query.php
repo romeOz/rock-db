@@ -151,24 +151,6 @@ class Query implements QueryInterface
     }
 
     /**
-     * @param array      $rows
-     * @param ConnectionInterface $connection
-     * @return array
-     */
-    public function typeCast($rows, ConnectionInterface $connection = null)
-    {
-        if (isset($connection)) {
-            $this->setConnection($connection);
-        }
-        $connection = $this->getConnection();
-        if ($connection->typeCast) {
-            $rows = is_array($rows) ? ArrayHelper::toType($rows) : Helper::toType($rows);
-        }
-
-        return $rows;
-    }
-
-    /**
      * Creates a DB command that can be used to execute this query.
      *
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
@@ -1047,5 +1029,23 @@ class Query implements QueryInterface
         $event->result = $result;
         $this->trigger(self::EVENT_AFTER_FIND, $event);
         $result = $event->result;
+    }
+
+    /**
+     * @param array      $rows
+     * @param ConnectionInterface $connection
+     * @return array
+     */
+    protected function typeCast($rows, ConnectionInterface $connection = null)
+    {
+        if (isset($connection)) {
+            $this->setConnection($connection);
+        }
+        $connection = $this->getConnection();
+        if ($connection->typeCast) {
+            $rows = is_array($rows) ? ArrayHelper::toType($rows) : Helper::toType($rows);
+        }
+
+        return $rows;
     }
 }
