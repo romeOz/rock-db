@@ -260,11 +260,12 @@ class Query implements QueryInterface
         }
         $command = $this->createCommand($connection);
         $row = $command->queryOne(null, $subattributes);
-        if ($row) {
-            $row = $this->typeCast($row, $connection);
+        if ($row !== null) {
+            $rows = $this->prepareResult([$row], $connection);
+            return reset($rows) ?: null;
+        } else {
+            return null;
         }
-        $this->afterFind($row);
-        return $row;
     }
 
     /**
@@ -293,7 +294,7 @@ class Query implements QueryInterface
      * @param ConnectionInterface|null  $connection
      * @return array the converted query result
      */
-    public function prepareResult($rows, ConnectionInterface $connection = null)
+    public function prepareResult(array $rows, ConnectionInterface $connection = null)
     {
         if (!empty($rows)) {
             $rows = $this->typeCast($rows, $connection);

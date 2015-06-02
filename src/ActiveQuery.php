@@ -146,13 +146,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (!$model->beforeFind()) {
             return null;
         }
-        $row = parent::one($connection, $subattributes);
-        if ($row !== null) {
-            $models = $this->prepareResult([$row], $connection);
-            return reset($models) ?: null;
-        } else {
-            return null;
-        }
+        return parent::one($connection, $subattributes);
     }
 
     /**
@@ -178,7 +172,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    public function prepareResult($rows, ConnectionInterface $connection = null)
+    public function prepareResult(array $rows, ConnectionInterface $connection = null)
     {
         if (empty($rows)) {
             return [];
@@ -201,10 +195,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         } else {
             // event after
-            /** @var ActiveRecord $class */
-            $class = $this->modelClass;
             /** @var ActiveRecord $selfModel */
-            $selfModel = $class::instantiate([]);
+            $selfModel = new $this->modelClass;
             $selfModel->afterFind($models);
         }
         return $models;
