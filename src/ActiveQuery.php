@@ -4,6 +4,7 @@ namespace rock\db;
 use rock\db\common\ActiveQueryInterface;
 use rock\db\common\ActiveQueryTrait;
 use rock\db\common\ActiveRelationTrait;
+use rock\db\common\BaseActiveRecord;
 use rock\db\common\ConnectionInterface;
 use rock\db\common\DbException;
 
@@ -232,7 +233,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (empty($rows)) {
             return [];
         }
-
+        /** @var BaseActiveRecord[] $models */
         $models = $this->createModels($rows);
         if (!empty($this->join) && $this->indexBy === null) {
             $models = $this->removeDuplicatedModels($models);
@@ -401,6 +402,26 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $command->entities = $entities;
 
         return $command;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function queryScalar($selectExpression, ConnectionInterface $connection = null)
+    {
+        if ($this->sql === null) {
+            return parent::queryScalar($selectExpression, $connection);
+        }
+        /* @var $modelClass ActiveRecord */
+        $modelClass = $this->modelClass;
+        if ($connection === null) {
+                $connection = $modelClass::getConnection();
+            }
+        return (new Query)->select([$selectExpression])
+            ->from(['c' => "({$this->sql})"])
+            ->params($this->params)
+            ->createCommand($connection)
+            ->queryScalar();
     }
 
     /**
