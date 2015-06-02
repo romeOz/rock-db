@@ -828,7 +828,7 @@ class QueryBuilder implements ObjectInterface
      */
     protected function hasLimit($limit)
     {
-        return is_string($limit) && ctype_digit($limit) || is_integer($limit) && $limit >= 0;
+        return ctype_digit((string) $limit);
     }
 
     /**
@@ -838,7 +838,8 @@ class QueryBuilder implements ObjectInterface
      */
     protected function hasOffset($offset)
     {
-        return is_integer($offset) && $offset > 0 || is_string($offset) && ctype_digit($offset) && $offset !== '0';
+        $offset = (string) $offset;
+        return ctype_digit($offset) && $offset !== '0';
     }
 
     /**
