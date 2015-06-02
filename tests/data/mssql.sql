@@ -9,6 +9,7 @@ IF OBJECT_ID('[dbo].[profile]', 'U') IS NOT NULL DROP TABLE [dbo].[profile];
 IF OBJECT_ID('[dbo].[type]', 'U') IS NOT NULL DROP TABLE [dbo].[type];
 IF OBJECT_ID('[dbo].[null_values]', 'U') IS NOT NULL DROP TABLE [dbo].[null_values];
 IF OBJECT_ID('[dbo].[animal]', 'U') IS NOT NULL DROP TABLE [dbo].[animal];
+IF OBJECT_ID('[dbo].[default_pk]', 'U') IS NOT NULL DROP TABLE [dbo].[default_pk];
 IF OBJECT_ID('[dbo].[animal_view]', 'V') IS NOT NULL DROP VIEW [dbo].[animal_view];
 
 CREATE TABLE [dbo].[profile] (
@@ -114,6 +115,14 @@ CREATE TABLE [dbo].[animal] (
    [id] ASC
    ) ON [PRIMARY]
  );
+
+CREATE TABLE [dbo].[default_pk] (
+  [id] [int] NOT NULL DEFAULT 5,
+  [type] [varchar](255) NOT NULL,
+  CONSTRAINT [PK_default_pk] PRIMARY KEY CLUSTERED (
+    [id] ASC
+  ) ON [PRIMARY]
+);
 
 CREATE VIEW [dbo].[animal_view] AS SELECT * FROM [dbo].[animal];
 

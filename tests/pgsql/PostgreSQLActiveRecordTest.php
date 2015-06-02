@@ -7,6 +7,7 @@ use rockunit\models\ActiveRecord;
 use rock\db\pgsql\Schema;
 use rockunit\ActiveRecordTest;
 use rockunit\ActiveRecordTestTrait;
+use rockunit\models\DefaultPk;
 
 /**
  * @group db
@@ -156,6 +157,14 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
         $this->assertSame(false, $model->default_false);
 
         $this->assertTrue($model->save(false));
+    }
+
+    public function testPrimaryKeyAfterSave()
+    {
+        $record = new DefaultPk();
+        $record->type = 'type';
+        $record->save(false);
+        $this->assertEquals(5, $record->primaryKey);
     }
 }
 

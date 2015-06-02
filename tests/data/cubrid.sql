@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS "null_values";
 DROP TABLE IF EXISTS "type";
 DROP TABLE IF EXISTS "constraints";
 DROP TABLE IF EXISTS "animal";
+DROP TABLE IF EXISTS "default_pk";
 DROP VIEW IF EXISTS "animal_view";
 
 CREATE TABLE "constraints"
@@ -130,6 +131,12 @@ CREATE TABLE "animal" (
  "id" int(11) NOT NULL AUTO_INCREMENT,
  "type" varchar(255) NOT NULL,
  PRIMARY KEY ("id")
+);
+
+CREATE TABLE "default_pk" (
+  "id" int(11) NOT NULL DEFAULT 5,
+  "type" varchar(255) NOT NULL,
+  PRIMARY KEY ("id")
 );
 
 CREATE VIEW "animal_view" AS SELECT * FROM "animal";
