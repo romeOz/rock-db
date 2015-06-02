@@ -167,20 +167,19 @@ class Schema extends \rock\db\Schema
         if ($schema === '') {
             $schema = $this->defaultSchema;
         }
-        $sql = <<<EOD
+        $sql = <<<SQL
 SELECT c.relname AS table_name
 FROM pg_class c
 INNER JOIN pg_namespace ns ON ns.oid = c.relnamespace
 WHERE ns.nspname = :schema AND c.relkind IN ('r','v','m','f')
-EOD;
-        $command = $this->connection->createCommand($sql);
-        $command->bindParam(':schema', $schema);
+ORDER BY c.relname
+SQL;
+        $command = $this->connection->createCommand($sql, [':schemaName' => $schema]);
         $rows = $command->queryAll();
         $names = [];
         foreach ($rows as $row) {
             $names[] = $row['table_name'];
         }
-
         return $names;
     }
 
@@ -191,43 +190,46 @@ EOD;
     protected function findConstraints($table)
     {
 
+
         $tableName = $this->quoteValue($table->name);
         $tableSchema = $this->quoteValue($table->schemaName);
-
         //We need to extract the constraints de hard way since:
         //http://www.postgresql.org/message-id/26677.1086673982@sss.pgh.pa.us
-
         $sql = <<<SQL
 select
-    (select string_agg(attname,',') attname from pg_attribute where attrelid=ct.conrelid and attnum = any(ct.conkey)) as columns,
+    a.attname as column_name,
     fc.relname as foreign_table_name,
     fns.nspname as foreign_table_schema,
-    (select string_agg(attname,',') attname from pg_attribute where attrelid=ct.confrelid and attnum = any(ct.confkey)) as foreign_columns
+    fa.attname as foreign_column_name
 from
     pg_constraint ct
+    inner join generate_subscripts(ct.conkey, 1) as s on 1=1
     inner join pg_class c on c.oid=ct.conrelid
     inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[s]
     left join pg_class fc on fc.oid=ct.confrelid
     left join pg_namespace fns on fc.relnamespace=fns.oid
-
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[s]
 where
     ct.contype='f'
     and c.relname={$tableName}
     and ns.nspname={$tableSchema}
+order by
+    fns.nspname, fc.relname, a.attnum
 SQL;
-
-        $constraints = $this->connection->createCommand($sql)->queryAll();
-        foreach ($constraints as $constraint) {
-            $columns = explode(',', $constraint['columns']);
-            $fcolumns = explode(',', $constraint['foreign_columns']);
+        $constraints = [];
+        foreach ($this->connection->createCommand($sql)->queryAll() as $constraint) {
             if ($constraint['foreign_table_schema'] !== $this->defaultSchema) {
                 $foreignTable = $constraint['foreign_table_schema'] . '.' . $constraint['foreign_table_name'];
             } else {
                 $foreignTable = $constraint['foreign_table_name'];
             }
+            $constraints[$foreignTable][$constraint['column_name']] = $constraint['foreign_column_name'];
+        }
+        foreach ($constraints as $foreignTable => $columns) {
             $citem = [$foreignTable];
-            foreach ($columns as $idx => $column) {
-                $citem[$column] = $fcolumns[$idx];
+            foreach ($columns as $column => $foreignColumn) {
+                $citem[$column] = $foreignColumn;
             }
             $table->foreignKeys[] = $citem;
         }
@@ -240,8 +242,6 @@ SQL;
      */
     protected function getUniqueIndexInformation($table)
     {
-        $tableName = $this->quoteValue($table->name);
-        $tableSchema = $this->quoteValue($table->schemaName);
         $sql = <<<SQL
 SELECT
     i.relname as indexname,
@@ -252,10 +252,13 @@ INNER JOIN pg_class i ON i.oid = idx.indexrelid
 INNER JOIN pg_class c ON c.oid = idx.indrelid
 INNER JOIN pg_namespace ns ON c.relnamespace = ns.oid
 WHERE idx.indisprimary = FALSE AND idx.indisunique = TRUE
-AND c.relname = {$tableName} AND ns.nspname = {$tableSchema}
+AND c.relname = :tableName AND ns.nspname = :schemaName
 ORDER BY i.relname, k
 SQL;
-        return $this->connection->createCommand($sql)->queryAll();
+        return $this->connection->createCommand($sql, [
+            ':schemaName' => $table->schemaName,
+            ':tableName' => $table->name,
+        ])->queryAll();
     }
 
     /**

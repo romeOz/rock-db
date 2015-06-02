@@ -381,6 +381,7 @@ SQL;
 SELECT [t].[table_name]
 FROM [INFORMATION_SCHEMA].[TABLES] AS [t]
 WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW')
+ORDER BY [t].[table_name]
 SQL;
 
         return $this->connection->createCommand($sql, [':schema' => $schema])->queryColumn();
