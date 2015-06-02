@@ -111,7 +111,9 @@ class QueryBuilder implements ObjectInterface
      * ], $params);
      * ```
      *
-     * The method will properly escape the table and column names.
+     * Note that the values in each row must match the corresponding column names.
+     *
+     * The method will properly escape the column names, and quote the values to be inserted.
      *
      * @param string $table the table that new rows will be inserted into.
      * @param array $columns the column data (name => value) to be inserted into the table.
