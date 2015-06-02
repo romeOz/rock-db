@@ -128,7 +128,7 @@ class Command implements ObjectInterface
         $params = [];
         foreach ($this->params as $name => $value) {
             if (is_string($value)) {
-                $params[$name] = $this->db->quoteValue($value);
+                $params[$name] = $this->connection->quoteValue($value);
             } elseif ($value === null) {
                 $params[$name] = 'NULL';
             } elseif (!is_object($value) && !is_resource($value)) {
