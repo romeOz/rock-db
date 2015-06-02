@@ -16,11 +16,7 @@ DROP TABLE IF EXISTS `null_values` CASCADE;
 DROP TABLE IF EXISTS `type` CASCADE;
 DROP TABLE IF EXISTS `constraints` CASCADE;
 DROP TABLE IF EXISTS `animal` CASCADE;
-
-DROP TABLE IF EXISTS `access_users_items` CASCADE;
-DROP TABLE IF EXISTS `access_roles_items` CASCADE;
-DROP TABLE IF EXISTS `access_items` CASCADE;
-DROP TABLE IF EXISTS `users` CASCADE;
+DROP VIEW IF EXISTS `animal_view`;
 
 CREATE TABLE `constraints`
 (
@@ -137,6 +133,8 @@ CREATE TABLE `animal` (
   `type` VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE VIEW `animal_view` AS SELECT * FROM `animal`;
 
 INSERT INTO `profile` (description) VALUES ('profile customer 1');
 INSERT INTO `profile` (description) VALUES ('profile customer 3');
