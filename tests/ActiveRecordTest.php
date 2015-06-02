@@ -4,6 +4,7 @@ namespace rockunit;
 
 
 use rock\db\ActiveQuery;
+use rock\db\common\DbException;
 use rock\events\Event;
 use rock\helpers\Trace;
 use rockunit\common\CommonTestTrait;
@@ -13,6 +14,7 @@ use rockunit\models\Cat;
 use rockunit\models\Category;
 use rockunit\models\Customer;
 use rockunit\models\CustomerRules;
+use rockunit\models\Document;
 use rockunit\models\Dog;
 use rockunit\models\Item;
 use rockunit\models\NullValues;
@@ -723,5 +725,26 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals('bark', $animal->getDoes());
         $animal = Animal::find()->where(['type' => Cat::className()])->one();
         $this->assertEquals('meow', $animal->getDoes());
+    }
+
+    public function testSaveEmpty()
+    {
+        $record = new NullValues;
+        $this->assertTrue($record->save(false));
+        $this->assertEquals(1, $record->id);
+    }
+
+    public function testOptimisticLock()
+    {
+        /* @var $record Document */
+        $record = Document::findOne(1);
+        $record->content = 'New Content';
+        $record->save(false);
+        $this->assertEquals(1, $record->version);
+        $record = Document::findOne(1);
+        $record->content = 'Rewrite attempt content';
+        $record->version = 0;
+        $this->setExpectedException(DbException::className());
+        $record->save(false);
     }
 }

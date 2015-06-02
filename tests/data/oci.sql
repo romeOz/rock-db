@@ -19,6 +19,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE "constraints"'; EXCEPTION WHEN OTHERS THEN I
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "bool_values"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "animal"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "default_pk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "document"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP VIEW "animal_view"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "validator_main"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "validator_ref"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
@@ -31,6 +32,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "order_SEQ"'; EXCEPTION WHEN OTHERS THEN 
 BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "order_with_null_fk_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "bool_values_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "animal_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "document_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
 
 /* STATEMENTS */
 
@@ -170,6 +172,15 @@ CREATE TABLE "default_pk" (
   CONSTRAINT "default_pk_PK" PRIMARY KEY ("id") ENABLE
 );
 
+CREATE TABLE "document" (
+  "id" integer,
+  "title" varchar2(255) not null,
+  "content" varchar(4000),
+  "version" integer default 0 not null,
+  CONSTRAINT "document_PK" PRIMARY KEY ("id") ENABLE
+);
+CREATE SEQUENCE "document_SEQ";
+
 CREATE VIEW "animal_view" AS SELECT * FROM "animal";
 
 /**
@@ -275,6 +286,8 @@ INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subto
 INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subtotal") VALUES (2, 5, 1, 15.0);
 INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subtotal") VALUES (2, 3, 1, 8.0);
 INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subtotal") VALUES (3, 2, 1, 40.0);
+
+INSERT INTO "document" ("title", "content", "version") VALUES ('Fallout', 'Sims', 0);
 
 INSERT INTO "validator_main" ("id", "field1") VALUES (1, 'just a string1');
 INSERT INTO "validator_main" ("id", "field1") VALUES (2, 'just a string2');
