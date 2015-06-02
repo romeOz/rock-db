@@ -144,8 +144,8 @@ class QueryBuilder implements ObjectInterface
         }
 
         return 'INSERT INTO ' . $schema->quoteTableName($table)
-            . ' (' . implode(', ', $names) . ') VALUES ('
-            . implode(', ', $placeholders) . ')';
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : 'DEFAULT VALUES');
     }
 
     /**
