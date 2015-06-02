@@ -263,6 +263,29 @@ class Query implements QueryInterface
     }
 
     /**
+     * Executes the query and returns a single row of result.
+     *
+     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
+     * If this parameter is not given, the `db` application component will be used.
+     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
+     * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
+     * results in nothing.
+     */
+    public function one(ConnectionInterface $connection = null, $subattributes = false)
+    {
+        if (!$this->beforeFind()) {
+            return null;
+        }
+        $command = $this->createCommand($connection);
+        $row = $command->queryOne(null, $subattributes);
+        if ($row) {
+            $row = $this->typeCast($row, $connection);
+        }
+        $this->afterFind($row);
+        return $row;
+    }
+
+    /**
      * Executes the query and returns all results as an array.
      *
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
@@ -308,29 +331,6 @@ class Query implements QueryInterface
         }
         $this->afterFind($result);
         return $result;
-    }
-
-    /**
-     * Executes the query and returns a single row of result.
-     *
-     * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
-     * If this parameter is not given, the `db` application component will be used.
-     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
-     * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
-     * results in nothing.
-     */
-    public function one(ConnectionInterface $connection = null, $subattributes = false)
-    {
-        if (!$this->beforeFind()) {
-            return null;
-        }
-        $command = $this->createCommand($connection);
-        $row = $command->queryOne(null, $subattributes);
-        if ($row) {
-            $row = $this->typeCast($row, $connection);
-        }
-        $this->afterFind($row);
-        return $row;
     }
 
     /**

@@ -125,8 +125,34 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
         /** @var ActiveRecord $modelClass */
         $modelClass = $this->modelClass;
-        //$this->connection = $modelClass::getDb();
         return $this->calculateCacheParams($modelClass::getConnection());
+    }
+
+    /**
+     * Executes query and returns a single row of result.
+     *
+     * @param ConnectionInterface $connection the DB connection used to create the DB command.
+     * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
+     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
+     * @return ActiveRecord|array|null a single row of query result. Depending on the setting
+     * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
+     * if the query results in nothing.
+     */
+    public function one(ConnectionInterface $connection = null, $subattributes = false)
+    {
+        // event before
+        /** @var ActiveRecord $model */
+        $model  = new $this->modelClass;
+        if (!$model->beforeFind()) {
+            return null;
+        }
+        $row = parent::one($connection, $subattributes);
+        if ($row !== null) {
+            $models = $this->prepareResult([$row], $connection);
+            return reset($models) ?: null;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -139,7 +165,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function all(ConnectionInterface $connection = null, $subattributes = false)
     {
-        // before
+        // event before
         /** @var ActiveRecord $model */
         $model = new $this->modelClass;
         if (!$model->beforeFind()) {
@@ -147,6 +173,41 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return parent::all($connection, $subattributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function prepareResult($rows, ConnectionInterface $connection = null)
+    {
+        if (empty($rows)) {
+            return [];
+        }
+        /** @var BaseActiveRecord[] $models */
+        $models = $this->createModels($rows);
+        if (!empty($this->join) && $this->indexBy === null) {
+            $models = $this->removeDuplicatedModels($models);
+        }
+
+        if (!empty($this->with)) {
+            if (isset($this->queryBuild->entities)) {
+                $this->queryBuild->entities = [];
+            }
+            $this->findWith($this->with, $models);
+        }
+        if (!$this->asArray) {
+            foreach ($models as $model) {
+                $model->afterFind();
+            }
+        } else {
+            // event after
+            /** @var ActiveRecord $class */
+            $class = $this->modelClass;
+            /** @var ActiveRecord $selfModel */
+            $selfModel = $class::instantiate([]);
+            $selfModel->afterFind($models);
+        }
+        return $models;
     }
 
     /**
@@ -223,120 +284,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return $query;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function prepareResult($rows, ConnectionInterface $connection = null)
-    {
-        if (empty($rows)) {
-            return [];
-        }
-        /** @var BaseActiveRecord[] $models */
-        $models = $this->createModels($rows);
-        if (!empty($this->join) && $this->indexBy === null) {
-            $models = $this->removeDuplicatedModels($models);
-        }
-
-        if (!empty($this->with)) {
-            if (isset($this->queryBuild->entities)) {
-                $this->queryBuild->entities = [];
-            }
-            $this->findWith($this->with, $models);
-        }
-        //$this->afterFind($models);
-        if (!$this->asArray) {
-            foreach ($models as $model) {
-                $model->afterFind();
-            }
-        } else {
-            /** @var ActiveRecord $class */
-            $class = $this->modelClass;
-            /** @var ActiveRecord $activeRecord */
-            $activeRecord = $class::instantiate([]);
-            $activeRecord->afterFind($models);
-        }
-        return $models;
-    }
-
-    /**
-     * Removes duplicated models by checking their primary key values.
-     *
-     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
-     * @param array $models the models to be checked
-     * @return array the distinctive models
-     * @throws DbException
-     */
-    private function removeDuplicatedModels(array $models)
-    {
-        $hash = [];
-        /** @var ActiveRecord $class */
-        $class = $this->modelClass;
-        $pks = $class::primaryKey();
-
-        if (count($pks) > 1) {
-            foreach ($models as $i => $model) {
-                $key = [];
-                foreach ($pks as $pk) {
-                    if (!isset($model[$pk])) {
-                        continue;
-                    }
-                    $key[] = $model[$pk];
-                }
-                if (!empty($key)) {
-                    $key = serialize($key);
-                    if (isset($hash[$key])) {
-                        unset($models[$i]);
-                    } else {
-                        $hash[$key] = true;
-                    }
-                }
-            }
-        } elseif (empty($pks)) {
-            throw new DbException("Primary key of '{$class}' can not be empty.");
-        } else {
-            $pk = reset($pks);
-            foreach ($models as $i => $model) {
-                if (!isset($model[$pk])) {
-                    continue;
-                }
-                $key = $model[$pk];
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } elseif ($key !== null) {
-                    $hash[$key] = true;
-                }
-            }
-        }
-
-        return array_values($models);
-    }
-
-    /**
-     * Executes query and returns a single row of result.
-     *
-     * @param ConnectionInterface $connection the DB connection used to create the DB command.
-     * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
-     * @return ActiveRecord|array|null a single row of query result. Depending on the setting
-     * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
-     * if the query results in nothing.
-     */
-    public function one(ConnectionInterface $connection = null, $subattributes = false)
-    {
-        /** @var ActiveRecord $model */
-        $model  = new $this->modelClass;
-        if (!$model->beforeFind()) {
-            return null;
-        }
-        $row = parent::one($connection, $subattributes);
-        if ($row !== null) {
-            $models = $this->prepareResult([$row], $connection);
-            return reset($models) ?: null;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -804,5 +751,58 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Removes duplicated models by checking their primary key values.
+     *
+     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
+     * @param array $models the models to be checked
+     * @return array the distinctive models
+     * @throws DbException
+     */
+    private function removeDuplicatedModels(array $models)
+    {
+        $hash = [];
+        /** @var ActiveRecord $class */
+        $class = $this->modelClass;
+        $pks = $class::primaryKey();
+
+        if (count($pks) > 1) {
+            foreach ($models as $i => $model) {
+                $key = [];
+                foreach ($pks as $pk) {
+                    if (!isset($model[$pk])) {
+                        continue;
+                    }
+                    $key[] = $model[$pk];
+                }
+                if (!empty($key)) {
+                    $key = serialize($key);
+                    if (isset($hash[$key])) {
+                        unset($models[$i]);
+                    } else {
+                        $hash[$key] = true;
+                    }
+                }
+            }
+        } elseif (empty($pks)) {
+            throw new DbException("Primary key of '{$class}' can not be empty.");
+        } else {
+            $pk = reset($pks);
+            foreach ($models as $i => $model) {
+                if (!isset($model[$pk])) {
+                    continue;
+                }
+                $key = $model[$pk];
+                if (isset($hash[$key])) {
+                    unset($models[$i]);
+                } elseif ($key !== null) {
+                    $hash[$key] = true;
+                }
+            }
+        }
+
+        return array_values($models);
     }
 }
