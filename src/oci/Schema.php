@@ -33,6 +33,7 @@ class Schema extends \rock\db\Schema
     {
         // does nothing as Oracle does not support this
     }
+
     /**
      * @inheritdoc
      */
@@ -40,6 +41,7 @@ class Schema extends \rock\db\Schema
     {
         return strpos($name, '"') !== false ? $name : '"' . $name . '"';
     }
+
     /**
      * @inheritdoc
      */
@@ -47,6 +49,7 @@ class Schema extends \rock\db\Schema
     {
         return new QueryBuilder($this->connection);
     }
+
     /**
      * @inheritdoc
      */
@@ -54,13 +57,16 @@ class Schema extends \rock\db\Schema
     {
         $table = new TableSchema();
         $this->resolveTableNames($table, $name);
+
         if ($this->findColumns($table)) {
             $this->findConstraints($table);
+
             return $table;
         } else {
             return null;
         }
     }
+
     /**
      * Resolves the table name and schema name (if any).
      *
@@ -77,8 +83,10 @@ class Schema extends \rock\db\Schema
             $table->schemaName = $this->defaultSchema;
             $table->name = $name;
         }
+
         $table->fullName = $table->schemaName !== $this->defaultSchema ? $table->schemaName . '.' . $table->name : $table->name;
     }
+
     /**
      * Collects the table column metadata.
      * @param TableSchema $table the table schema
@@ -86,9 +94,7 @@ class Schema extends \rock\db\Schema
      */
     protected function findColumns($table)
     {
-        $schemaName = $table->schemaName;
-        $tableName = $table->name;
-        $sql = <<<EOD
+        $sql = <<<SQL
 SELECT a.column_name, a.data_type, a.data_precision, a.data_scale, a.data_length,
     a.nullable, a.data_default,
     (   SELECT D.constraint_type
@@ -103,19 +109,25 @@ FROM ALL_TAB_COLUMNS A
 inner join ALL_OBJECTS B ON b.owner = a.owner and ltrim(B.OBJECT_NAME) = ltrim(A.TABLE_NAME)
 LEFT JOIN all_col_comments com ON (A.owner = com.owner AND A.table_name = com.table_name AND A.column_name = com.column_name)
 WHERE
-    a.owner = '{$schemaName}'
-    and (b.object_type = 'TABLE' or b.object_type = 'VIEW')
-    and b.object_name = '{$tableName}'
+    a.owner = :schemaName
+    and (b.object_type IN ('TABLE', 'VIEW'))
+    and b.object_name = :tableName
 ORDER by a.column_id
-EOD;
+SQL;
+
         try {
-            $columns = $this->connection->createCommand($sql)->queryAll();
+            $columns = $this->connection->createCommand($sql, [
+                ':tableName' => $table->name,
+                ':schemaName' => $table->schemaName,
+            ])->queryAll();
         } catch (\Exception $e) {
             return false;
         }
+
         if (empty($columns)) {
             return false;
         }
+
         foreach ($columns as $column) {
             if ($this->connection->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
                 $column = array_change_key_case($column, CASE_UPPER);
@@ -129,24 +141,29 @@ EOD;
         }
         return true;
     }
+
     /**
      * Sequence name of table
      *
-     * @param $tablename
-     * @internal param \yii\db\TableSchema $table ->name the table schema
+     * @param $tableName
+     * @internal param \rock\db\TableSchema $table ->name the table schema
      * @return string whether the sequence exists
      */
-    protected function getTableSequenceName($tablename)
+    protected function getTableSequenceName($tableName)
     {
-        $seq_name_sql="select ud.referenced_name as sequence_name
-                        from   user_dependencies ud
-                               join user_triggers ut on (ut.trigger_name = ud.name)
-                        where ut.table_name='{$tablename}'
-                              and ud.type='TRIGGER'
-                              and ud.referenced_type='SEQUENCE'";
-        $sequenceName = $this->connection->createCommand($seq_name_sql)->queryScalar();
+
+        $seq_name_sql = <<<SQL
+SELECT ud.referenced_name as sequence_name
+FROM user_dependencies ud
+JOIN user_triggers ut on (ut.trigger_name = ud.name)
+WHERE ut.table_name = :tableName
+AND ud.type='TRIGGER'
+AND ud.referenced_type='SEQUENCE'
+SQL;
+        $sequenceName = $this->connection->createCommand($seq_name_sql, [':tableName' => $tableName])->queryScalar();
         return $sequenceName === false ? null : $sequenceName;
     }
+
     /**
      * @Overrides method in class 'Schema'
      * @see http://www.php.net/manual/en/function.PDO-lastInsertId.php -> Oracle does not support this
@@ -168,6 +185,7 @@ EOD;
             throw new DbException('DB Connection is not active.');
         }
     }
+
     /**
      * Creates ColumnSchema instance
      *
@@ -181,9 +199,12 @@ EOD;
         $c->allowNull = $column['NULLABLE'] === 'Y';
         $c->isPrimaryKey = strpos($column['KEY'], 'P') !== false;
         $c->comment = $column['COLUMN_COMMENT'] === null ? '' : $column['COLUMN_COMMENT'];
+
         $this->extractColumnType($c, $column['DATA_TYPE'], $column['DATA_PRECISION'], $column['DATA_SCALE'], $column['DATA_LENGTH']);
         $this->extractColumnSize($c, $column['DATA_TYPE'], $column['DATA_PRECISION'], $column['DATA_SCALE'], $column['DATA_LENGTH']);
+
         $c->phpType = $this->getColumnPhpType($c);
+
         if (!$c->isPrimaryKey) {
             if (stripos($column['DATA_DEFAULT'], 'timestamp') !== false) {
                 $c->defaultValue = null;
@@ -205,66 +226,71 @@ EOD;
                 }
             }
         }
+
         return $c;
     }
+
     /**
      * Finds constraints and fills them into TableSchema object passed
      * @param TableSchema $table
      */
     protected function findConstraints($table)
     {
-        $sql = <<<EOD
-        SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.constraint_name, D.r_constraint_name,
-                E.table_name as table_ref, f.column_name as column_ref,
-                C.table_name
-        FROM ALL_CONS_COLUMNS C
-        inner join ALL_constraints D on D.OWNER = C.OWNER and D.constraint_name = C.constraint_name
-        left join ALL_constraints E on E.OWNER = D.r_OWNER and E.constraint_name = D.r_constraint_name
-        left join ALL_cons_columns F on F.OWNER = E.OWNER and F.constraint_name = E.constraint_name and F.position = c.position
-        WHERE C.OWNER = '{$table->schemaName}'
-           and C.table_name = '{$table->name}'
-           and D.constraint_type <> 'P'
-        order by d.constraint_name, c.position
-EOD;
-        $command = $this->connection->createCommand($sql);
+        $sql = <<<SQL
+SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.r_constraint_name,
+        E.table_name as table_ref, f.column_name as column_ref,
+        C.table_name
+FROM ALL_CONS_COLUMNS C
+INNER JOIN ALL_constraints D on D.OWNER = C.OWNER and D.constraint_name = C.constraint_name
+LEFT JOIN ALL_constraints E on E.OWNER = D.r_OWNER and E.constraint_name = D.r_constraint_name
+LEFT JOIN ALL_cons_columns F on F.OWNER = E.OWNER and F.constraint_name = E.constraint_name and F.position = c.position
+WHERE C.OWNER = :schemaName
+   AND C.table_name = :tableName
+   AND D.constraint_type = 'R'
+ORDER BY d.constraint_name, c.position
+SQL;
+        $command = $this->connection->createCommand($sql, [
+            ':tableName' => $table->name,
+            ':schemaName' => $table->schemaName,
+        ]);
         $constraints = [];
         foreach ($command->queryAll() as $row) {
             if ($this->connection->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
                 $row = array_change_key_case($row, CASE_UPPER);
             }
-            if ($row['CONSTRAINT_TYPE'] === 'R') {
-                $name = $row['CONSTRAINT_NAME'];
-                if (!isset($constraints[$name])) {
-                    $constraints[$name] = [
-                        'tableName' => $row["TABLE_REF"],
-                        'columns' => [],
-                    ];
-                }
-                $constraints[$name]['columns'][$row["COLUMN_NAME"]] = $row["COLUMN_REF"];
+            $name = $row['CONSTRAINT_NAME'];
+            if (!isset($constraints[$name])) {
+                $constraints[$name] = [
+                    'tableName' => $row["TABLE_REF"],
+                    'columns' => [],
+                ];
             }
+            $constraints[$name]['columns'][$row["COLUMN_NAME"]] = $row["COLUMN_REF"];
         }
         foreach ($constraints as $constraint) {
             $table->foreignKeys[] = array_merge([$constraint['tableName']], $constraint['columns']);
         }
     }
+
     /**
      * @inheritdoc
      */
     protected function findTableNames($schema = '')
     {
         if ($schema === '') {
-            $sql = <<<EOD
-SELECT table_name, '{$schema}' as table_schema FROM user_tables
-EOD;
+            $sql = <<<SQL
+SELECT table_name FROM user_tables
+SQL;
             $command = $this->connection->createCommand($sql);
         } else {
-            $sql = <<<EOD
-SELECT object_name as table_name, owner as table_schema FROM all_objects
+            $sql = <<<SQL
+SELECT object_name as table_name
+FROM all_objects
 WHERE object_type = 'TABLE' AND owner=:schema
-EOD;
-            $command = $this->connection->createCommand($sql);
-            $command->bindParam(':schema', $schema);
+SQL;
+            $command = $this->connection->createCommand($sql, [':schema' => $schema]);
         }
+
         $rows = $command->queryAll();
         $names = [];
         foreach ($rows as $row) {
@@ -275,6 +301,43 @@ EOD;
         }
         return $names;
     }
+
+    /**
+     * Returns all unique indexes for the given table.
+     * Each array element is of the following structure:
+     *
+     * ```php
+     * [
+     *  'IndexName1' => ['col1' [, ...]],
+     *  'IndexName2' => ['col2' [, ...]],
+     * ]
+     * ```
+     *
+     * @param TableSchema $table the table metadata
+     * @return array all unique indexes for the given table.
+     */
+    public function findUniqueIndexes($table)
+    {
+        $query = <<<SQL
+SELECT dic.INDEX_NAME, dic.COLUMN_NAME
+FROM ALL_INDEXES di
+INNER JOIN ALL_IND_COLUMNS dic ON di.TABLE_NAME = dic.TABLE_NAME AND di.INDEX_NAME = dic.INDEX_NAME
+WHERE di.UNIQUENESS = 'UNIQUE'
+AND dic.TABLE_OWNER = :schemaName
+AND dic.TABLE_NAME = :tableName
+ORDER BY dic.TABLE_NAME, dic.INDEX_NAME, dic.COLUMN_POSITION
+SQL;
+        $result = [];
+        $command = $this->connection->createCommand($query, [
+            ':tableName' => $table->name,
+            ':schemaName' => $table->schemaName,
+        ]);
+        foreach ($command->queryAll() as $row) {
+            $result[$row['INDEX_NAME']][] = $row['COLUMN_NAME'];
+        }
+        return $result;
+    }
+
     /**
      * Extracts the data types for the given column
      * @param ColumnSchema $column
@@ -286,6 +349,7 @@ EOD;
     protected function extractColumnType($column, $dbType, $precision, $scale, $length)
     {
         $column->dbType = $dbType;
+
         if (strpos($dbType, 'FLOAT') !== false || strpos($dbType, 'DOUBLE') !== false) {
             $column->type = 'double';
         } elseif ($dbType == 'NUMBER' || strpos($dbType, 'INTEGER') !== false) {
@@ -304,6 +368,7 @@ EOD;
             $column->type = 'string';
         }
     }
+
     /**
      * Extracts size, precision and scale information from column's DB type.
      * @param ColumnSchema $column
