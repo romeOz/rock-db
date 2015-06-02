@@ -345,7 +345,7 @@ abstract class Schema implements ObjectInterface
     public function getLastInsertID($sequenceName = '')
     {
         if ($this->connection->isActive) {
-            return $this->connection->pdo->lastInsertId($sequenceName === '' ? null : $this->quoteSimpleTableName($sequenceName));
+            return $this->connection->pdo->lastInsertId($sequenceName === '' ? null : $this->quoteTableName($sequenceName));
         } else {
             throw new DbException('DB Connection is not active.');
         }
