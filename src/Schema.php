@@ -416,7 +416,7 @@ abstract class Schema implements ObjectInterface
                 $result[$name] = $this->connection->getLastInsertID($tableSchema->sequenceName);
                 break;
             } else {
-                $result[$name] = $columns[$name];
+                $result[$name] = isset($columns[$name]) ? $columns[$name] : $tableSchema->columns[$name]->defaultValue;
             }
         }
         return $result;
