@@ -59,6 +59,10 @@ abstract class Schema implements ObjectInterface
      */
     public $defaultSchema;
     /**
+     * @var array list of ALL schema names in the database, except system schemas
+     */
+    private $_schemaNames;
+    /**
      * @var array list of ALL table names in the database
      */
 	private static $_tableNames = [];
@@ -184,6 +188,33 @@ abstract class Schema implements ObjectInterface
         }
 
         return $tables;
+    }
+
+    /**
+     * Returns all schema names in the database, except system schemas.
+     * @param boolean $refresh whether to fetch the latest available schema names. If this is false,
+     * schema names fetched previously (if available) will be returned.
+     * @return string[] all schema names in the database, except system schemas.
+     */
+    public function getSchemaNames($refresh = false)
+    {
+        if ($this->_schemaNames === null || $refresh) {
+            $this->_schemaNames = $this->findSchemaNames();
+        }
+
+        return $this->_schemaNames;
+    }
+
+    /**
+     * Returns all schema names in the database, including the default one but not system schemas.
+     * This method should be overridden by child classes in order to support this feature
+     * because the default implementation simply throws an exception.
+     * @return array all schema names in the database, except system schemas
+     * @throws DbException if this method is called
+     */
+    protected function findSchemaNames()
+    {
+        throw new DbException(get_class($this) . ' does not support fetching all schema names.');
     }
 
     /**
