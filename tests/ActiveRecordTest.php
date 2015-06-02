@@ -408,10 +408,10 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // join with sub-relation
         $orders = Order::find()->innerJoinWith([
-                                                   'items' => function ($q) {
+                                                   'items' => function (ActiveQuery $q) {
                                                        $q->orderBy('item.id');
                                                    },
-                                                   'items.category' => function ($q) {
+                                                   'items.category' => function (ActiveQuery $q) {
                                                        $q->where('category.id = 2');
                                                    },
                                                ])->orderBy('order.id')->all();
@@ -424,7 +424,7 @@ class ActiveRecordTest extends DatabaseTestCase
 
         // join with table alias
         $orders = Order::find()->joinWith([
-                                              'customer' => function ($q) {
+                                              'customer' => function (ActiveQuery $q) {
                                                   $q->from('customer c');
                                               }
                                           ])->orderBy('c.id DESC, order.id')->all();
@@ -480,27 +480,30 @@ class ActiveRecordTest extends DatabaseTestCase
         // https://github.com/yiisoft/yii2/issues/2880
         $query = Order::findOne(1);
         $customer = $query->getCustomer()->joinWith([
-                                                        'orders' => function ($q) { $q->orderBy([]); }
+                                                        'orders' => function (ActiveQuery $q) { $q->orderBy([]); }
                                                     ])->one();
         $this->assertEquals(1, $customer->id);
         $order = Order::find()->joinWith([
-                                             'items' => function ($q) {
+                                             'items' => function (ActiveQuery $q) {
                                                  $q->from(['items' => 'item'])
                                                      ->orderBy('items.id');
                                              },
                                          ])->orderBy('order.id')->one();
 
         // join with sub-relation called inside Closure
-        $orders = Order::find()->joinWith([
-                                              'items' => function ($q) {
-                                                  $q->orderBy('item.id');
-                                                  $q->joinWith([
-                                                                   'category'=> function ($q) {
-                                                                       $q->where('category.id = 2');
-                                                                   }
-                                                               ]);
-                                              },
-                                          ])->orderBy('order.id')->all();
+        $orders = Order::find()
+            ->joinWith([
+                  'items' => function (ActiveQuery $q) {
+                      $q->orderBy('item.id');
+                      $q->joinWith([
+                           'category'=> function (ActiveQuery $q) {
+                               $q->where('category.id = 2');
+                           }
+                       ]);
+                  }
+            ])
+        ->orderBy('order.id')
+            ->all();
         $this->assertEquals(1, count($orders));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
         $this->assertEquals(2, $orders[0]->id);
@@ -528,11 +531,15 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertNull($customers[1]->profile);
 
         // hasMany
-        $customers = Customer::find()->active()->joinWith([
-                                                              'orders' => function ($q) {
-                                                                  $q->orderBy('order.id');
-                                                              }
-                                                          ])->orderBy('customer.id DESC, order.id')->all();
+        $customers = Customer::find()
+            ->active()
+            ->joinWith([
+                'orders' => function (ActiveQuery $q) {
+                    $q->orderBy('order.id');
+                }
+            ])
+            ->orderBy('customer.id DESC, order.id')
+            ->all();
         $this->assertEquals(2, count($customers));
         $this->assertEquals(2, $customers[0]->id);
         $this->assertEquals(1, $customers[1]->id);
@@ -547,11 +554,13 @@ class ActiveRecordTest extends DatabaseTestCase
     public function testJoinWithVia()
     {
         Order::getConnection()->getQueryBuilder()->separator = "\n";
-        Order::find()->joinWith('itemsInOrder1')->joinWith([
-                                                               'items' => function ($q) {
-                                                                   $q->orderBy('item.id');
-                                                               },
-                                                           ])->all();
+        Order::find()
+            ->joinWith('itemsInOrder1')
+            ->joinWith([
+               'items' => function (ActiveQuery $q) {
+                   $q->orderBy('item.id');
+               },
+           ])->all();
     }
 
     public function testInverseOf()
@@ -759,5 +768,42 @@ class ActiveRecordTest extends DatabaseTestCase
         $record->version = 0;
         $this->setExpectedException(DbException::className());
         $record->save(false);
+    }
+
+    public function testTypeCast()
+    {
+        $connection = clone ActiveRecord::$connection;
+
+        // enable type cast
+
+        $connection->typeCast = true;
+
+        // find one
+        $customer = Customer::find()->one($connection);
+        $this->assertInternalType('int', $customer->id);
+        $this->assertInternalType('int', $customer->profile_id);
+        $this->assertInternalType('string', $customer->name);
+
+        // find all
+        $customer = Customer::find()->all($connection);
+        $this->assertInternalType('int', $customer[0]->id);
+        $this->assertInternalType('int', $customer[0]->profile_id);
+        $this->assertInternalType('string', $customer[0]->name);
+
+        // disable type cast
+
+        $connection->typeCast = false;
+
+        // find one
+        $customer = Customer::find()->one($connection);
+        $this->assertInternalType('string', $customer->id);
+        $this->assertInternalType('string', $customer->profile_id);
+        $this->assertInternalType('string', $customer->name);
+
+        // find all
+        $customer = Customer::find()->all($connection);
+        $this->assertInternalType('string', $customer[0]->id);
+        $this->assertInternalType('string', $customer[0]->profile_id);
+        $this->assertInternalType('string', $customer[0]->name);
     }
 }

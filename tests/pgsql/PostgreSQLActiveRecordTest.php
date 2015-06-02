@@ -7,6 +7,7 @@ use rockunit\models\ActiveRecord;
 use rock\db\pgsql\Schema;
 use rockunit\ActiveRecordTest;
 use rockunit\ActiveRecordTestTrait;
+use rockunit\models\Customer;
 use rockunit\models\DefaultPk;
 
 /**
@@ -165,6 +166,27 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
         $record->type = 'type';
         $record->save(false);
         $this->assertEquals(5, $record->primaryKey);
+    }
+
+    public function testTypeCast()
+    {
+        $connection = clone ActiveRecord::$connection;
+
+        // disable type cast
+
+        $connection->typeCast = false;
+
+        // find one
+        $customer = Customer::find()->one($connection);
+        $this->assertInternalType('int', $customer->id);
+        $this->assertInternalType('int', $customer->profile_id);
+        $this->assertInternalType('string', $customer->name);
+
+        // find all
+        $customer = Customer::find()->all($connection);
+        $this->assertInternalType('int', $customer[0]->id);
+        $this->assertInternalType('int', $customer[0]->profile_id);
+        $this->assertInternalType('string', $customer[0]->name);
     }
 }
 
