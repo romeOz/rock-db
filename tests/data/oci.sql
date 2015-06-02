@@ -18,6 +18,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE "null_values"'; EXCEPTION WHEN OTHERS THEN I
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "constraints"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "bool_values"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "animal"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW "animal_view"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "validator_main"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "validator_ref"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 
@@ -161,6 +162,8 @@ CREATE TABLE "animal" (
 );
 CREATE SEQUENCE "animal_SEQ";
 
+CREATE VIEW "animal_view" AS SELECT * FROM "animal";
+
 /**
  * (Postgres-)Database Schema for validator tests
  */
@@ -223,8 +226,8 @@ END;
 
 /* TRIGGERS */
 
-INSERT INTO "animal" ("type") VALUES ('yiiunit\data\ar\Cat');
-INSERT INTO "animal" ("type") VALUES ('yiiunit\data\ar\Dog');
+INSERT INTO "animal" ("type") VALUES ('rockunit\\models\\Cat');
+INSERT INTO "animal" ("type") VALUES ('rockunit\\models\\Dog');
 
 
 INSERT INTO "profile" ("description") VALUES ('profile customer 1');
@@ -237,8 +240,8 @@ INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "pr
 INSERT INTO "category" ("name") VALUES ('Books');
 INSERT INTO "category" ("name") VALUES ('Movies');
 
-INSERT INTO "item" ("name", "category_id") VALUES ('Agile Web Application Development with Yii1.1 and PHP5', 1);
-INSERT INTO "item" ("name", "category_id") VALUES ('Yii 1.1 Application Development Cookbook', 1);
+INSERT INTO "item" ("name", "category_id") VALUES ('Monkey Island', 1);
+INSERT INTO "item" ("name", "category_id") VALUES ('Full Throttle', 1);
 INSERT INTO "item" ("name", "category_id") VALUES ('Ice Age', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Toy Story', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Cars', 2);
