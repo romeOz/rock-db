@@ -5,6 +5,7 @@ use rock\db\common\ActiveQueryInterface;
 use rock\db\common\ActiveQueryTrait;
 use rock\db\common\ActiveRelationTrait;
 use rock\db\common\ConnectionInterface;
+use rock\db\common\DbException;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -264,6 +265,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
      * @param array $models the models to be checked
      * @return array the distinctive models
+     * @throws DbException
      */
     private function removeDuplicatedModels(array $models)
     {
@@ -290,6 +292,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                 }
             }
+        } elseif (empty($pks)) {
+            throw new DbException("Primary key of '{$class}' can not be empty.");
         } else {
             $pk = reset($pks);
             foreach ($models as $i => $model) {
