@@ -32,7 +32,7 @@ return [
             'dsn' => 'pgsql:host=localhost;dbname=rocktest;port=5432;',
             'username' => 'postgres',
             'password' => 'postgres',
-            //'typeCast' => false,
+            'typeCast' => false,
             'fixture' => __DIR__ . '/postgres.sql',
             'migrations' => [
                 SessionsMigration::className(),
