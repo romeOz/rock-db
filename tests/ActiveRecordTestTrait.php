@@ -154,32 +154,32 @@ trait ActiveRecordTestTrait
 
     public function testFindScalar()
     {
-        /* @var $customerClass ActiveRecordInterface */
+        /* @var $customerClass Customer */
         $customerClass = $this->getCustomerClass();
 
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
         // query scalar
-        $customerName = $customerClass::find()->select('name')->where(['id' => 2])->scalar();
+        $customerName = $customerClass::find()->select('[[name]]')->where(['[[id]]' => 2])->scalar();
         $this->assertEquals('user2', $customerName);
-        $customerStatus = $customerClass::find()->select('status')->where(['id' => 2])->scalar();
+        $customerStatus = $customerClass::find()->select('[[status]]')->where(['[[id]]' => 2])->scalar();
         $this->assertSame($customerStatus, 1);
-        $customerName = $customerClass::find()->select('name')->where(['status' => 2])->scalar();
+        $customerName = $customerClass::find()->select('[[name]]')->where(['status' => 2])->scalar();
         $this->assertEquals('user3', $customerName);
-        $customerId = $customerClass::find()->select('id')->where(['status' => 2])->scalar();
+        $customerId = $customerClass::find()->select('[[id]]')->where(['[[status]]' => 2])->scalar();
         $this->assertEquals(3, $customerId);
 
         $this->setExpectedException(DbException::className());
-        $customerClass::find()->select('noname')->where(['status' => 2])->scalar();
+        $customerClass::find()->select('[[noname]]')->where(['[[status]]' => 2])->scalar();
     }
 
     public function testFindColumn()
     {
-        /* @var $customerClass ActiveRecordInterface */
+        /* @var $customerClass Customer */
         $customerClass = $this->getCustomerClass();
 
         /* @var $this \PHPUnit_Framework_TestCase|ActiveRecordTestTrait */
-        $this->assertEquals(['user1', 'user2', 'user3'], $customerClass::find()->select('name')->orderBy(['name' => SORT_ASC])->column());
-        $this->assertEquals(['user3', 'user2', 'user1'], $customerClass::find()->select('name')->orderBy(['name' => SORT_DESC])->column());
+        $this->assertEquals(['user1', 'user2', 'user3'], $customerClass::find()->select('[[name]]')->orderBy(['[[name]]' => SORT_ASC])->column());
+        $this->assertEquals(['user3', 'user2', 'user1'], $customerClass::find()->select('[[name]]')->orderBy(['[[name]]' => SORT_DESC])->column());
     }
 
     public function testFindIndexBy()

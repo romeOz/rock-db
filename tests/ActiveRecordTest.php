@@ -22,7 +22,6 @@ use rockunit\models\OrderItemWithNullFK;
 use rockunit\models\OrderWithNullFK;
 use rockunit\models\Profile;
 use rockunit\models\Type;
-use rockunit\pgsql\PostgreSQLActiveRecordTest;
 
 /**
  * @group db
