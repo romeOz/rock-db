@@ -295,6 +295,7 @@ SELECT
     [kcu].[column_name] AS [field_name]
 FROM {$keyColumnUsageTableName} AS [kcu]
 LEFT JOIN {$tableConstraintsTableName} AS [tc] ON
+    [kcu].[table_schema] = [tc].[table_schema] AND
     [kcu].[table_name] = [tc].[table_name] AND
     [kcu].[constraint_name] = [tc].[constraint_name]
 WHERE
@@ -356,10 +357,13 @@ JOIN {$keyColumnUsageTableName} AS [kcu2] ON
     [kcu2].[constraint_schema] = [rc].[constraint_schema] AND
     [kcu2].[constraint_name] = [rc].[unique_constraint_name] AND
     [kcu2].[ordinal_position] = [kcu1].[ordinal_position]
-WHERE [kcu1].[table_name] = :tableName
+WHERE [kcu1].[table_name] = :tableName AND [kcu1].[table_schema] = :schemaName
 SQL;
 
-        $rows = $this->connection->createCommand($sql, [':tableName' => $table->name])->queryAll();
+        $rows = $this->connection->createCommand($sql, [
+                ':tableName' => $table->name,
+                ':schemaName' => $table->schemaName,
+            ])->queryAll();
         $table->foreignKeys = [];
         foreach ($rows as $row) {
             $table->foreignKeys[] = [$row['uq_table_name'], $row['fk_column_name'] => $row['uq_column_name']];
