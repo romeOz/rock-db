@@ -5,6 +5,7 @@ namespace rockunit;
 use rock\base\BaseException;
 
 use rock\db\common\ActiveDataProvider;
+use rock\db\common\ArrayDataProvider;
 use rock\db\common\DbException;
 use rock\db\Query;
 use rockunit\models\ActiveRecord;
@@ -20,6 +21,43 @@ class ActiveDataProviderTest extends DatabaseTestCase
     {
         parent::setUp();
         ActiveRecord::$connection = $this->getConnection(false);
+        unset($_GET['page']);
+    }
+
+    public static function tearDownAfterClass()
+    {
+        parent::tearDownAfterClass();
+        unset($_GET['page']);
+    }
+
+
+    /**
+     * @dataProvider providerQuery
+     * @param int $page
+     * @param string $name
+     */
+    public function testQuery($page, $name)
+    {
+        $provider = new ActiveDataProvider(
+            [
+                'query' => (new Query())->setConnection($this->getConnection(false))->from('customer'),
+                'pagination' => ['limit' => 1, 'sort' => SORT_DESC, 'page' => $page]
+            ]
+        );
+
+        $this->assertSame(1, count($provider->getModels()));
+        $this->assertEquals($name, $provider->getModels()[0]['name']);
+        $this->assertNotEmpty($provider->getPagination()->toArray());
+        $this->assertSame(3, $provider->getTotalCount());
+        $this->assertSame(1, count($provider->getKeys()));
+    }
+
+    public function providerQuery()
+    {
+        return [
+            [1, 'user3'],
+            [2, 'user2']
+        ];
     }
 
     public function testActiveQuery()
@@ -28,140 +66,78 @@ class ActiveDataProviderTest extends DatabaseTestCase
         $provider = new ActiveDataProvider(
             [
                 'query' => Customer::find()->asArray(),
-                'only' => ['id', 'name'],
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
             ]
         );
 
-        $this->assertSame(2, count($provider->get()));
+        $this->assertSame(2, count($provider->getModels()));
         $this->assertNotEmpty($provider->getPagination()->toArray());
         $this->assertNotEmpty($provider->getPagination()['pageLast']);
         $this->assertNotEmpty($provider->getPagination()['pageLast']);
         $this->assertTrue(isset($provider->getPagination()['pageLast']));
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
-        // to Array
-        $result = $provider->toArray()[0];
+        $result = $provider->getModels()[0];
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('name', $result);
-        $this->assertSame(2, count($result));
-        $this->assertSame(2, count($provider->getKeys()));
 
-        // as ActiveRecord
+        // as models
         $provider = new ActiveDataProvider(
             [
                 'query' => Customer::find()->with('profile'),
-                'only' => ['id', 'name'],
-                'exclude' => ['id'],
-                'expand' => ['profile'],
-                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
-            ]
-        );
-        $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination()->toArray());
-        $this->assertSame(3, $provider->getTotalCount());
-        $this->assertSame(2, count($provider->getKeys()));
-
-        // to Array
-        $result = $provider->toArray()[0];
-        $this->assertArrayNotHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-        $this->assertArrayHasKey('profile', $result);
-        $this->assertNotEmpty($result['profile']);
-        $this->assertSame(2, count($result));
-        $this->assertSame(2, count($provider->getKeys()));
-
-        // one + ActiveRecord
-        $provider = new ActiveDataProvider(
-            [
-                'query' => Customer::find()->with('profile')->one(),
-                'only' => ['id', 'name'],
-                'exclude' => ['id'],
-                'expand' => ['profile'],
-            ]
-        );
-        $result = $provider->toArray();
-        $this->assertArrayNotHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-        $this->assertArrayHasKey('profile', $result);
-        $this->assertNotEmpty($result['profile']);
-        $this->assertSame(count($result), 2);
-        $this->assertEquals(['name', 'profile'], $provider->getKeys());
-    }
-
-
-    public function testQuery()
-    {
-        $provider = new ActiveDataProvider(
-            [
-                'query' => (new Query())->setConnection($this->getConnection(false))->from('customer'),
-                'only' => ['id', 'name'],
-                'pagination' => ['limit' => 2, 'sort' => SORT_DESC, 'page' => 0]
-            ]
-        );
-
-        // get
-        $this->assertSame(2, count($provider->get()));
-        $this->assertNotEmpty($provider->getPagination()->toArray());
-        $this->assertSame(3, $provider->getTotalCount());
-        $this->assertSame(2, count($provider->getKeys()));
-
-        // to Array
-        $result = $provider->toArray()[0];
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-        $this->assertSame(2, count($result));
-        $this->assertSame(2, count($provider->getKeys()));
-    }
-
-    public function testArray()
-    {
-        $provider = new ActiveDataProvider(
-            [
-                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
-                'only' => ['id', 'name'],
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
             ]
         );
 
-        // get
-        $this->assertSame(2, count($provider->get()));
+        $this->assertSame(2, count($provider->getModels()));
         $this->assertNotEmpty($provider->getPagination()->toArray());
         $this->assertSame(3, $provider->getTotalCount());
         $this->assertSame(2, count($provider->getKeys()));
+        $result = $provider->getModels()[0];
+        $this->assertNotEmpty($result->id);
+        $this->assertNotEmpty($result->name);
+        $this->assertNotEmpty($result->profile);
+    }
 
-        // to Array
-        $result = $provider->toArray()[0];
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-        $this->assertSame(2, count($result));
-        $this->assertSame(2, count($provider->getKeys()));
 
-        $provider = new ActiveDataProvider(
+    /**
+     * @dataProvider providerArray
+     */
+    public function testArray($page, $count)
+    {
+        $_GET['page'] = $page;
+        $provider = new ArrayDataProvider(
             [
-                'query' => (new Query())->from('customer')->one($this->getConnection(false)),
-                'only' => ['id', 'name'],
+                'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
+                'pagination' => ['limit' => 2, 'sort' => SORT_ASC]
             ]
         );
 
-        $result = $provider->toArray();
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-        $this->assertSame(2, count($result));
-        $this->assertContains('id', $provider->getKeys());
-        $this->assertContains('name', $provider->getKeys());
+        $this->assertSame($count, count($provider->getModels()));
+        $this->assertNotEmpty($provider->getPagination()->toArray());
+        $this->assertSame($page, $provider->getPagination()->getPageCurrent());
+        $this->assertSame(3, $provider->getTotalCount());
+        $this->assertSame($count, count($provider->getKeys()));
+    }
+
+    public function providerArray()
+    {
+        return [
+            [1, 2],
+            [2, 1]
+        ];
     }
 
     public function testGetLink()
     {
-
         $provider = new ActiveDataProvider(
             [
-                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
-                'only' => ['id', 'name'],
+                'connection' => $this->getConnection(false),
+                'query' => (new Query())->from('customer'),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
             ]
         );
+        $provider->getModels();
         $expected = [
             'self' => '/',
             'first' => '/',
@@ -170,31 +146,41 @@ class ActiveDataProviderTest extends DatabaseTestCase
             'last' => '/?page=1',
         ];
         $this->assertSame($expected, $provider->getPagination()->getLinks());
+
+        // as array
+        $provider = new arrayDataProvider(
+            [
+                'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
+                'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+            ]
+        );
+        $provider->getModels();
+        $this->assertSame($expected, $provider->getPagination()->getLinks());
     }
 
     public function testSetPropertyThrowException()
     {
         $this->setExpectedException(BaseException::className());
-        $provider = new ActiveDataProvider(
+        $provider = new arrayDataProvider(
             [
-                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
-                'only' => ['id', 'name'],
+                'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
             ]
         );
+        $provider->getModels();
         $provider->getPagination()['pageLast'] = 5;
     }
 
     public function testUnsetPropertyThrowException()
     {
         $this->setExpectedException(DbException::className());
-        $provider = new ActiveDataProvider(
+        $provider = new arrayDataProvider(
             [
-                'array' => (new Query())->from('customer')->all($this->getConnection(false)),
-                'only' => ['id', 'name'],
+                'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
             ]
         );
+        $provider->getModels();
         unset($provider->getPagination()['pageLast']);
     }
 }
