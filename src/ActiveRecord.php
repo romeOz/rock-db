@@ -2,6 +2,7 @@
 namespace rock\db;
 
 use rock\base\BaseException;
+use rock\components\validate\ModelValidate;
 use rock\db\common\ActiveQueryInterface;
 use rock\db\common\BaseActiveRecord;
 use rock\db\common\ConnectionInterface;
@@ -87,6 +88,21 @@ class ActiveRecord extends BaseActiveRecord
     const OP_ALL = 0x07;
 
     private static $_alias = null;
+
+    public function init()
+    {
+        parent::init();
+        $rules = [
+            'unique' => [
+                'class' => \rock\db\validate\rules\Unique::className(),
+                'locales' => [
+                    'en' => \rock\db\validate\locale\en\Unique::className(),
+                    'ru' => \rock\db\validate\locale\ru\Unique::className(),
+                ]
+            ]
+        ];
+        $this->validate = new ModelValidate(['rules' => $rules]);
+    }
 
     /**
      * Loads default values from database table schema

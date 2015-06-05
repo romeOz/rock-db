@@ -3,10 +3,9 @@
 namespace rock\db\validate\rules;
 
 use rock\base\BaseException;
-use rock\components\Model;
+use rock\components\validate\ModelRule;
 use rock\db\common\ActiveRecordInterface;
 use rock\log\Log;
-use rock\validate\rules\Rule;
 use rock\validate\ValidateException;
 
 /**
@@ -24,7 +23,7 @@ use rock\validate\ValidateException;
  * ['a1', 'unique' => ['a2']]
  * ```
  */
-class Unique extends Rule
+class Unique extends ModelRule
 {
     /**
      * @var string|array the name of the ActiveRecord attribute that should be used to
@@ -49,14 +48,9 @@ class Unique extends Rule
      */
     public $filter;
 
-
-    /** @var  Model */
-    protected $model;
-
-    public function __construct($model, $targetAttribute = null, $targetClass = null, $filter = null, $config = [])
+    public function __construct($targetAttribute = null, $targetClass = null, $filter = null, $config = [])
     {
-        $this->parentConstruct($config);
-        $this->model = $model;
+        parent::__construct($config);
         $this->targetClass = $targetClass;
         $this->targetAttribute = $targetAttribute;
         $this->filter = $filter;
@@ -65,11 +59,11 @@ class Unique extends Rule
     /**
      * @inheritdoc
      */
-    public function validate($attribute)
+    public function validate($input = null)
     {
         /* @var $targetClass ActiveRecordInterface */
         $targetClass = $this->targetClass === null ? get_class($this->model) : $this->targetClass;
-        $targetAttribute = $this->targetAttribute === null ? $attribute : $this->targetAttribute;
+        $targetAttribute = $this->targetAttribute === null ? $this->attribute : $this->targetAttribute;
         if (is_array($targetAttribute)) {
             $params = [];
             foreach ($targetAttribute as $k => $v) {
@@ -77,8 +71,8 @@ class Unique extends Rule
             }
             $this->params['value'] = $params;
         } else {
-            $params = [$targetAttribute => $this->model->$attribute];
-            $this->params['value'] = $this->model->$attribute;
+            $params = [$targetAttribute => $this->model[$this->attribute]];
+            $this->params['value'] = $this->model[$this->attribute];
         }
         foreach ($params as $value) {
             if (is_array($value)) {

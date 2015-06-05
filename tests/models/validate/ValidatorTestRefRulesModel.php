@@ -17,7 +17,7 @@ class ValidatorTestRefRulesModel extends ActiveRecord
         }
         return [
             [
-                self::RULE_VALIDATE, 'ref', 'unique',
+                'ref', 'unique',
             ],
         ];
     }
