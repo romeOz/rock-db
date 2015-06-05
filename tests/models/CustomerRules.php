@@ -8,7 +8,7 @@ class CustomerRules extends Customer
     {
         return [
             [
-                self::RULE_VALIDATE, 'name', 'required', 'int'
+                'name', 'required', 'int'
             ],
         ];
     }
