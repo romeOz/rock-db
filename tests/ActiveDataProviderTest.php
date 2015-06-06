@@ -99,6 +99,20 @@ class ActiveDataProviderTest extends DatabaseTestCase
         $this->assertNotEmpty($result->profile);
     }
 
+    public function testActiveRelation()
+    {
+        $customer = Customer::find()
+            ->innerJoinWith([
+                'orders' => function($query){
+                    return $query->orderBy(['{{order}}.[[created_at]]' => SORT_DESC]);
+                },
+            ]);
+
+        $provider = new ActiveDataProvider([
+            'query' => $customer,
+        ]);
+        $this->assertNotEmpty($provider->getModels());
+    }
 
     /**
      * @dataProvider providerArray
