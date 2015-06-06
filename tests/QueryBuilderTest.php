@@ -290,6 +290,10 @@ class QueryBuilderTest extends DatabaseTestCase
 
     /**
      * @dataProvider conditionProvider
+     * @param $condition
+     * @param $expected
+     * @param $expectedParams
+     * @throws \Exception
      */
     public function testBuildCondition($condition, $expected, $expectedParams)
     {
@@ -301,6 +305,10 @@ class QueryBuilderTest extends DatabaseTestCase
 
     /**
      * @dataProvider filterConditionProvider
+     * @param $condition
+     * @param $expected
+     * @param $expectedParams
+     * @throws \Exception
      */
     public function testBuildFilterCondition($condition, $expected, $expectedParams)
     {
