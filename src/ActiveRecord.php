@@ -88,22 +88,7 @@ class ActiveRecord extends BaseActiveRecord
     const OP_ALL = 0x07;
 
     private static $_alias = null;
-
-    public function init()
-    {
-        parent::init();
-        $rules = [
-            'unique' => [
-                'class' => \rock\db\validate\rules\Unique::className(),
-                'locales' => [
-                    'en' => \rock\db\validate\locale\en\Unique::className(),
-                    'ru' => \rock\db\validate\locale\ru\Unique::className(),
-                ]
-            ]
-        ];
-        $this->validate = new ModelValidate(['rules' => $rules]);
-    }
-
+    
     /**
      * Loads default values from database table schema
      *
