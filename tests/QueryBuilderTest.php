@@ -12,8 +12,6 @@ use rock\db\sqlite\QueryBuilder as SqliteQueryBuilder;
 use rock\db\mssql\QueryBuilder as MssqlQueryBuilder;
 use rock\db\pgsql\QueryBuilder as PgsqlQueryBuilder;
 use rock\db\cubrid\QueryBuilder as CubridQueryBuilder;
-use rockunit\models\Customer;
-use rockunit\models\Order;
 
 /**
  * @group db
@@ -145,98 +143,98 @@ class QueryBuilderTest extends DatabaseTestCase
     {
         $conditions = [
             // empty values
-            [ ['like', 'name', []], '0=1', [] ],
-            [ ['not like', 'name', []], '', [] ],
-            [ ['or like', 'name', []], '0=1', [] ],
-            [ ['or not like', 'name', []], '', [] ],
+            [['like', 'name', []], '0=1', []],
+            [['not like', 'name', []], '', []],
+            [['or like', 'name', []], '0=1', []],
+            [['or not like', 'name', []], '', []],
 
             // simple like
-            [ ['like', 'name', 'heyho'], '`name` LIKE :qp0', [':qp0' => '%heyho%'] ],
-            [ ['not like', 'name', 'heyho'], '`name` NOT LIKE :qp0', [':qp0' => '%heyho%'] ],
-            [ ['or like', 'name', 'heyho'], '`name` LIKE :qp0', [':qp0' => '%heyho%'] ],
-            [ ['or not like', 'name', 'heyho'], '`name` NOT LIKE :qp0', [':qp0' => '%heyho%'] ],
+            [['like', 'name', 'heyho'], '`name` LIKE :qp0', [':qp0' => '%heyho%']],
+            [['not like', 'name', 'heyho'], '`name` NOT LIKE :qp0', [':qp0' => '%heyho%']],
+            [['or like', 'name', 'heyho'], '`name` LIKE :qp0', [':qp0' => '%heyho%']],
+            [['or not like', 'name', 'heyho'], '`name` NOT LIKE :qp0', [':qp0' => '%heyho%']],
 
             // like for many values
-            [ ['like', 'name', ['heyho', 'abc']], '`name` LIKE :qp0 AND `name` LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%'] ],
-            [ ['not like', 'name', ['heyho', 'abc']], '`name` NOT LIKE :qp0 AND `name` NOT LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%'] ],
-            [ ['or like', 'name', ['heyho', 'abc']], '`name` LIKE :qp0 OR `name` LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%'] ],
-            [ ['or not like', 'name', ['heyho', 'abc']], '`name` NOT LIKE :qp0 OR `name` NOT LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%'] ],
+            [['like', 'name', ['heyho', 'abc']], '`name` LIKE :qp0 AND `name` LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%']],
+            [['not like', 'name', ['heyho', 'abc']], '`name` NOT LIKE :qp0 AND `name` NOT LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%']],
+            [['or like', 'name', ['heyho', 'abc']], '`name` LIKE :qp0 OR `name` LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%']],
+            [['or not like', 'name', ['heyho', 'abc']], '`name` NOT LIKE :qp0 OR `name` NOT LIKE :qp1', [':qp0' => '%heyho%', ':qp1' => '%abc%']],
 
             // like with Expression
-            [ ['like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` LIKE CONCAT("test", colname, "%")', [] ],
-            [ ['not like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` NOT LIKE CONCAT("test", colname, "%")', [] ],
-            [ ['or like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` LIKE CONCAT("test", colname, "%")', [] ],
-            [ ['or not like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` NOT LIKE CONCAT("test", colname, "%")', [] ],
-            [ ['like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` LIKE CONCAT("test", colname, "%") AND `name` LIKE :qp0', [':qp0' => '%abc%'] ],
-            [ ['not like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` NOT LIKE CONCAT("test", colname, "%") AND `name` NOT LIKE :qp0', [':qp0' => '%abc%'] ],
-            [ ['or like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` LIKE CONCAT("test", colname, "%") OR `name` LIKE :qp0', [':qp0' => '%abc%'] ],
-            [ ['or not like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` NOT LIKE CONCAT("test", colname, "%") OR `name` NOT LIKE :qp0', [':qp0' => '%abc%'] ],
+            [['like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` LIKE CONCAT("test", colname, "%")', []],
+            [['not like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` NOT LIKE CONCAT("test", colname, "%")', []],
+            [['or like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` LIKE CONCAT("test", colname, "%")', []],
+            [['or not like', 'name', new Expression('CONCAT("test", colname, "%")')], '`name` NOT LIKE CONCAT("test", colname, "%")', []],
+            [['like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` LIKE CONCAT("test", colname, "%") AND `name` LIKE :qp0', [':qp0' => '%abc%']],
+            [['not like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` NOT LIKE CONCAT("test", colname, "%") AND `name` NOT LIKE :qp0', [':qp0' => '%abc%']],
+            [['or like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` LIKE CONCAT("test", colname, "%") OR `name` LIKE :qp0', [':qp0' => '%abc%']],
+            [['or not like', 'name', [new Expression('CONCAT("test", colname, "%")'), 'abc']], '`name` NOT LIKE CONCAT("test", colname, "%") OR `name` NOT LIKE :qp0', [':qp0' => '%abc%']],
 
             // not
-            [ ['not', 'name'], 'NOT (name)', [] ],
+            [['not', 'name'], 'NOT (name)', []],
 
             // and
-            [ ['and', 'id=1', 'id=2'], '(id=1) AND (id=2)', [] ],
-            [ ['and', 'type=1', ['or', 'id=1', 'id=2']], '(type=1) AND ((id=1) OR (id=2))', [] ],
+            [['and', 'id=1', 'id=2'], '(id=1) AND (id=2)', []],
+            [['and', 'type=1', ['or', 'id=1', 'id=2']], '(type=1) AND ((id=1) OR (id=2))', []],
 
             // or
-            [ ['or', 'id=1', 'id=2'], '(id=1) OR (id=2)', [] ],
-            [ ['or', 'type=1', ['or', 'id=1', 'id=2']], '(type=1) OR ((id=1) OR (id=2))', [] ],
+            [['or', 'id=1', 'id=2'], '(id=1) OR (id=2)', []],
+            [['or', 'type=1', ['or', 'id=1', 'id=2']], '(type=1) OR ((id=1) OR (id=2))', []],
 
             // between
-            [ ['between', 'id', 1, 10], '`id` BETWEEN :qp0 AND :qp1', [':qp0' => 1, ':qp1' => 10] ],
-            [ ['not between', 'id', 1, 10], '`id` NOT BETWEEN :qp0 AND :qp1', [':qp0' => 1, ':qp1' => 10] ],
-            [ ['between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), new Expression('NOW()')], '`date` BETWEEN (NOW() - INTERVAL 1 MONTH) AND NOW()', [] ],
-            [ ['between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), 123], '`date` BETWEEN (NOW() - INTERVAL 1 MONTH) AND :qp0', [':qp0' => 123] ],
-            [ ['not between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), new Expression('NOW()')], '`date` NOT BETWEEN (NOW() - INTERVAL 1 MONTH) AND NOW()', [] ],
-            [ ['not between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), 123], '`date` NOT BETWEEN (NOW() - INTERVAL 1 MONTH) AND :qp0', [':qp0' => 123] ],
+            [['between', 'id', 1, 10], '`id` BETWEEN :qp0 AND :qp1', [':qp0' => 1, ':qp1' => 10]],
+            [['not between', 'id', 1, 10], '`id` NOT BETWEEN :qp0 AND :qp1', [':qp0' => 1, ':qp1' => 10]],
+            [['between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), new Expression('NOW()')], '`date` BETWEEN (NOW() - INTERVAL 1 MONTH) AND NOW()', []],
+            [['between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), 123], '`date` BETWEEN (NOW() - INTERVAL 1 MONTH) AND :qp0', [':qp0' => 123]],
+            [['not between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), new Expression('NOW()')], '`date` NOT BETWEEN (NOW() - INTERVAL 1 MONTH) AND NOW()', []],
+            [['not between', 'date', new Expression('(NOW() - INTERVAL 1 MONTH)'), 123], '`date` NOT BETWEEN (NOW() - INTERVAL 1 MONTH) AND :qp0', [':qp0' => 123]],
 
             // in
-            [ ['in', 'id', [1, 2, 3]], '`id` IN (:qp0, :qp1, :qp2)', [':qp0' => 1, ':qp1' => 2, ':qp2' => 3] ],
-            [ ['not in', 'id', [1, 2, 3]], '`id` NOT IN (:qp0, :qp1, :qp2)', [':qp0' => 1, ':qp1' => 2, ':qp2' => 3] ],
-            [ ['in', 'id', (new Query())->select('id')->from('users')->where(['active' => 1])], '`id` IN (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
-            [ ['not in', 'id', (new Query())->select('id')->from('users')->where(['active' => 1])], '`id` NOT IN (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
+            [['in', 'id', [1, 2, 3]], '`id` IN (:qp0, :qp1, :qp2)', [':qp0' => 1, ':qp1' => 2, ':qp2' => 3]],
+            [['not in', 'id', [1, 2, 3]], '`id` NOT IN (:qp0, :qp1, :qp2)', [':qp0' => 1, ':qp1' => 2, ':qp2' => 3]],
+            [['in', 'id', (new Query())->select('id')->from('users')->where(['active' => 1])], '`id` IN (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
+            [['not in', 'id', (new Query())->select('id')->from('users')->where(['active' => 1])], '`id` NOT IN (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
             // exists
-            [ ['exists', (new Query())->select('id')->from('users')->where(['active' => 1])], 'EXISTS (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
-            [ ['not exists', (new Query())->select('id')->from('users')->where(['active' => 1])], 'NOT EXISTS (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
+            [['exists', (new Query())->select('id')->from('users')->where(['active' => 1])], 'EXISTS (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
+            [['not exists', (new Query())->select('id')->from('users')->where(['active' => 1])], 'NOT EXISTS (SELECT `id` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
 
             // simple conditions
-            [ ['=', 'a', 'b'], '`a` = :qp0', [':qp0' => 'b'] ],
-            [ ['>', 'a', 1], '`a` > :qp0', [':qp0' => 1] ],
-            [ ['>=', 'a', 'b'], '`a` >= :qp0', [':qp0' => 'b'] ],
-            [ ['<', 'a', 2], '`a` < :qp0', [':qp0' => 2] ],
-            [ ['<=', 'a', 'b'], '`a` <= :qp0', [':qp0' => 'b'] ],
-            [ ['<>', 'a', 3], '`a` <> :qp0', [':qp0' => 3] ],
-            [ ['!=', 'a', 'b'], '`a` != :qp0', [':qp0' => 'b'] ],
-            [ ['>=', 'date', new Expression('DATE_SUB(NOW(), INTERVAL 1 MONTH)')], '`date` >= DATE_SUB(NOW(), INTERVAL 1 MONTH)', [] ],
-            [ ['>=', 'date', new Expression('DATE_SUB(NOW(), INTERVAL :month MONTH)', [':month' => 2])], '`date` >= DATE_SUB(NOW(), INTERVAL :month MONTH)', [':month' => 2] ],
-            [ ['=', 'date', (new Query())->select('max(date)')->from('test')->where(['id' => 5])], '`date` = (SELECT max(date) FROM `test` WHERE `id`=:qp0)', [':qp0' => 5] ],
+            [['=', 'a', 'b'], '`a` = :qp0', [':qp0' => 'b']],
+            [['>', 'a', 1], '`a` > :qp0', [':qp0' => 1]],
+            [['>=', 'a', 'b'], '`a` >= :qp0', [':qp0' => 'b']],
+            [['<', 'a', 2], '`a` < :qp0', [':qp0' => 2]],
+            [['<=', 'a', 'b'], '`a` <= :qp0', [':qp0' => 'b']],
+            [['<>', 'a', 3], '`a` <> :qp0', [':qp0' => 3]],
+            [['!=', 'a', 'b'], '`a` != :qp0', [':qp0' => 'b']],
+            [['>=', 'date', new Expression('DATE_SUB(NOW(), INTERVAL 1 MONTH)')], '`date` >= DATE_SUB(NOW(), INTERVAL 1 MONTH)', []],
+            [['>=', 'date', new Expression('DATE_SUB(NOW(), INTERVAL :month MONTH)', [':month' => 2])], '`date` >= DATE_SUB(NOW(), INTERVAL :month MONTH)', [':month' => 2]],
+            [['=', 'date', (new Query())->select('max(date)')->from('test')->where(['id' => 5])], '`date` = (SELECT max(date) FROM `test` WHERE `id`=:qp0)', [':qp0' => 5]],
 
             // hash condition
-            [ ['a' => 1, 'b' => 2], '(`a`=:qp0) AND (`b`=:qp1)', [':qp0' => 1, ':qp1' => 2] ],
-            [ ['a' => new Expression('CONCAT(col1, col2)'), 'b' => 2], '(`a`=CONCAT(col1, col2)) AND (`b`=:qp0)', [':qp0' => 2] ],
+            [['a' => 1, 'b' => 2], '(`a`=:qp0) AND (`b`=:qp1)', [':qp0' => 1, ':qp1' => 2]],
+            [['a' => new Expression('CONCAT(col1, col2)'), 'b' => 2], '(`a`=CONCAT(col1, col2)) AND (`b`=:qp0)', [':qp0' => 2]],
         ];
         switch ($this->driverName) {
             case 'mssql':
             case 'sqlite':
                 $conditions = array_merge($conditions, [
-                    [ ['in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '((`id` = :qp0 AND `name` = :qp1) OR (`id` = :qp2 AND `name` = :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar'] ],
-                    [ ['not in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '((`id` != :qp0 OR `name` != :qp1) AND (`id` != :qp2 OR `name` != :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar'] ],
+                    [['in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '((`id` = :qp0 AND `name` = :qp1) OR (`id` = :qp2 AND `name` = :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar']],
+                    [['not in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '((`id` != :qp0 OR `name` != :qp1) AND (`id` != :qp2 OR `name` != :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar']],
                     //[ ['in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], 'EXISTS (SELECT 1 FROM (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0) AS a WHERE a.`id` = `id AND a.`name` = `name`)', [':qp0' => 1] ],
                     //[ ['not in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], 'NOT EXISTS (SELECT 1 FROM (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0) AS a WHERE a.`id` = `id` AND a.`name = `name`)', [':qp0' => 1] ],
                 ]);
                 break;
             default:
                 $conditions = array_merge($conditions, [
-                    [ ['in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '(`id`, `name`) IN ((:qp0, :qp1), (:qp2, :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar'] ],
-                    [ ['not in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '(`id`, `name`) NOT IN ((:qp0, :qp1), (:qp2, :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar'] ],
-                    [ ['in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], '(`id`, `name`) IN (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
-                    [ ['not in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], '(`id`, `name`) NOT IN (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1] ],
+                    [['in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '(`id`, `name`) IN ((:qp0, :qp1), (:qp2, :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar']],
+                    [['not in', ['id', 'name'], [['id' => 1, 'name' => 'foo'], ['id' => 2, 'name' => 'bar']]], '(`id`, `name`) NOT IN ((:qp0, :qp1), (:qp2, :qp3))', [':qp0' => 1, ':qp1' => 'foo', ':qp2' => 2, ':qp3' => 'bar']],
+                    [['in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], '(`id`, `name`) IN (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
+                    [['not in', ['id', 'name'], (new Query())->select(['id', 'name'])->from('users')->where(['active' => 1])], '(`id`, `name`) NOT IN (SELECT `id`, `name` FROM `users` WHERE `active`=:qp0)', [':qp0' => 1]],
                 ]);
                 break;
         }
         // adjust dbms specific escaping
-        foreach($conditions as $i => $condition) {
+        foreach ($conditions as $i => $condition) {
             $conditions[$i][1] = $this->replaceQuotes($condition[1]);
         }
         return $conditions;
@@ -246,45 +244,45 @@ class QueryBuilderTest extends DatabaseTestCase
     {
         $conditions = [
             // like
-            [ ['like', 'name', []], '', [] ],
-            [ ['not like', 'name', []], '', [] ],
-            [ ['or like', 'name', []], '', [] ],
-            [ ['or not like', 'name', []], '', [] ],
+            [['like', 'name', []], '', []],
+            [['not like', 'name', []], '', []],
+            [['or like', 'name', []], '', []],
+            [['or not like', 'name', []], '', []],
 
             // not
-            [ ['not', ''], '', [] ],
+            [['not', ''], '', []],
 
             // and
-            [ ['and', '', ''], '', [] ],
-            [ ['and', '', 'id=2'], '(id=2)', [] ],
-            [ ['and', 'id=1', ''], '(id=1)', [] ],
-            [ ['and', 'type=1', ['or', '', 'id=2']], '(type=1) AND ((id=2))', [] ],
+            [['and', '', ''], '', []],
+            [['and', '', 'id=2'], '(id=2)', []],
+            [['and', 'id=1', ''], '(id=1)', []],
+            [['and', 'type=1', ['or', '', 'id=2']], '(type=1) AND ((id=2))', []],
 
             // or
-            [ ['or', 'id=1', ''], '(id=1)', [] ],
-            [ ['or', 'type=1', ['or', '', 'id=2']], '(type=1) OR ((id=2))', [] ],
+            [['or', 'id=1', ''], '(id=1)', []],
+            [['or', 'type=1', ['or', '', 'id=2']], '(type=1) OR ((id=2))', []],
 
 
             // between
-            [ ['between', 'id', 1, null], '', [] ],
-            [ ['not between', 'id', null, 10], '', [] ],
+            [['between', 'id', 1, null], '', []],
+            [['not between', 'id', null, 10], '', []],
 
             // in
-            [ ['in', 'id', []], '', [] ],
-            [ ['not in', 'id', []], '', [] ],
+            [['in', 'id', []], '', []],
+            [['not in', 'id', []], '', []],
 
             // simple conditions
-            [ ['=', 'a', ''], '', [] ],
-            [ ['>', 'a', ''], '', [] ],
-            [ ['>=', 'a', ''], '', [] ],
-            [ ['<', 'a', ''], '', [] ],
-            [ ['<=', 'a', ''], '', [] ],
-            [ ['<>', 'a', ''], '', [] ],
-            [ ['!=', 'a', ''], '', [] ],
+            [['=', 'a', ''], '', []],
+            [['>', 'a', ''], '', []],
+            [['>=', 'a', ''], '', []],
+            [['<', 'a', ''], '', []],
+            [['<=', 'a', ''], '', []],
+            [['<>', 'a', ''], '', []],
+            [['!=', 'a', ''], '', []],
         ];
 
         // adjust dbms specific escaping
-        foreach($conditions as $i => $condition) {
+        foreach ($conditions as $i => $condition) {
             $conditions[$i][1] = $this->replaceQuotes($condition[1]);
         }
         return $conditions;
@@ -481,8 +479,9 @@ class QueryBuilderTest extends DatabaseTestCase
             ->innerJoin('order', 'customer.id=order.customer_id');
         list($sql) = $this->getQueryBuilder()->build($query);
         $expected = $this->replaceQuotes(
-            "SELECT `customer`.`id` AS `customer__id`, `customer`.`name` AS `customer__name`, `order`.`id` AS `orders+id`, `order`.`total` AS `orders+total` FROM `customer` INNER JOIN `order` ON customer.id=order.customer_id");
+            "SELECT {{customer}}.[[id]] AS `customer.id`, {{customer}}.[[name]] AS `customer.name`, {{order}}.[[id]] AS `orders+id`, {{order}}.[[total]] AS `orders+total` FROM `customer` INNER JOIN `order` ON customer.id=order.customer_id");
         $this->assertSame($expected, $sql);
+        $this->assertNotEmpty($query->one($this->getConnection()));
 
         $query = new Query();
         $query->select(
@@ -493,5 +492,31 @@ class QueryBuilderTest extends DatabaseTestCase
             ->innerJoin('order', 'customer.id=order.customer_id');
         list($sql) = $this->getQueryBuilder()->build($query);
         $this->assertSame($expected, $sql);
+    }
+
+    public function testSubattributes()
+    {
+        $query = new Query();
+        $query->select([
+            SelectBuilder::selects([
+                ['customer' => ['id', 'name'], true],
+                ['order' => ['id', 'total'], 'orders']
+            ])
+        ])
+            ->from(['customer'])
+            ->innerJoin('order', 'customer.id=order.customer_id');
+
+
+        $expected = [
+            'customer' => [
+                'id' => 1,
+                'name' => 'user1',
+            ],
+            'orders' => [
+                'id' => 1,
+                'total' => 110,
+            ],
+        ];
+        $this->assertEquals($expected, $query->one($this->getConnection(), true));
     }
 }

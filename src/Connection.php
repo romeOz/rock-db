@@ -274,7 +274,7 @@ class Connection implements ObjectInterface, ConnectionInterface
      *
      * @var string
      */
-    public $aliasSeparator = '__';
+    public $aliasSeparator = '.';
     /**
      * Convert result to type.
      * @var bool
@@ -463,7 +463,7 @@ class Connection implements ObjectInterface, ConnectionInterface
 
     /**
      * Creates the PDO instance.
-     * 
+     *
      * This method is called by {@see \rock\db\Connection::open()} to establish a DB connection.
      * The default implementation will create a PHP PDO instance.
      * You may override this method if the default PDO needs to be adapted for certain DBMS.
@@ -489,7 +489,7 @@ class Connection implements ObjectInterface, ConnectionInterface
 
     /**
      * Initializes the DB connection.
-     * 
+     *
      * This method is invoked right after the DB connection is established.
      * The default implementation turns on `PDO::ATTR_EMULATE_PREPARES`
      * if {@see \rock\db\Connection::$emulatePrepare} is true, and sets the database {@see \rock\db\Connection::$charset} if it is not empty.
@@ -670,6 +670,20 @@ class Connection implements ObjectInterface, ConnectionInterface
     public function quoteColumnName($name)
     {
         return $this->getSchema()->quoteColumnName($name);
+    }
+
+    /**
+     * Quotes a simple column name for use in a query.
+     *
+     * If the column name contains prefix, the prefix will also be properly quoted.
+     * If the column name is already quoted or contains special characters including '(', '[[' and '{{',
+     * then this method will do nothing.
+     * @param string $name column name
+     * @return string the properly quoted column name
+     */
+    public function quoteSimpleColumnName($name)
+    {
+        return $this->getSchema()->quoteSimpleColumnName($name);
     }
 
     /**

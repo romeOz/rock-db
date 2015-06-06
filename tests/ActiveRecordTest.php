@@ -1389,7 +1389,7 @@ class ActiveRecordTest extends DatabaseTestCase
             );
 
         $sql = $this->replaceQuotes(
-            "SELECT `customer`.`id` AS `customer__id`, `customer`.`name` AS `customer__name`, `order`.`id` AS `orders+id`, `order`.`total` AS `orders+total` FROM `customer`");
+            "SELECT `customer`.`id` AS `customer.id`, `customer`.`name` AS `customer.name`, `order`.`id` AS `orders+id`, `order`.`total` AS `orders+total` FROM `customer`");
         $this->assertSame($query->getRawSql(), $sql);
 
     }

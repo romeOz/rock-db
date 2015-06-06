@@ -129,23 +129,23 @@ class SelectBuilder implements ObjectInterface
                     $params = array_merge($params, $column->params);
                 } elseif (is_string($i)) {
                     if (strpos($column, '(') === false) {
-                        $column = $connection->quoteColumnName($column);
+                        $column = "[[$column]]";
                     }
-                    $columns[$i] = "$column AS " . $connection->quoteColumnName($i);
+                    $columns[$i] = "$column AS " . $connection->quoteSimpleColumnName($i);
                 } elseif (strpos($column, '(') === false) {
                     if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)([\w\-_\.]+)$/', $column, $matches)) {
-                        $matches[2] = $alias === true ? $connection->quoteColumnName($tableAlias . $aliasSeparator . $matches[2]) : $connection->quoteColumnName($matches[2]);
+                        $matches[2] = $alias === true ? $tableAlias . $aliasSeparator . $matches[2] : $matches[2];
                         $columns[$i]
-                            = $connection->quoteTableName($table) .'.'. $connection->quoteColumnName($matches[1]) . ' AS ' . $matches[2];
+                            = "{{{$table}}}.[[$matches[1]]]" . ' AS ' . $connection->quoteSimpleColumnName($matches[2]);
                     } else {
-                        $columns[$i] = $connection->quoteTableName($table) .'.'. $connection->quoteColumnName($column) . ($alias === true ? ' AS ' . $connection->quoteColumnName($tableAlias . $aliasSeparator . $column) : null);
+                        $columns[$i] = "{{{$table}}}.[[$column]]". ($alias === true ? ' AS ' . $connection->quoteSimpleColumnName($tableAlias . $aliasSeparator . $column) : null);
                     }
                 } elseif (stripos($column, 'CONCAT') !== false) {
                     if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)([\w\-_\.]+)$/', $column, $matches)) {
-                        $matches[2] = $alias === true ? $connection->quoteColumnName($tableAlias . $aliasSeparator . $matches[2]) : $connection->quoteColumnName($matches[2]);
-                        $columns[$i] = $connection->quoteColumnName($matches[1]) . ' AS ' . $matches[2];
+                        $matches[2] = $alias === true ? $tableAlias . $aliasSeparator . $matches[2] : $matches[2];
+                        $columns[$i] = "$matches[1] AS " . $connection->quoteSimpleColumnName($matches[2]);
                     } else {
-                        $columns[$i] = $connection->quoteTableName($table) .'.'. $connection->quoteColumnName($column) . ($alias === true ? ' AS ' . $connection->quoteColumnName($tableAlias . $aliasSeparator . $column) : null);
+                        $columns[$i] = "{{{$table}}}.[[$column]]". ($alias === true ? ' AS ' . $connection->quoteSimpleColumnName($tableAlias . $aliasSeparator . $column) : null);
                     }
                 }
             }
@@ -189,4 +189,4 @@ class SelectBuilder implements ObjectInterface
         $this->selects = $selects;
         return $this;
     }
-} 
+}
