@@ -479,7 +479,7 @@ class QueryBuilderTest extends DatabaseTestCase
             ->innerJoin('order', 'customer.id=order.customer_id');
         list($sql) = $this->getQueryBuilder()->build($query);
         $expected = $this->replaceQuotes(
-            "SELECT {{customer}}.[[id]] AS `customer.id`, {{customer}}.[[name]] AS `customer.name`, {{order}}.[[id]] AS `orders+id`, {{order}}.[[total]] AS `orders+total` FROM `customer` INNER JOIN `order` ON customer.id=order.customer_id");
+            "SELECT {{customer}}.`id` AS `customer.id`, {{customer}}.`name` AS `customer.name`, {{order}}.`id` AS `orders+id`, {{order}}.`total` AS `orders+total` FROM `customer` INNER JOIN `order` ON customer.id=order.customer_id");
         $this->assertSame($expected, $sql);
         $this->assertNotEmpty($query->one($this->getConnection()));
 
