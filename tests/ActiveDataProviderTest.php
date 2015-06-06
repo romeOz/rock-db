@@ -4,6 +4,7 @@ namespace rockunit;
 
 use rock\base\BaseException;
 
+use rock\db\ActiveQuery;
 use rock\db\common\ActiveDataProvider;
 use rock\db\common\ArrayDataProvider;
 use rock\db\common\DbException;
@@ -103,7 +104,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
     {
         $customer = Customer::find()
             ->innerJoinWith([
-                'orders' => function($query){
+                'orders' => function(ActiveQuery $query){
                     return $query->orderBy(['{{order}}.[[created_at]]' => SORT_DESC]);
                 },
             ]);
@@ -116,6 +117,8 @@ class ActiveDataProviderTest extends DatabaseTestCase
 
     /**
      * @dataProvider providerArray
+     * @param int $page
+     * @param int $count
      */
     public function testArray($page, $count)
     {

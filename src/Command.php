@@ -5,9 +5,7 @@ use rock\base\ObjectInterface;
 use rock\base\ObjectTrait;
 use rock\cache\CacheInterface;
 use rock\db\common\DbException;
-use rock\helpers\ArrayHelper;
 use rock\helpers\Instance;
-use rock\helpers\ObjectHelper;
 use rock\helpers\Trace;
 
 /**
@@ -312,14 +310,13 @@ class Command implements ObjectInterface
      *
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
      * @throws DbException execution failed
      */
-    public function queryAll($fetchMode = null, $subattributes = false)
+    public function queryAll($fetchMode = null)
     {
-        return $this->queryInternal('fetchAll', $fetchMode, $subattributes);
+        return $this->queryInternal('fetchAll', $fetchMode);
     }
 
     /**
@@ -328,14 +325,13 @@ class Command implements ObjectInterface
      *
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool    $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      * @throws DbException execution failed
      */
-    public function queryOne($fetchMode = null, $subattributes = false)
+    public function queryOne($fetchMode = null)
     {
-        return $this->queryInternal('fetch', $fetchMode, $subattributes);
+        return $this->queryInternal('fetch', $fetchMode);
     }
 
     /**
@@ -367,18 +363,6 @@ class Command implements ObjectInterface
     public function queryColumn()
     {
         return $this->queryInternal('fetchAll', \PDO::FETCH_COLUMN);
-    }
-
-    protected function prepareResult($result, $fetchMode, $subattributes)
-    {
-        if (!empty($result) && $subattributes === true) {
-            if ($fetchMode === \PDO::FETCH_ASSOC) {
-                return ArrayHelper::toMulti($result, $this->connection->aliasSeparator, true);
-            } elseif ($fetchMode === \PDO::FETCH_OBJ) {
-                return ObjectHelper::toMulti((array)$result, $this->connection->aliasSeparator);
-            }
-        }
-        return $result;
     }
 
     /**
@@ -835,11 +819,10 @@ class Command implements ObjectInterface
      * @param string $method method of PDOStatement to be called
      * @param integer $fetchMode the result fetch mode. Please refer to [PHP manual](http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php)
      * for valid fetch modes. If this parameter is null, the value set in {@see \rock\db\Command::$fetchMode} will be used.
-     * @param bool    $subattributes
      * @return mixed the method execution result
      * @throws DbException if the query causes any problem
      */
-    protected function queryInternal($method, $fetchMode = null, $subattributes = false)
+    protected function queryInternal($method, $fetchMode = null)
     {
         $connection = $this->connection;
         $rawSql = $this->getRawSql();
@@ -891,7 +874,6 @@ class Command implements ObjectInterface
                 if ($result === false) {
                     $result = null;
                 }
-                $result = $this->prepareResult($result, $fetchMode, $subattributes);
                 $this->pdoStatement->closeCursor();
             }
 

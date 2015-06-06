@@ -512,8 +512,8 @@ class QueryBuilderTest extends DatabaseTestCase
             ])
         ])
             ->from(['customer'])
-            ->innerJoin('order', '{{customer}}.[[id]] = {{order}}.[[customer_id]]');
-
+            ->innerJoin('order', '{{customer}}.[[id]] = {{order}}.[[customer_id]]')
+            ->asSubattributes();
 
         $expected = [
             'customer' => [
@@ -525,6 +525,6 @@ class QueryBuilderTest extends DatabaseTestCase
                 'total' => 110,
             ],
         ];
-        $this->assertEquals($expected, $query->one($this->getConnection(), true));
+        $this->assertEquals($expected, $query->one($this->getConnection()));
     }
 }

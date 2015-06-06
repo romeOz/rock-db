@@ -249,18 +249,18 @@ class Query implements QueryInterface
      *
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|null the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */
-    public function one(ConnectionInterface $connection = null, $subattributes = false)
+    public function one(ConnectionInterface $connection = null)
     {
         if (!$this->beforeFind()) {
             return null;
         }
         $command = $this->createCommand($connection);
-        $row = $command->queryOne(null, $subattributes);
+        $row = $command->queryOne();
         if ($row !== null) {
+            $row = $this->toSubattributes($row);
             $rows = $this->prepareResult([$row], $connection);
             return reset($rows) ?: null;
         } else {
@@ -273,16 +273,29 @@ class Query implements QueryInterface
      *
      * @param ConnectionInterface $connection the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all(ConnectionInterface $connection = null, $subattributes = false)
+    public function all(ConnectionInterface $connection = null)
     {
         if (!$this->beforeFind()) {
             return [];
         }
         $command = $this->createCommand($connection);
-        return $this->prepareResult($command->queryAll(null, $subattributes), $connection);
+        $rows = $command->queryAll();
+        return $this->prepareResult($this->toSubattributes($rows), $connection);
+    }
+
+    public function toSubattributes(array $rows, ConnectionInterface $connection = null)
+    {
+        if (empty($rows) || !$this->asSubattributes) {
+            return $rows;
+        }
+        if (isset($connection)) {
+            $this->setConnection($connection);
+        }
+        $connection = $this->getConnection();
+
+        return ArrayHelper::toMulti($rows, $connection->aliasSeparator, true);
     }
 
     /**

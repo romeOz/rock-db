@@ -134,7 +134,7 @@ class BatchQueryResult implements \Iterator, ObjectInterface
         $rows = [];
         $count = 0;
         while ($count++ < $this->batchSize && ($row = $this->_dataReader->read())) {
-            $rows[] = $row;
+            $rows[] = $this->query->toSubattributes($row, $this->connection);
         }
 
         return $this->query->prepareResult($rows);

@@ -133,12 +133,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param ConnectionInterface $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param bool       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting
      * of {@see \rock\db\ActiveQueryTrait::$asArray},the query result may be either an array or an ActiveRecord object. Null will be returned
      * if the query results in nothing.
      */
-    public function one(ConnectionInterface $connection = null, $subattributes = false)
+    public function one(ConnectionInterface $connection = null)
     {
         // event before
         /** @var ActiveRecord $model */
@@ -146,7 +145,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (!$model->beforeFind()) {
             return null;
         }
-        return parent::one($connection, $subattributes);
+        return parent::one($connection);
     }
 
     /**
@@ -154,10 +153,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param ConnectionInterface $connection the DB connection used to create the DB command.
      * If null, the DB connection returned by {@see \rock\db\ActiveQueryTrait::modleClass()} will be used.
-     * @param boolean       $subattributes calculate sub-attributes (e.g `category.id => [category][id]`).
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all(ConnectionInterface $connection = null, $subattributes = false)
+    public function all(ConnectionInterface $connection = null)
     {
         // event before
         /** @var ActiveRecord $model */
@@ -166,7 +164,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return [];
         }
 
-        return parent::all($connection, $subattributes);
+        return parent::all($connection);
     }
 
     /**
