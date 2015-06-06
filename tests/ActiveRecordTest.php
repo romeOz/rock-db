@@ -1207,7 +1207,13 @@ class ActiveRecordTest extends DatabaseTestCase
             $customerClass::find()->select('*'),
             [$orderClass::find()->select(['id']), true]
         ]);
-        $customer = $customerClass::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray()->one(null, true);
+        $customer = $customerClass::find()
+            ->select($selectBuilder)
+            ->where(['customer.id' => 1])
+            ->joinWith('orders', false)
+            ->asArray()
+            ->asSubattributes()
+            ->one();
         $this->assertNotNull($customer);
         $this->assertSame($customer['order']['id'], 1);
         $this->assertEquals([
@@ -1224,7 +1230,8 @@ class ActiveRecordTest extends DatabaseTestCase
             ->where(['customer.id' => 1])
             ->joinWith('orders', false)
             ->asArray()
-            ->all(null, true);
+            ->asSubattributes()
+            ->all();
         $this->assertNotNull($customer);
         $this->assertSame($customer[0]['order']['id'], 1);
         $this->assertEquals([
@@ -1232,7 +1239,13 @@ class ActiveRecordTest extends DatabaseTestCase
         ], $afterFindCalls);
 
         $afterFindCalls = [];
-        $customer = $customerClass::find()->where(['customer.id' => [1, 2]])->joinWith('orders', false)->orderBy('customer.name')->asArray()->all(null, true);
+        $customer = $customerClass::find()
+            ->where(['customer.id' => [1, 2]])
+            ->joinWith('orders', false)
+            ->orderBy('customer.name')
+            ->asArray()
+            ->asSubattributes()
+            ->all();
         $this->assertNotNull($customer);
         $this->assertEquals([
             [$customerClass, true, null, false],
@@ -1310,10 +1323,10 @@ class ActiveRecordTest extends DatabaseTestCase
             $customerClass::find()->select('*'),
             [$orderClass::find()->select(['id']), true]
         ]);
-        $query = $customerClass::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray();
-        $this->assertNotEmpty($query->one($connection, true));
+        $query = $customerClass::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray()->asSubattributes();
+        $this->assertNotEmpty($query->one($connection));
         $this->assertFalse(Trace::getIterator('db.query')->current()['cache']);
-        $customer = $query->one($connection, true);
+        $customer = $query->one($connection);
         $this->assertSame($customer['order']['id'], 1);
         $this->assertTrue(Trace::getIterator('db.query')->current()['cache']);
         $this->assertNotEmpty($query->notCache()->one($connection));
