@@ -3,11 +3,13 @@
 namespace rockunit;
 
 
+use rock\cache\CacheInterface;
 use rock\db\ActiveQuery;
 use rock\db\common\ActiveQueryInterface;
 use rock\db\common\ActiveRecordInterface;
 use rock\db\common\BaseActiveRecord;
 use rock\db\common\DbException;
+use rock\db\Connection;
 use rock\db\SelectBuilder;
 use rock\events\Event;
 use rock\helpers\Trace;
@@ -285,16 +287,13 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testEquals()
     {
-        /* @var $itemClass ActiveRecordInterface */
-        $itemClass = $this->getItemClass();
-
         /** @var ActiveRecordInterface $customerA */
         $customerA = new Customer();
         $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
 
         $customerA = new Customer();
-        $customerB = new $itemClass();
+        $customerB = new Item();
         $this->assertFalse($customerA->equals($customerB));
 
         $customerA = Customer::findOne(1);
@@ -305,7 +304,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertTrue($customerA->equals($customerB));
 
         $customerA = Customer::findOne(1);
-        $customerB = $itemClass::findOne(1);
+        $customerB = Item::findOne(1);
         $this->assertFalse($customerA->equals($customerB));
     }
 
@@ -431,9 +430,6 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testFindEager()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
         $customers = Customer::find()->with('orders')->indexBy('id')->all();
         ksort($customers);
         $this->assertEquals(3, count($customers));
@@ -453,11 +449,11 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(1, count($customer->relatedRecords));
 
         // multiple with() calls
-        $orders = $orderClass::find()->with('customer', 'items')->all();
+        $orders = Order::find()->with('customer', 'items')->all();
         $this->assertEquals(3, count($orders));
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $orders = $orderClass::find()->with('customer')->with('items')->all();
+        $orders = Order::find()->with('customer')->with('items')->all();
         $this->assertEquals(3, count($orders));
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
@@ -465,11 +461,8 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testFindLazyVia()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
         /* @var $order Order */
-        $order = $orderClass::findOne(1);
+        $order = Order::findOne(1);
         $this->assertEquals(1, $order->id);
         $this->assertEquals(2, count($order->items));
         $this->assertEquals(1, $order->items[0]->id);
@@ -478,21 +471,16 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testFindLazyVia2()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
         /* @var $order Order */
-        $order = $orderClass::findOne(1);
+        $order = Order::findOne(1);
         $order->id = 100;
         $this->assertEquals([], $order->items);
     }
 
     public function testFindEagerViaRelation()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
 
-        $orders = $orderClass::find()->with('items')->orderBy('id')->all();
+        $orders = Order::find()->with('items')->orderBy('id')->all();
         $this->assertEquals(3, count($orders));
         $order = $orders[0];
         $this->assertEquals(1, $order->id);
@@ -504,7 +492,7 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testFindNestedRelation()
     {
-         $customers = Customer::find()->with('orders', 'orders.items')->indexBy('id')->all();
+        $customers = Customer::find()->with('orders', 'orders.items')->indexBy('id')->all();
         ksort($customers);
         $this->assertEquals(3, count($customers));
         $this->assertTrue($customers[1]->isRelationPopulated('orders'));
@@ -527,9 +515,6 @@ class ActiveRecordTest extends DatabaseTestCase
      */
     public function testFindEagerViaRelationPreserveOrder()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
         /*
         Item (name, category_id)
         Order (customer_id, created_at, total)
@@ -560,7 +545,7 @@ class ActiveRecordTest extends DatabaseTestCase
         - itemsInOrder:
             Item 3: 'Ice Age', 2
          */
-        $orders = $orderClass::find()->with('itemsInOrder1')->orderBy('created_at')->all();
+        $orders = Order::find()->with('itemsInOrder1')->orderBy('created_at')->all();
         $this->assertEquals(3, count($orders));
 
         $order = $orders[0];
@@ -588,10 +573,7 @@ class ActiveRecordTest extends DatabaseTestCase
     // different order in via table
     public function testFindEagerViaRelationPreserveOrderB()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
-        $orders = $orderClass::find()->with('itemsInOrder2')->orderBy('created_at')->all();
+        $orders = Order::find()->with('itemsInOrder2')->orderBy('created_at')->all();
         $this->assertEquals(3, count($orders));
 
         $order = $orders[0];
@@ -618,18 +600,11 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testLink()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        /* @var $itemClass ActiveRecordInterface */
-        /* @var $orderItemClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-        $orderItemClass = $this->getOrderItemClass();
-        $itemClass = $this->getItemClass();
-
         $customer = Customer::findOne(2);
         $this->assertEquals(2, count($customer->orders));
 
         // has many
-        $order = new $orderClass;
+        $order = new Order;
         $order->total = 100;
         $this->assertTrue($order->isNewRecord);
         $customer->link('orders', $order);
@@ -640,7 +615,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(2, $order->customer_id);
 
         // belongs to
-        $order = new $orderClass;
+        $order = new Order;
         $order->total = 100;
         $this->assertTrue($order->isNewRecord);
         $customer = Customer::findOne(1);
@@ -651,29 +626,24 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals(1, $order->customer->primaryKey);
 
         // via model
-        $order = $orderClass::findOne(1);
+        $order = Order::findOne(1);
         $this->assertEquals(2, count($order->items));
         $this->assertEquals(2, count($order->orderItems));
-        $orderItem = $orderItemClass::findOne(['order_id' => 1, 'item_id' => 3]);
+        $orderItem = OrderItem::findOne(['order_id' => 1, 'item_id' => 3]);
         $this->assertNull($orderItem);
-        $item = $itemClass::findOne(3);
+        $item = Item::findOne(3);
         $order->link('items', $item, ['quantity' => 10, 'subtotal' => 100]);
         $this->afterSave();
         $this->assertEquals(3, count($order->items));
         $this->assertEquals(3, count($order->orderItems));
-        $orderItem = $orderItemClass::findOne(['order_id' => 1, 'item_id' => 3]);
-        $this->assertTrue($orderItem instanceof $orderItemClass);
+        $orderItem = OrderItem::findOne(['order_id' => 1, 'item_id' => 3]);
+        $this->assertTrue($orderItem instanceof OrderItem);
         $this->assertEquals(10, $orderItem->quantity);
         $this->assertEquals(100, $orderItem->subtotal);
     }
 
     public function testUnlink()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-        /* @var $orderWithNullFKClass ActiveRecordInterface */
-        $orderWithNullFKClass = $this->getOrderWithNullFKClass();
-
         // has many without delete
         /** @var Customer $customer */
         $customer = Customer::findOne(2);
@@ -681,7 +651,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $customer->unlink('ordersWithNullFK', $customer->ordersWithNullFK[1], false);
 
         $this->assertEquals(1, count($customer->ordersWithNullFK));
-        $orderWithNullFK = $orderWithNullFKClass::findOne(3);
+        $orderWithNullFK = OrderWithNullFK::findOne(3);
 
         $this->assertEquals(3, $orderWithNullFK->id);
         $this->assertNull($orderWithNullFK->customer_id);
@@ -693,11 +663,11 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->afterSave();
 
         $this->assertEquals(1, count($customer->orders));
-        $this->assertNull($orderClass::findOne(3));
+        $this->assertNull(Order::findOne(3));
 
         // via model with delete
         /** @var Order $order */
-        $order = $orderClass::findOne(2);
+        $order = Order::findOne(2);
         $this->assertEquals(3, count($order->items));
         $this->assertEquals(3, count($order->orderItems));
         $order->unlink('items', $order->items[2], true);
@@ -717,84 +687,70 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAll()
     {
-        /* @var $orderClass ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-        /* @var $orderItemClass ActiveRecordInterface */
-        $orderItemClass = $this->getOrderItemClass();
-        /* @var $itemClass ActiveRecordInterface */
-        $itemClass = $this->getItemClass();
-        /* @var $orderWithNullFKClass ActiveRecordInterface */
-        $orderWithNullFKClass = $this->getOrderWithNullFKClass();
-        /* @var $orderItemsWithNullFKClass ActiveRecordInterface */
-        $orderItemsWithNullFKClass = $this->getOrderItemWithNullFKmClass();
-
         // has many with delete
         $customer = Customer::findOne(2);
         $this->assertEquals(2, count($customer->orders));
-        $this->assertEquals(3, $orderClass::find()->count());
+        $this->assertEquals(3, Order::find()->count());
         $customer->unlinkAll('orders', true);
         $this->afterSave();
-        $this->assertEquals(1, $orderClass::find()->count());
+        $this->assertEquals(1, Order::find()->count());
         $this->assertEquals(0, count($customer->orders));
 
-        $this->assertNull($orderClass::findOne(2));
-        $this->assertNull($orderClass::findOne(3));
+        $this->assertNull(Order::findOne(2));
+        $this->assertNull(Order::findOne(3));
 
         // has many without delete
         $customer = Customer::findOne(2);
         $this->assertEquals(2, count($customer->ordersWithNullFK));
-        $this->assertEquals(3, $orderWithNullFKClass::find()->count());
+        $this->assertEquals(3, OrderWithNullFK::find()->count());
         $customer->unlinkAll('ordersWithNullFK', false);
         $this->afterSave();
         $this->assertEquals(0, count($customer->ordersWithNullFK));
-        $this->assertEquals(3, $orderWithNullFKClass::find()->count());
-        $this->assertEquals(2, $orderWithNullFKClass::find()
+        $this->assertEquals(3, OrderWithNullFK::find()->count());
+        $this->assertEquals(2, OrderWithNullFK::find()
             ->where(['AND', ['id' => [2, 3]], ['customer_id' => null]])
             ->count());
 
         // via model with delete
         /* @var $order Order */
-        $order = $orderClass::findOne(1);
+        $order = Order::findOne(1);
         $this->assertEquals(2, count($order->books));
-        $orderItemCount = $orderItemClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+        $orderItemCount = OrderItem::find()->count();
+        $this->assertEquals(5, Item::find()->count());
         $order->unlinkAll('books', true);
         $this->afterSave();
-        $this->assertEquals(5, $itemClass::find()->count());
-        $this->assertEquals($orderItemCount - 2, $orderItemClass::find()->count());
+        $this->assertEquals(5, Item::find()->count());
+        $this->assertEquals($orderItemCount - 2, OrderItem::find()->count());
         $this->assertEquals(0, count($order->books));
 
         // via model without delete
         $this->assertEquals(2, count($order->booksWithNullFK));
-        $orderItemCount = $orderItemsWithNullFKClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+        $orderItemCount = OrderItemWithNullFK::find()->count();
+        $this->assertEquals(5, Item::find()->count());
         $order->unlinkAll('booksWithNullFK', false);
         $this->afterSave();
         $this->assertEquals(0, count($order->booksWithNullFK));
-        $this->assertEquals(2, $orderItemsWithNullFKClass::find()
+        $this->assertEquals(2, OrderItemWithNullFK::find()
             ->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])
             ->count());
-        $this->assertEquals($orderItemCount, $orderItemsWithNullFKClass::find()->count());
-        $this->assertEquals(5, $itemClass::find()->count());
+        $this->assertEquals($orderItemCount, OrderItemWithNullFK::find()->count());
+        $this->assertEquals(5, Item::find()->count());
     }
 
     public function testUnlinkAllAndConditionSetNull()
     {
-        /* @var $orderClass \rock\db\common\BaseActiveRecord */
-        $orderClass = $this->getOrderWithNullFKClass();
-
         // in this test all orders are owned by customer 1
-        $orderClass::updateAll(['customer_id' => 1]);
+        Order::updateAll(['customer_id' => 1]);
         $this->afterSave();
 
         $customer = Customer::findOne(1);
         $this->assertEquals(3, count($customer->ordersWithNullFK));
         $this->assertEquals(1, count($customer->expensiveOrdersWithNullFK));
-        $this->assertEquals(3, $orderClass::find()->count());
+        $this->assertEquals(3, Order::find()->count());
         $customer->unlinkAll('expensiveOrdersWithNullFK');
         $this->assertEquals(3, count($customer->ordersWithNullFK));
         $this->assertEquals(0, count($customer->expensiveOrdersWithNullFK));
-        $this->assertEquals(3, $orderClass::find()->count());
+        $this->assertEquals(3, Order::find()->count());
         $customer = Customer::findOne(1);
         $this->assertEquals(2, count($customer->ordersWithNullFK));
         $this->assertEquals(0, count($customer->expensiveOrdersWithNullFK));
@@ -802,21 +758,18 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAllAndConditionDelete()
     {
-        /* @var $orderClass \rock\db\common\BaseActiveRecord */
-        $orderClass = $this->getOrderClass();
-
         // in this test all orders are owned by customer 1
-        $orderClass::updateAll(['customer_id' => 1]);
+        Order::updateAll(['customer_id' => 1]);
         $this->afterSave();
 
         $customer = Customer::findOne(1);
         $this->assertEquals(3, count($customer->orders));
         $this->assertEquals(1, count($customer->expensiveOrders));
-        $this->assertEquals(3, $orderClass::find()->count());
+        $this->assertEquals(3, Order::find()->count());
         $customer->unlinkAll('expensiveOrders', true);
         $this->assertEquals(3, count($customer->orders));
         $this->assertEquals(0, count($customer->expensiveOrders));
-        $this->assertEquals(2, $orderClass::find()->count());
+        $this->assertEquals(2, Order::find()->count());
         $customer = Customer::findOne(1);
         $this->assertEquals(2, count($customer->orders));
         $this->assertEquals(0, count($customer->expensiveOrders));
@@ -938,31 +891,28 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUpdateCounters()
     {
-        /* @var $orderItemClass ActiveRecordInterface */
-        $orderItemClass = $this->getOrderItemClass();
-
         // updateCounters
         $pk = ['order_id' => 2, 'item_id' => 4];
-        $orderItem = $orderItemClass::findOne($pk);
+        $orderItem = OrderItem::findOne($pk);
         $this->assertEquals(1, $orderItem->quantity);
         $ret = $orderItem->updateCounters(['quantity' => -1]);
         $this->afterSave();
         $this->assertEquals(1, $ret);
         $this->assertEquals(0, $orderItem->quantity);
-        $orderItem = $orderItemClass::findOne($pk);
+        $orderItem = OrderItem::findOne($pk);
         $this->assertEquals(0, $orderItem->quantity);
 
         // updateAllCounters
         $pk = ['order_id' => 1, 'item_id' => 2];
-        $orderItem = $orderItemClass::findOne($pk);
+        $orderItem = OrderItem::findOne($pk);
         $this->assertEquals(2, $orderItem->quantity);
-        $ret = $orderItemClass::updateAllCounters([
+        $ret = OrderItem::updateAllCounters([
             'quantity' => 3,
             'subtotal' => -10,
         ], $pk);
         $this->afterSave();
         $this->assertEquals(1, $ret);
-        $orderItem = $orderItemClass::findOne($pk);
+        $orderItem = OrderItem::findOne($pk);
         $this->assertEquals(5, $orderItem->quantity);
         $this->assertEquals(30, $orderItem->subtotal);
     }
@@ -1026,10 +976,6 @@ class ActiveRecordTest extends DatabaseTestCase
      */
     public function testAfterFind()
     {
-        /* @var $orderClass BaseActiveRecord */
-        $orderClass = $this->getOrderClass();
-
-
         $afterFindCalls = [];
         Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND, function (Event $event) use (&$afterFindCalls) {
             /* @var $ar BaseActiveRecord */
@@ -1039,17 +985,17 @@ class ActiveRecordTest extends DatabaseTestCase
 
         $customer = Customer::findOne(1);
         $this->assertNotNull($customer);
-        $this->assertEquals([[Customer, false, 1, false]], $afterFindCalls);
+        $this->assertEquals([[Customer::className(), false, 1, false]], $afterFindCalls);
 
         $afterFindCalls = [];
         $customer = Customer::find()->where(['id' => 1])->one();
         $this->assertNotNull($customer);
-        $this->assertEquals([[Customer, false, 1, false]], $afterFindCalls);
+        $this->assertEquals([[Customer::className(), false, 1, false]], $afterFindCalls);
 
         $afterFindCalls = [];
         $customer = Customer::find()->where(['id' => 1])->all();
         $this->assertNotNull($customer);
-        $this->assertEquals([[Customer, false, 1, false]], $afterFindCalls);
+        $this->assertEquals([[Customer::className(), false, 1, false]], $afterFindCalls);
 
         $afterFindCalls = [];
         $customer = Customer::find()->where(['id' => 1])->with('orders')->all();
@@ -1057,7 +1003,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertSame($customer[0]->orders[0]->id, 1);
         $this->assertEquals([
             [$this->getOrderClass(), false, 1, false],
-            [Customer, false, 1, true],
+            [Customer::className(), false, 1, true],
         ], $afterFindCalls);
 
         $afterFindCalls = [];
@@ -1070,18 +1016,18 @@ class ActiveRecordTest extends DatabaseTestCase
         //        //}
         $this->assertNotNull($customer);
         $this->assertEquals([
-            [$orderClass, false, 1, false],
-            [$orderClass, false, 2, false],
-            [$orderClass, false, 3, false],
-            [Customer, false, 1, true],
-            [Customer, false, 2, true],
+            [Order::className(), false, 1, false],
+            [Order::className(), false, 2, false],
+            [Order::className(), false, 3, false],
+            [Customer::className(), false, 1, true],
+            [Customer::className(), false, 2, true],
         ], $afterFindCalls);
 
         // as Array
         $afterFindCalls = [];
         $customer = Customer::find()->where(['id' => 1])->asArray()->one();
         $this->assertNotNull($customer);
-        $this->assertEquals([[Customer, true, null, false]], $afterFindCalls);
+        $this->assertEquals([[Customer::className(), true, null, false]], $afterFindCalls);
 
 
         $afterFindCalls = [];
@@ -1090,7 +1036,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertNotNull($customer);
         $this->assertEquals([
             [$this->getOrderClass(), true, null, false],
-            [Customer, true, null, false],
+            [Customer::className(), true, null, false],
         ], $afterFindCalls);
 
 
@@ -1098,8 +1044,8 @@ class ActiveRecordTest extends DatabaseTestCase
         $customer = Customer::find()->where(['id' => [1, 2]])->with('orders')->orderBy('name')->asArray()->all();
         $this->assertNotNull($customer);
         $this->assertEquals([
-            [$orderClass, true, null, false],
-            [Customer, true, null, false],
+            [Order::className(), true, null, false],
+            [Customer::className(), true, null, false],
         ], $afterFindCalls);
 
         unset($_POST['_method']);
@@ -1110,9 +1056,6 @@ class ActiveRecordTest extends DatabaseTestCase
      */
     public function testAfterFindViaJoinWith()
     {
-        /* @var $orderClass BaseActiveRecord */
-        $orderClass = $this->getOrderClass();
-
         $afterFindCalls = [];
         Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND, function (Event $event) use (&$afterFindCalls) {
             /* @var $ar BaseActiveRecord */
@@ -1124,19 +1067,19 @@ class ActiveRecordTest extends DatabaseTestCase
         $afterFindCalls = [];
         $selectBuilder = SelectBuilder::selects([
             Customer::find()->select('*'),
-            [$orderClass::find()->select(['id']), true]
+            [Order::find()->select(['id']), true]
         ]);
         $customer = Customer::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray()->one(null, true);
         $this->assertNotNull($customer);
         $this->assertSame($customer['order']['id'], 1);
         $this->assertEquals([
-            [Customer, true, null, false],
+            [Customer::className(), true, null, false],
         ], $afterFindCalls);
 
         $afterFindCalls = [];
         $selectBuilder = SelectBuilder::selects([
             Customer::find()->select('*'),
-            [$orderClass::find()->select(['id']), true]
+            [Order::find()->select(['id']), true]
         ]);
         $customer = Customer::find()
             ->select($selectBuilder)
@@ -1147,14 +1090,14 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertNotNull($customer);
         $this->assertSame($customer[0]['order']['id'], 1);
         $this->assertEquals([
-            [Customer, true, null, false],
+            [Customer::className(), true, null, false],
         ], $afterFindCalls);
 
         $afterFindCalls = [];
         $customer = Customer::find()->where(['customer.id' => [1, 2]])->joinWith('orders', false)->orderBy('customer.name')->asArray()->all(null, true);
         $this->assertNotNull($customer);
         $this->assertEquals([
-            [Customer, true, null, false],
+            [Customer::className(), true, null, false],
         ], $afterFindCalls);
 
         Event::off(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND);
@@ -1178,11 +1121,8 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testFindEagerIndexBy()
     {
-        /* @var $orderClass \rock\db\common\ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-
         /* @var $order Order */
-        $order = $orderClass::find()->with('itemsIndexed')->where(['id' => 1])->one();
+        $order = Order::find()->with('itemsIndexed')->where(['id' => 1])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
         $items = $order->itemsIndexed;
         $this->assertEquals(2, count($items));
@@ -1190,7 +1130,7 @@ class ActiveRecordTest extends DatabaseTestCase
         $this->assertTrue(isset($items[2]));
 
         /* @var $order Order */
-        $order = $orderClass::find()->with('itemsIndexed')->where(['id' => 2])->one();
+        $order = Order::find()->with('itemsIndexed')->where(['id' => 2])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
         $items = $order->itemsIndexed;
         $this->assertEquals(3, count($items));
@@ -1206,9 +1146,6 @@ class ActiveRecordTest extends DatabaseTestCase
             return;
         }
 
-        /* @var $orderClass BaseActiveRecord */
-        $orderClass = $this->getOrderClass();
-
         /** @var CacheInterface $cache */
         $cache = static::getCache();
         $cache->flush();
@@ -1222,7 +1159,7 @@ class ActiveRecordTest extends DatabaseTestCase
 
         $selectBuilder = SelectBuilder::selects([
             Customer::find()->select('*'),
-            [$orderClass::find()->select(['id']), true]
+            [Order::find()->select(['id']), true]
         ]);
         $query = Customer::find()->select($selectBuilder)->where(['customer.id' => 1])->joinWith('orders', false)->asArray();
         $this->assertNotEmpty($query->one($connection, true));
@@ -1294,12 +1231,10 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testSelectBuilder()
     {
-        /* @var $orderClass BaseActiveRecord */
-        $orderClass = $this->getOrderClass();
         $query = Customer::find()
             ->select(
                 SelectBuilder::select(Customer::find()->select(['id', 'name']), true)
-                    ->select($orderClass::find()->select(['id', 'total']), 'orders', '+')
+                    ->select(Order::find()->select(['id', 'total']), 'orders', '+')
             );
 
         $sql = $this->replaceQuotes(
@@ -1867,36 +1802,27 @@ class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAllViaTable()
     {
-        /* @var $orderClass \rock\db\common\ActiveRecordInterface */
-        $orderClass = $this->getOrderClass();
-        /* @var $orderItemClass \rock\db\common\ActiveRecordInterface */
-        $orderItemClass = $this->getOrderItemClass();
-        /* @var $itemClass \rock\db\common\ActiveRecordInterface */
-        $itemClass = $this->getItemClass();
-        /* @var $orderItemsWithNullFKClass \rock\db\common\ActiveRecordInterface */
-        $orderItemsWithNullFKClass = $this->getOrderItemWithNullFKmClass();
-
         // via table with delete
         /* @var $order  Order */
-        $order = $orderClass::findOne(1);
+        $order = Order::findOne(1);
         $this->assertEquals(2, count($order->booksViaTable));
-        $orderItemCount = $orderItemClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+        $orderItemCount = OrderItem::find()->count();
+        $this->assertEquals(5, Item::find()->count());
         $order->unlinkAll('booksViaTable', true);
         $this->afterSave();
-        $this->assertEquals(5, $itemClass::find()->count());
-        $this->assertEquals($orderItemCount - 2, $orderItemClass::find()->count());
+        $this->assertEquals(5, Item::find()->count());
+        $this->assertEquals($orderItemCount - 2, OrderItem::find()->count());
         $this->assertEquals(0, count($order->booksViaTable));
 
         // via table without delete
         $this->assertEquals(2, count($order->booksWithNullFKViaTable));
-        $orderItemCount = $orderItemsWithNullFKClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+        $orderItemCount = OrderItemWithNullFK::find()->count();
+        $this->assertEquals(5, Item::find()->count());
         $order->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertEquals(0, count($order->booksWithNullFKViaTable));
-        $this->assertEquals(2, $orderItemsWithNullFKClass::find()->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])->count());
-        $this->assertEquals($orderItemCount, $orderItemsWithNullFKClass::find()->count());
-        $this->assertEquals(5, $itemClass::find()->count());
+        $this->assertEquals(2, OrderItemWithNullFK::find()->where(['AND', ['item_id' => [1, 2]], ['order_id' => null]])->count());
+        $this->assertEquals($orderItemCount, OrderItemWithNullFK::find()->count());
+        $this->assertEquals(5, Item::find()->count());
     }
 
     public function testCastValues()
