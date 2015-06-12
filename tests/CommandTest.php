@@ -473,6 +473,25 @@ SQL;
         ];
     }
 
+    public function testAutoRefreshTableSchema()
+    {
+        $db = $this->getConnection(false);
+        $tableName = 'test';
+
+        $db->createCommand()->createTable($tableName, [
+            'id' => 'pk',
+            'name' => 'string',
+        ])->execute();
+        $initialSchema = $db->getSchema()->getTableSchema($tableName);
+
+        $db->createCommand()->addColumn($tableName, 'value', 'integer')->execute();
+        $newSchema = $db->getSchema()->getTableSchema($tableName);
+        $this->assertNotEquals($initialSchema, $newSchema);
+
+        $db->createCommand()->dropTable($tableName)->execute();
+        $this->assertNull($db->getSchema()->getTableSchema($tableName));
+    }
+
     public static function tearDownAfterClass()
     {
         parent::tearDownAfterClass();

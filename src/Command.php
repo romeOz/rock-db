@@ -77,6 +77,10 @@ class Command implements ObjectInterface
      * @var string the SQL statement that this command represents
      */
     private $_sql;
+    /**
+     * @var string name of the table, which schema, should be refreshed after command execution.
+     */
+    private $_refreshTableName;
 
     /**
      * @var string[]
@@ -548,6 +552,7 @@ class Command implements ObjectInterface
     public function renameTable($table, $newName)
     {
         $sql = $this->connection->getQueryBuilder()->renameTable($table, $newName);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -561,6 +566,7 @@ class Command implements ObjectInterface
     public function dropTable($table, $exists = false)
     {
         $sql = $this->connection->getQueryBuilder()->dropTable($table, $exists);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -589,6 +595,7 @@ class Command implements ObjectInterface
     public function addColumn($table, $column, $type)
     {
         $sql = $this->connection->getQueryBuilder()->addColumn($table, $column, $type);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -602,6 +609,7 @@ class Command implements ObjectInterface
     public function dropColumn($table, $column)
     {
         $sql = $this->connection->getQueryBuilder()->dropColumn($table, $column);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -616,6 +624,7 @@ class Command implements ObjectInterface
     public function renameColumn($table, $oldName, $newName)
     {
         $sql = $this->connection->getQueryBuilder()->renameColumn($table, $oldName, $newName);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -634,6 +643,7 @@ class Command implements ObjectInterface
     public function alterColumn($table, $column, $type)
     {
         $sql = $this->connection->getQueryBuilder()->alterColumn($table, $column, $type);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -649,6 +659,7 @@ class Command implements ObjectInterface
     public function addPrimaryKey($name, $table, $columns)
     {
         $sql = $this->connection->getQueryBuilder()->addPrimaryKey($name, $table, $columns);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -662,6 +673,7 @@ class Command implements ObjectInterface
     public function dropPrimaryKey($name, $table)
     {
         $sql = $this->connection->getQueryBuilder()->dropPrimaryKey($name, $table);
+        $this->requireTableSchemaRefreshment($table);
 
         return $this->setSql($sql);
     }
@@ -800,6 +812,7 @@ class Command implements ObjectInterface
             }
 
             Trace::endProfile('db.query', $token);
+            $this->refreshTableSchema();
 
             return $n;
         } catch (\Exception $e) {
@@ -896,6 +909,25 @@ class Command implements ObjectInterface
             $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
+        }
+    }
+
+    /**
+     * Marks specified table schema to be refreshed after command execution.
+     * @param string $name name of the table, which schema should be refreshed.
+     */
+    protected function requireTableSchemaRefreshment($name)
+    {
+        $this->_refreshTableName = $name;
+    }
+
+    /**
+     * Refreshes table schema, which was marked by {@see \rock\db\Command::requireTableSchemaRefreshment()}
+     */
+    protected function refreshTableSchema()
+    {
+        if ($this->_refreshTableName !== null) {
+            $this->connection->getSchema()->refreshTableSchema($this->_refreshTableName);
         }
     }
 
