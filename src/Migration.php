@@ -3,6 +3,7 @@ namespace rock\db;
 
 use rock\components\ComponentsInterface;
 use rock\components\ComponentsTrait;
+use rock\db\common\MigrationInterface;
 use rock\helpers\Instance;
 
 /**
@@ -28,7 +29,7 @@ use rock\helpers\Instance;
  * applying migrations.
  *
  */
-class Migration implements ComponentsInterface
+class Migration implements MigrationInterface, ComponentsInterface
 {
     use ComponentsTrait;
 
