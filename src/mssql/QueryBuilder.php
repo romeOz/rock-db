@@ -6,9 +6,6 @@ use rock\db\Query;
 
 /**
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
- *
- * @author Timur Ruziev <resurtm@gmail.com>
- * @since 2.0
  */
 class QueryBuilder extends \rock\db\QueryBuilder
 {
