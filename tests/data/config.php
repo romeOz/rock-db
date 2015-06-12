@@ -15,7 +15,7 @@ return [
             'password' => '',
             'fixture' => __DIR__ . '/mysql.sql',
             'migrations' => [
-                SessionsMigration::className(),
+                ['class' => SessionsMigration::className()],
             ]
         ],
         'sqlite' => [
@@ -35,7 +35,7 @@ return [
             'typeCast' => false,
             'fixture' => __DIR__ . '/postgres.sql',
             'migrations' => [
-                SessionsMigration::className(),
+                ['class' => SessionsMigration::className()],
             ]
         ],
     ]

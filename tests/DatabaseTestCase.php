@@ -118,17 +118,19 @@ class DatabaseTestCase extends \PHPUnit_Framework_TestCase
             }
         }
 
-        /** @var Migration $migration */
-        foreach ($migrations as $migration) {
-            if (is_string($migration)) {
-                $migration = new $migration;
-            }
-            $migration->connection = $connection;
-            $migration->enableVerbose = false;
-            $migration->up();
-        }
+        $this->applyMigrations($connection, $migrations);
 
         return $connection;
+    }
+
+    protected function applyMigrations(Connection $connection, array $migrations)
+    {
+        foreach ($migrations as $config) {
+            $config = array_merge(['connection' => $connection, 'enableVerbose' => false], $config);
+            /** @var Migration $migration */
+            $migration = Instance::ensure($config);
+            $migration->up();
+        }
     }
 
     /**
