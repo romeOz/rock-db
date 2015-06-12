@@ -288,6 +288,25 @@ abstract class Schema implements ObjectInterface
     }
 
     /**
+     * Refreshes the particular table schema.
+     * This method cleans up cached table schema so that it can be re-created later
+     * to reflect the database schema change.
+     * @param string $name table name.
+     */
+    public function refreshTableSchema($name)
+    {
+        if ($this->connection->enableSchemaCache === true && isset($this->connection->schemaCache)) {
+            /** @var CacheInterface $cache */
+            $cache = Instance::ensure($this->connection->schemaCache, null, false);
+            if ($cache instanceof CacheInterface) {
+                $cache->remove($this->getCacheKey($name));
+            }
+        }
+        unset(self::$_tables[$name]);
+        self::$_tableNames = [];
+    }
+
+    /**
      * Creates a query builder for the database.
      * This method may be overridden by child classes to create a DBMS-specific query builder.
      * @return QueryBuilder query builder instance

@@ -78,6 +78,25 @@ class SchemaTest extends DatabaseTestCase
         $cache->flush();
     }
 
+    /**
+     * @depends testSchemaCache
+     */
+    public function testRefreshTableSchema()
+    {
+        /* @var $schema Schema */
+        $schema = $this->getConnection()->schema;
+
+        $schema->connection->enableSchemaCache = true;
+        $cache = static::getCache();
+        $schema->connection->schemaCache = $cache;
+        $noCacheTable = $schema->getTableSchema('type', true);
+
+        $schema->refreshTableSchema('type');
+        $refreshedTable = $schema->getTableSchema('type', false);
+        $this->assertFalse($noCacheTable === $refreshedTable);
+        $cache->flush();
+    }
+
     public function testCompositeFk()
     {
         /* @var $schema Schema */
