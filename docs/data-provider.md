@@ -13,7 +13,7 @@ $provider = new ActiveDataProvider([
         'limit' => 20,
         'sort' => SORT_DESC,
         'pageLimit' => 5,
-        'pageCurrent' => (int)$_GET['page']
+        'page' => (int)$_GET['page']
     ],
 ]);
 
@@ -31,11 +31,11 @@ $provider = new ActiveDataProvider([
          'limit' => 20,
          'sort' => SORT_DESC,
          'pageLimit' => 5,
-         'pageCurrent' => (int)$_GET['page'],
+         'page' => (int)$_GET['page'],
      ],
 ]);
 
-$provider->get(); // returns list items in the current page
+$provider->getModels(); // returns list items in the current page
 $provider->getPagination(); // returns data pagination
 ```
 
@@ -48,15 +48,15 @@ ArrayDataProvider implements a data provider based on a data array.
 ```php
 $query = (new Query())->from('users');
 $provider = new ActiveDataProvider([
-     'array' => $query->all(),
+     'allModels' => $query->all(),
      'pagination' => [
          'limit' => 20,
          'sort' => SORT_DESC,
          'pageLimit' => 5,
-         'pageCurrent' => (int)$_GET['page'],
+         'page' => (int)$_GET['page'],
      ],
 ]);
 
-$provider->get(); // returns list items in the current page
+$provider->getModels(); // returns list items in the current page
 $provider->getPagination(); // returns data pagination
 ```

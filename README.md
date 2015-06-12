@@ -1,7 +1,7 @@
 Object Relational Mapping (ORM) for PHP
 =======================
 
-Independent fork by [Yii2 Database](https://github.com/yiisoft/yii2).
+Independent fork by [Yii2 Database 2.0.4](https://github.com/yiisoft/yii2).
 
 [![Latest Stable Version](https://poser.pugx.org/romeOz/rock-db/v/stable.svg)](https://packagist.org/packages/romeOz/rock-db)
 [![Total Downloads](https://poser.pugx.org/romeOz/rock-db/downloads.svg)](https://packagist.org/packages/romeOz/rock-db)
