@@ -18,7 +18,7 @@ $provider = new ActiveDataProvider([
 ]);
 
 $provider->get(); // returns list items in the current page
-$provider->getPagination(); // returns data pagination
+$provider->getPagination(); // returns pagination provider
 ```
 
 And the following example shows how to use ActiveDataProvider without ActiveRecord:
@@ -36,7 +36,7 @@ $provider = new ActiveDataProvider([
 ]);
 
 $provider->getModels(); // returns list items in the current page
-$provider->getPagination(); // returns data pagination
+$provider->getPagination(); // returns pagination provider
 ```
 
 Array data provider
@@ -58,5 +58,5 @@ $provider = new ActiveDataProvider([
 ]);
 
 $provider->getModels(); // returns list items in the current page
-$provider->getPagination(); // returns data pagination
+$provider->getPagination(); // returns pagination provider
 ```
