@@ -155,6 +155,7 @@ class Migration
         $time = microtime(true);
         $this->connection->createCommand($sql)->bindValues($params)->execute();
         echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->connection->getSchema()->refresh(); // ensure possible schema changes applied
     }
 
     /**
