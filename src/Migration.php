@@ -1,6 +1,7 @@
 <?php
 namespace rock\db;
 
+use rock\components\ComponentsInterface;
 use rock\components\ComponentsTrait;
 use rock\helpers\Instance;
 
@@ -27,7 +28,7 @@ use rock\helpers\Instance;
  * applying migrations.
  *
  */
-class Migration
+class Migration implements ComponentsInterface
 {
     use ComponentsTrait;
 
