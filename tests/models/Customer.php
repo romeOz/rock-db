@@ -21,6 +21,7 @@ class Customer extends ActiveRecord
     const STATUS_INACTIVE = 2;
 
     public $status2;
+    public $sumTotal;
 
     public static function tableName()
     {
@@ -30,6 +31,11 @@ class Customer extends ActiveRecord
     public function getProfile()
     {
         return $this->hasOne(Profile::className(), ['id' => 'profile_id']);
+    }
+
+    public function getOrdersPlain()
+    {
+        return $this->hasMany(Order::className(), ['customer_id' => 'id']);
     }
 
     public function getOrders()
