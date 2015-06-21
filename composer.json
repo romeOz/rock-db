@@ -18,16 +18,16 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "romeoz/rock-db-common": "*@dev"
+        "romeoz/rock-db-common": "0.11.*"
     },
     "require-dev": {
         "phpunit/phpunit": "4.7.*",
-        "romeoz/rock-cache" : "*@dev",
-        "romeoz/rock-validate" : "*@dev",
-        "romeoz/rock-sanitize": "*@dev",
-        "romeoz/rock-behaviors": "*@dev",
-        "romeoz/rock-session": "*@dev",
-        "romeoz/rock-url": "*@dev"
+        "romeoz/rock-cache" : "0.11.*",
+        "romeoz/rock-validate" : "0.10.*",
+        "romeoz/rock-sanitize": "0.10.*",
+        "romeoz/rock-behaviors": "0.11.*",
+        "romeoz/rock-session": "0.10.*",
+        "romeoz/rock-url": "0.10.*"
     },
     "suggest": {
         "romeoz/rock-cache": "required by Rock Cache",
