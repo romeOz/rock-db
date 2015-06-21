@@ -74,7 +74,7 @@ class BatchQueryResult implements \Iterator, ObjectInterface
      * Resets the batch query.
      * This method will clean up the existing batch query so that a new batch query can be performed.
      */
-    public function reset()
+    public function reset($autoreset = false)
     {
         if ($this->_dataReader !== null) {
             $this->_dataReader->close();
