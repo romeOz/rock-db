@@ -67,11 +67,11 @@ abstract class Schema implements ObjectInterface
     /**
      * @var array list of ALL table names in the database
      */
-	private static $_tableNames = [];
+    private static $_tableNames = [];
     /**
      * @var array list of loaded table metadata (table name => TableSchema)
      */
-	private static $_tables = [];
+    private static $_tables = [];
     /**
      * @var QueryBuilder the query builder for this database
      */
@@ -111,7 +111,7 @@ abstract class Schema implements ObjectInterface
 
         if ($connection->enableSchemaCache === true && !in_array($name, $connection->schemaCacheExclude, true)) {
             /** @var CacheInterface $cache */
-            $cache = Instance::ensure($connection->schemaCache, null, false);
+            $cache = Instance::ensure($connection->schemaCache, '\rock\cache\CacheFile', [], false);
             if ($cache instanceof CacheInterface) {
                 $cacheKey = $this->getCacheKey($name);
                 if ($refresh || ($table = $cache->get($cacheKey)) === false) {
@@ -278,7 +278,7 @@ abstract class Schema implements ObjectInterface
     {
         if ($this->connection->enableSchemaCache === true && isset($this->connection->schemaCache)) {
             /** @var CacheInterface $cache */
-            $cache = Instance::ensure($this->connection->schemaCache, null, false);
+            $cache = Instance::ensure($this->connection->schemaCache, '\rock\cache\CacheFile', [], false);
             if ($cache instanceof CacheInterface) {
                 $cache->removeTag($this->getCacheTag());
             }
@@ -297,7 +297,7 @@ abstract class Schema implements ObjectInterface
     {
         if ($this->connection->enableSchemaCache === true && isset($this->connection->schemaCache)) {
             /** @var CacheInterface $cache */
-            $cache = Instance::ensure($this->connection->schemaCache, null, false);
+            $cache = Instance::ensure($this->connection->schemaCache, '\rock\cache\CacheFile', [], false);
             if ($cache instanceof CacheInterface) {
                 $cache->remove($this->getCacheKey($name));
             }

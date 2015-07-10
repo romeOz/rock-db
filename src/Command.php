@@ -142,7 +142,7 @@ class Command implements ObjectInterface
             }
         }
         if (!isset($params[1])) {
-                return strtr($this->_sql, $params);
+            return strtr($this->_sql, $params);
         }
         $sql = '';
         foreach (explode('?', $this->_sql) as $i => $part) {
@@ -382,7 +382,7 @@ class Command implements ObjectInterface
             return [];
         }
         return array_map(
-            function($value){
+            function ($value) {
                 return $this->removeAliasEntity($value);
             },
             $tables
@@ -534,7 +534,7 @@ class Command implements ObjectInterface
      * @param string $table the name of the table to be created. The name will be properly quoted by the method.
      * @param array $columns the columns (name => definition) in the new table.
      * @param string $options additional SQL fragment that will be appended to the generated SQL.
-     * @param boolean   $exists
+     * @param boolean $exists
      * @return static the command object itself
      */
     public function createTable($table, array $columns, $options = null, $exists = false)
@@ -559,7 +559,7 @@ class Command implements ObjectInterface
     /**
      * Creates a SQL command for dropping a DB table.
      * @param string $table the table to be dropped. The name will be properly quoted by the method.
-     * @param bool   $exists
+     * @param bool $exists
      * @return static the command object itself
      */
     public function dropTable($table, $exists = false)
@@ -625,7 +625,7 @@ class Command implements ObjectInterface
      *
      * @param string $table the table whose column is to be changed. The table name will be properly quoted by the method.
      * @param string $column the name of the column to be changed. The name will be properly quoted by the method.
-     * @param string $type   the column type.
+     * @param string $type the column type.
      *                       {@see \rock\db\QueryBuilder::getColumnType()} will be called
      * to convert the give column type to the physical one. For example, `string` will be converted
      * as `varchar(255)`, and `string not null` becomes `varchar(255) not null`.
@@ -777,7 +777,7 @@ class Command implements ObjectInterface
 
         $token = [
             'dsn' => $this->connection->dsn,
-            'sql' =>$rawSql,
+            'sql' => $rawSql,
             'valid' => true,
             'cache' => false,
         ];
@@ -804,8 +804,8 @@ class Command implements ObjectInterface
             Trace::endProfile('db.query', $token);
             $message = $e->getMessage() . "\nThe SQL being executed was: $rawSql";
 
-            $token['valid']     = false;
-            $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e: $message;
+            $token['valid'] = false;
+            $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
         }
@@ -826,7 +826,7 @@ class Command implements ObjectInterface
         $rawSql = $this->getRawSql();
         $token = [
             'dsn' => $connection->dsn,
-            'sql' =>$rawSql,
+            'sql' => $rawSql,
             'valid' => true,
             'cache' => false,
         ];
@@ -835,7 +835,7 @@ class Command implements ObjectInterface
         $cache = null;
         /** @var $cache CacheInterface */
         if ($connection->enableQueryCache && $method !== '') {
-            $cache = Instance::ensure($connection->queryCache, null, false);
+            $cache = Instance::ensure($connection->queryCache, '\rock\cache\CacheFile', [], false);
         }
 
         if ($cache instanceof CacheInterface) {
@@ -880,7 +880,7 @@ class Command implements ObjectInterface
                     $cacheKey,
                     [$result],
                     $connection->queryCacheExpire,
-                    $connection->queryCacheTags ? : $this->getRawEntityNames()
+                    $connection->queryCacheTags ?: $this->getRawEntityNames()
                 );
             }
             Trace::endProfile('db.query', $token);
@@ -890,7 +890,7 @@ class Command implements ObjectInterface
         } catch (\Exception $e) {
             $message = $e->getMessage() . "\nThe SQL being executed was: $rawSql";
             Trace::endProfile('db.query', $token);
-            $token['valid']     = false;
+            $token['valid'] = false;
             $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
             throw new DbException($message, [], $e);
@@ -923,13 +923,13 @@ class Command implements ObjectInterface
 
     protected function clearCache($table, $rawSql)
     {
-        $this->_clearCache = function($connection) use ($table, $rawSql){
+        $this->_clearCache = function ($connection) use ($table, $rawSql) {
             /** @var Connection $connection */
-            if (!$connection->autoClearCache || (!$tables = $connection->queryCacheTags ? : [$table])) {
+            if (!$connection->autoClearCache || (!$tables = $connection->queryCacheTags ?: [$table])) {
                 return;
             }
             /** @var $cache CacheInterface */
-            $cache = Instance::ensure($connection->queryCache, null, false);
+            $cache = Instance::ensure($connection->queryCache, '\rock\cache\CacheFile', [], false);
             if (!$cache instanceof CacheInterface) {
                 return;
             }

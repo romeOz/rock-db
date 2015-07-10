@@ -291,16 +291,16 @@ class Connection implements ObjectInterface, ConnectionInterface
      * {@see \rock\db\Schema} class to support DBMS that is not supported by Rock.
      */
     public $schemaMap = [
-        'pgsql'   => 'rock\db\pgsql\Schema', // PostgreSQL
-        'mysqli'  => 'rock\db\mysql\Schema', // MySQL
-        'mysql'   => 'rock\db\mysql\Schema', // MySQL
-        'sqlite'  => 'rock\db\sqlite\Schema', // sqlite 3
+        'pgsql' => 'rock\db\pgsql\Schema', // PostgreSQL
+        'mysqli' => 'rock\db\mysql\Schema', // MySQL
+        'mysql' => 'rock\db\mysql\Schema', // MySQL
+        'sqlite' => 'rock\db\sqlite\Schema', // sqlite 3
         'sqlite2' => 'rock\db\sqlite\Schema', // sqlite 2
-        'sqlsrv'  => 'rock\db\mssql\Schema', // newer MSSQL driver on MS Windows hosts
-        'oci'     => 'rock\db\oci\Schema', // Oracle driver
-        'mssql'   => 'rock\db\mssql\Schema', // older MSSQL driver on MS Windows hosts
-        'dblib'   => 'rock\db\mssql\Schema', // dblib drivers on GNU/Linux (and maybe other OSes) hosts
-        'cubrid'  => 'rock\db\cubrid\Schema', // CUBRID
+        'sqlsrv' => 'rock\db\mssql\Schema', // newer MSSQL driver on MS Windows hosts
+        'oci' => 'rock\db\oci\Schema', // Oracle driver
+        'mssql' => 'rock\db\mssql\Schema', // older MSSQL driver on MS Windows hosts
+        'dblib' => 'rock\db\mssql\Schema', // dblib drivers on GNU/Linux (and maybe other OSes) hosts
+        'cubrid' => 'rock\db\cubrid\Schema', // CUBRID
     ];
     /**
      * @var string Custom PDO wrapper class. If not set, it will use "PDO" or {@see \rock\db\mssql\PDO} when MSSQL is used.
@@ -591,7 +591,7 @@ class Connection implements ObjectInterface, ConnectionInterface
             $driver = $this->getDriverName();
             if (isset($this->schemaMap[$driver])) {
                 $this->_schema = is_array($this->schemaMap[$driver]) ? $this->schemaMap[$driver]['class'] : $this->schemaMap[$driver];
-                return $this->_schema = new $this->_schema(['connection'=>$this]);
+                return $this->_schema = new $this->_schema(['connection' => $this]);
             } else {
                 throw new DbException("Connection does not support reading schema information for '$driver' DBMS.");
             }
@@ -835,7 +835,7 @@ class Connection implements ObjectInterface, ConnectionInterface
             $sharedConfig['class'] = get_class($this);
         }
 
-        $cache = Instance::ensure($this->serverStatusCache, null, false);
+        $cache = Instance::ensure($this->serverStatusCache, '\rock\cache\CacheFile', [], false);
 
         shuffle($pool);
 
