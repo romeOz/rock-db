@@ -5,10 +5,7 @@
 .build/
 vendor/
 composer.lock
-assets/*
-views/*
 *~
-
 
 ############
 ## Windows
@@ -20,14 +17,12 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
-
 ############
 ## Vagrant
 ############
 .vagrant/
 provisioning/
 Vagrantfile
-
 
 ############
 ## PHPStorm
