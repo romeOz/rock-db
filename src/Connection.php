@@ -835,7 +835,7 @@ class Connection implements ObjectInterface, ConnectionInterface
             $sharedConfig['class'] = get_class($this);
         }
 
-        $cache = Instance::ensure($this->serverStatusCache, '\rock\cache\CacheFile', [], false);
+        $cache = Instance::ensure($this->serverStatusCache, null, [], false);
 
         shuffle($pool);
 

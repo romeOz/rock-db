@@ -835,7 +835,7 @@ class Command implements ObjectInterface
         $cache = null;
         /** @var $cache CacheInterface */
         if ($connection->enableQueryCache && $method !== '') {
-            $cache = Instance::ensure($connection->queryCache, '\rock\cache\CacheFile', [], false);
+            $cache = Instance::ensure($connection->queryCache, null, [], false);
         }
 
         if ($cache instanceof CacheInterface) {
@@ -929,7 +929,7 @@ class Command implements ObjectInterface
                 return;
             }
             /** @var $cache CacheInterface */
-            $cache = Instance::ensure($connection->queryCache, '\rock\cache\CacheFile', [], false);
+            $cache = Instance::ensure($connection->queryCache, null, [], false);
             if (!$cache instanceof CacheInterface) {
                 return;
             }
