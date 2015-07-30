@@ -847,7 +847,7 @@ class Command implements ObjectInterface
                 $rawSql,
             ]);
             $result = $cache->get($cacheKey);
-            if (is_array($result) && isset($result[0])) {
+            if (is_array($result) && array_key_exists(0, $result)) {
                 Trace::increment('cache.db', 'Cache query DB connection: ' . $connection->dsn);
                 Trace::endProfile('db.query', $token);
                 $token['cache'] = true;
