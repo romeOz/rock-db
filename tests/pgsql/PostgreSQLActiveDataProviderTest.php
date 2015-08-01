@@ -1,7 +1,7 @@
 <?php
 namespace rockunit\core\db\pgsql;
-use rockunit\ActiveDataProviderTest;
 
+use rockunit\ActiveDataProviderTest;
 
 /**
  * @group db

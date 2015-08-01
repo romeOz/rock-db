@@ -22,13 +22,13 @@ class ActiveDataProviderTest extends DatabaseTestCase
     {
         parent::setUp();
         ActiveRecord::$connection = $this->getConnection(false);
-        unset($_GET['page']);
+        $_GET = [];
     }
 
     public static function tearDownAfterClass()
     {
         parent::tearDownAfterClass();
-        unset($_GET['page']);
+        $_GET = [];
     }
 
 
@@ -199,5 +199,30 @@ class ActiveDataProviderTest extends DatabaseTestCase
         );
         $provider->getModels();
         unset($provider->getPagination()['pageLast']);
+    }
+
+    public function testActiveQuerySort()
+    {
+        $provider = new ActiveDataProvider([
+            'query' => Customer::find()->asArray(),
+            'sort' => [
+                'attributes' => ['id'],
+            ],
+            'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+        ]);
+
+        $this->assertEquals(1, $provider->getModels()[0]['id']);
+
+
+        $_GET['sort'] = '-id';
+        $provider = new ActiveDataProvider([
+            'query' => Customer::find()->asArray(),
+            'sort' => [
+                'attributes' => ['id'],
+            ],
+            'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
+        ]);
+
+        $this->assertEquals(3, $provider->getModels()[0]['id']);
     }
 }
