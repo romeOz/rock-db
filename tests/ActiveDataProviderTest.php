@@ -6,7 +6,7 @@ use rock\base\BaseException;
 
 use rock\data\DataProviderException;
 use rock\db\ActiveQuery;
-use rock\db\ActiveDataProvider;
+use rock\data\ActiveDataProvider;
 use rock\data\ArrayDataProvider;
 use rock\db\Query;
 use rockunit\models\ActiveRecord;
@@ -165,7 +165,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
         $this->assertSame($expected, $provider->getPagination()->getLinks());
 
         // as array
-        $provider = new arrayDataProvider(
+        $provider = new ArrayDataProvider(
             [
                 'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
@@ -178,7 +178,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
     public function testSetPropertyThrowException()
     {
         $this->setExpectedException(BaseException::className());
-        $provider = new arrayDataProvider(
+        $provider = new ArrayDataProvider(
             [
                 'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
@@ -191,7 +191,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
     public function testUnsetPropertyThrowException()
     {
         $this->setExpectedException(DataProviderException::className());
-        $provider = new arrayDataProvider(
+        $provider = new ArrayDataProvider(
             [
                 'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
                 'pagination' => ['limit' => 2, 'sort' => SORT_DESC]
