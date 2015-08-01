@@ -27,11 +27,11 @@ Features
  * Active Record: The Active Record ORM, retrieving and manipulating records, and defining relations
  * Migrations
  * Behaviors (SluggableBehavior, TimestampBehavior,...)
+ * Data Provider (required by [Rock Data provider](https://github.com/romeOz/rock-dataprovider/))
  * Stores session data in a database table
  * **Validation and Sanitization rules for AR (Model)**
  * **Query Caching**
- * **Data Providers**
- * **Module for [Rock Framework](https://github.com/romeOz/rock)**
+ * **Standalone module/component for [Rock Framework](https://github.com/romeOz/rock)**
  
 > Bolded features are different from [Yii2 Database](https://github.com/yiisoft/yii2).
 
@@ -93,6 +93,7 @@ Requirements
 -------------------
 
  * **PHP 5.4+**
+ * [Rock Data rpovider](https://github.com/romeOz/rock-dataprovider) **(optional)**. Should be installed: `composer require romeoz/rock-dataprovider:*`
  * [Rock Cache](https://github.com/romeOz/rock-cache) **(optional)**. Should be installed: `composer require romeoz/rock-cache:*`
  * [Rock Validate](https://github.com/romeOz/rock-validate) **(optional)**. Should be installed: `composer require romeoz/rock-validate:*`
  * [Rock Sanitize](https://github.com/romeOz/rock-sanitize) **(optional)**. Should be installed: `composer require romeoz/rock-sanitize:*`

@@ -4,10 +4,10 @@ namespace rockunit;
 
 use rock\base\BaseException;
 
+use rock\data\DataProviderException;
 use rock\db\ActiveQuery;
-use rock\db\common\ActiveDataProvider;
-use rock\db\common\ArrayDataProvider;
-use rock\db\common\DbException;
+use rock\db\ActiveDataProvider;
+use rock\data\ArrayDataProvider;
 use rock\db\Query;
 use rockunit\models\ActiveRecord;
 use rockunit\models\Customer;
@@ -104,7 +104,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
     {
         $customer = Customer::find()
             ->innerJoinWith([
-                'orders' => function(ActiveQuery $query){
+                'orders' => function (ActiveQuery $query) {
                     return $query->orderBy(['{{order}}.[[created_at]]' => SORT_DESC]);
                 },
             ]);
@@ -156,11 +156,11 @@ class ActiveDataProviderTest extends DatabaseTestCase
         );
         $provider->getModels();
         $expected = [
-            'self' => '/',
-            'first' => '/',
-            'prev' => '/',
-            'next' => '/?page=1',
-            'last' => '/?page=1',
+            'self' => '/?limit=2',
+            'first' => '/?limit=2',
+            'prev' => '/?limit=2',
+            'next' => '/?page=1&limit=2',
+            'last' => '/?page=1&limit=2',
         ];
         $this->assertSame($expected, $provider->getPagination()->getLinks());
 
@@ -190,7 +190,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
 
     public function testUnsetPropertyThrowException()
     {
-        $this->setExpectedException(DbException::className());
+        $this->setExpectedException(DataProviderException::className());
         $provider = new arrayDataProvider(
             [
                 'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),

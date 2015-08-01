@@ -1,50 +1,64 @@
 {
-    "name": "romeoz/rock-db",
-    "description": "Object Relational Mapping (ORM) for PHP.",
-    "keywords": ["orm", "dbal", "active record", "database", "mysql", "postgresql", "sqlite",
-      "mssql", "cubrid", "dao", "rdbms", "persistence"],
-    "type": "library",
-    "license": "MIT",
-    "support": {
-        "email": "serggalka@gmail.com",
-        "issues": "https://github.com/romeOz/rock-db/issues",
-        "source": "https://github.com/romeOz/rock-db"
-    },
-    "authors": [
-        {
-            "name": "Ruslan",
-            "email": "serggalka@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.4.0",
-        "romeoz/rock-db-common": "*@dev"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~4.7.0",
-        "romeoz/rock-cache" : "*@dev",
-        "romeoz/rock-validate" : "*@dev",
-        "romeoz/rock-sanitize": "*@dev",
-        "romeoz/rock-behaviors": "*@dev",
-        "romeoz/rock-session": "*@dev",
-        "romeoz/rock-url": "*@dev"
-    },
-    "suggest": {
-        "romeoz/rock-cache": "required by Rock Cache",
-        "romeoz/rock-validate": "required by Rock Valiadte",
-        "romeoz/rock-sanitize": "required by Rock Sanitize",
-        "romeoz/rock-behaviors": "required by Rock Behaviors",
-        "romeoz/rock-session": "required by Rock Session",
-        "romeoz/rock-url": "required by Rock Url"
-    },
-    "autoload": {
-        "psr-4": {
-            "rock\\db\\": "src/"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.11-dev"
-        }
+  "name": "romeoz/rock-db",
+  "description": "Object Relational Mapping (ORM) for PHP.",
+  "keywords": [
+    "orm",
+    "dbal",
+    "active record",
+    "database",
+    "mysql",
+    "postgresql",
+    "sqlite",
+    "mssql",
+    "cubrid",
+    "dao",
+    "rdbms",
+    "persistence"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "support": {
+    "email": "serggalka@gmail.com",
+    "issues": "https://github.com/romeOz/rock-db/issues",
+    "source": "https://github.com/romeOz/rock-db"
+  },
+  "authors": [
+    {
+      "name": "Ruslan",
+      "email": "serggalka@gmail.com"
     }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "romeoz/rock-db-common": "0.12.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.7.0",
+    "romeoz/rock-dataprovider": "0.10.*",
+    "romeoz/rock-cache": "0.11.*",
+    "romeoz/rock-validate": "0.10.*",
+    "romeoz/rock-sanitize": "0.10.*",
+    "romeoz/rock-behaviors": "0.11.*",
+    "romeoz/rock-session": "0.10.*",
+    "romeoz/rock-url": "0.11.*"
+  },
+  "suggest": {
+    "romeoz/rock-dataprovider": "required by Rock Data provider",
+    "romeoz/rock-cache": "required by Rock Cache",
+    "romeoz/rock-validate": "required by Rock Valiadte",
+    "romeoz/rock-sanitize": "required by Rock Sanitize",
+    "romeoz/rock-behaviors": "required by Rock Behaviors",
+    "romeoz/rock-session": "required by Rock Session",
+    "romeoz/rock-url": "required by Rock Url"
+  },
+  "autoload": {
+    "psr-4": {
+      "rock\\db\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.12-dev"
+    }
+  }
 }
