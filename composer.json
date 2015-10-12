@@ -30,7 +30,7 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "romeoz/rock-db-common": "*@dev"
+    "romeoz/rock-db-common": "0.12.*"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.7.0",
