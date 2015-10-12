@@ -39,16 +39,14 @@
     "romeoz/rock-file": "*@dev",
     "romeoz/rock-validate": "*@dev",
     "romeoz/rock-sanitize": "*@dev",
-    "romeoz/rock-behaviors": "*@dev",
-    "romeoz/rock-url": "*@dev"
+    "romeoz/rock-behaviors": "*@dev"
   },
   "suggest": {
     "romeoz/rock-dataprovider": "required for Data provider",
     "romeoz/rock-cache": "required for caching queries",
     "romeoz/rock-validate": "required for validation rules the model",
     "romeoz/rock-sanitize": "required for sanitization rules the model",
-    "romeoz/rock-behaviors": "required for behaviors the model",
-    "romeoz/rock-url": "required by Rock Url"
+    "romeoz/rock-behaviors": "required for behaviors the model"
   },
   "autoload": {
     "psr-4": {
