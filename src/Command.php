@@ -838,6 +838,7 @@ class Command implements ObjectInterface
             $cache = Instance::ensure($connection->queryCache, null, [], false);
         }
 
+        $lock = true;
         if ($cache instanceof CacheInterface) {
             $cacheKey = json_encode([
                 __CLASS__,
@@ -855,8 +856,12 @@ class Command implements ObjectInterface
 
                 return $result[0];
             }
+            $lock = $cache->lock($cacheKey);
         }
 
+        if ($lock === false) {
+            return null;
+        }
         $this->prepare(true);
 
         try {
@@ -882,6 +887,7 @@ class Command implements ObjectInterface
                     $connection->queryCacheExpire,
                     $connection->queryCacheTags ?: $this->getRawEntityNames()
                 );
+                $cache->unlock($cacheKey);
             }
             Trace::endProfile('db.query', $token);
             Trace::trace('db.query', $token);
@@ -893,6 +899,9 @@ class Command implements ObjectInterface
             $token['valid'] = false;
             $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
+            if (isset($cache, $cacheKey) && $cache instanceof CacheInterface) {
+                $cache->unlock($cacheKey);
+            }
             throw new DbException($message, [], $e);
         }
     }
