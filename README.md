@@ -27,8 +27,7 @@ Features
  * Active Record: The Active Record ORM, retrieving and manipulating records, and defining relations
  * Migrations
  * Behaviors (SluggableBehavior, TimestampBehavior,...)
- * Data Provider (required by [Rock Data provider](https://github.com/romeOz/rock-dataprovider/))
- * Stores session data in a database table
+ * Data Provider (required by [Rock Data provider](https://github.com/romeOz/rock-dataprovider/)) 
  * **Validation and Sanitization rules for AR (Model)**
  * **Query Caching**
  * **Standalone module/component for [Rock Framework](https://github.com/romeOz/rock)**
@@ -92,13 +91,12 @@ Documentation
 Requirements
 -------------------
 
- * **PHP 5.4+**
+ * PHP 5.4+
  * [Rock Data rpovider](https://github.com/romeOz/rock-dataprovider) **(optional)**. Should be installed: `composer require romeoz/rock-dataprovider:*`
  * [Rock Cache](https://github.com/romeOz/rock-cache) **(optional)**. Should be installed: `composer require romeoz/rock-cache:*`
  * [Rock Validate](https://github.com/romeOz/rock-validate) **(optional)**. Should be installed: `composer require romeoz/rock-validate:*`
  * [Rock Sanitize](https://github.com/romeOz/rock-sanitize) **(optional)**. Should be installed: `composer require romeoz/rock-sanitize:*`
  * [Rock Behaviors](https://github.com/romeOz/rock-behaviors) **(optional)**. Should be installed: `composer require romeoz/rock-behaviors:*`
- * [Rock Session](https://github.com/romeOz/rock-session) **(optional)**. Should be installed: `composer require romeoz/rock-session:*`
 
 License
 -------------------
