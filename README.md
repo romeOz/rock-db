@@ -29,7 +29,7 @@ Features
  * Behaviors (SluggableBehavior, TimestampBehavior,...)
  * Data Provider (required by [Rock Data provider](https://github.com/romeOz/rock-dataprovider/)) 
  * **Validation and Sanitization rules for AR (Model)**
- * **Query Caching**
+ * **Caching queries**
  * **Standalone module/component for [Rock Framework](https://github.com/romeOz/rock)**
  
 > Bolded features are different from [Yii2 Database](https://github.com/yiisoft/yii2).
