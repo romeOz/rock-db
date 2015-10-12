@@ -1,5 +1,4 @@
 <?php
-use rockunit\migrations\SessionsMigration;
 
 return [
     'databases' => [
@@ -14,9 +13,6 @@ return [
             'username' => 'travis',
             'password' => '',
             'fixture' => __DIR__ . '/mysql.sql',
-            'migrations' => [
-                ['class' => SessionsMigration::className()],
-            ]
         ],
         'sqlite' => [
             'dsn' => 'sqlite::memory:',
@@ -34,9 +30,6 @@ return [
             'password' => 'postgres',
             'typeCast' => false,
             'fixture' => __DIR__ . '/postgres.sql',
-            'migrations' => [
-                ['class' => SessionsMigration::className()],
-            ]
         ],
     ]
 ];
