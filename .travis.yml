@@ -23,6 +23,9 @@ matrix:
     - php: hhvm
     - php: hhvm-nightly
 
+services:
+  - memcached
+
 # try running against postgres 9.4
 addons:
   postgresql: "9.4"
@@ -31,6 +34,7 @@ install:
   - composer self-update && composer --version
   - composer install --prefer-dist
   - composer require satooshi/php-coveralls:*@dev
+  - tests/data/travis/memcache-setup.sh
   #- tests/data/travis/cubrid-setup.sh
 
 before_script:
