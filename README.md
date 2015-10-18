@@ -10,8 +10,6 @@ Independent fork by [Yii2 Database 2.0.4](https://github.com/yiisoft/yii2).
 [![Coverage Status](https://coveralls.io/repos/romeOz/rock-db/badge.svg?branch=master)](https://coveralls.io/r/romeOz/rock-db?branch=master)
 [![License](https://poser.pugx.org/romeOz/rock-db/license.svg)](https://packagist.org/packages/romeOz/rock-db)
 
-[Rock DB on Packagist](https://packagist.org/packages/romeOz/rock-db)
-
 Features
 -------------------
 
@@ -27,7 +25,7 @@ Features
  * Active Record: The Active Record ORM, retrieving and manipulating records, and defining relations
  * Migrations
  * Behaviors (SluggableBehavior, TimestampBehavior,...)
- * Data Provider (required by [Rock Data provider](https://github.com/romeOz/rock-dataprovider/)) 
+ * Data Provider
  * **Validation and Sanitization rules for AR (Model)**
  * **Caching queries**
  * **Standalone module/component for [Rock Framework](https://github.com/romeOz/rock)**
@@ -39,7 +37,7 @@ Installation
 
 From the Command Line:
 
-`composer require romeoz/rock-db:*`
+`composer require romeoz/rock-db`
 
 In your composer.json:
 
@@ -92,11 +90,11 @@ Requirements
 -------------------
 
  * PHP 5.4+
- * [Rock Data rpovider](https://github.com/romeOz/rock-dataprovider) **(optional)**. Should be installed: `composer require romeoz/rock-dataprovider:*`
- * [Rock Cache](https://github.com/romeOz/rock-cache) **(optional)**. Should be installed: `composer require romeoz/rock-cache:*`
- * [Rock Validate](https://github.com/romeOz/rock-validate) **(optional)**. Should be installed: `composer require romeoz/rock-validate:*`
- * [Rock Sanitize](https://github.com/romeOz/rock-sanitize) **(optional)**. Should be installed: `composer require romeoz/rock-sanitize:*`
- * [Rock Behaviors](https://github.com/romeOz/rock-behaviors) **(optional)**. Should be installed: `composer require romeoz/rock-behaviors:*`
+ * For validation rules a model required [Rock Validate](https://github.com/romeOz/rock-validate): `composer require romeoz/rock-validate`
+ * For sanitization rules a model required [Rock Sanitize](https://github.com/romeOz/rock-sanitize): `composer require romeoz/rock-sanitize`
+ * For using behaviors a model required [Rock Behaviors](https://github.com/romeOz/rock-behaviors): `composer require romeoz/rock-behaviors`
+ * For using Data Provider required [Rock Data Provider](https://github.com/romeOz/rock-dataprovider/): `composer require romeoz/rock-dataprovider`
+ * For caching queries required [Rock Cache](https://github.com/romeOz/rock-behaviors): `composer require romeoz/rock-cache`
 
 License
 -------------------

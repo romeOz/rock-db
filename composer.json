@@ -36,7 +36,6 @@
     "phpunit/phpunit": "^4.7.0",
     "romeoz/rock-dataprovider": "*@dev",
     "romeoz/rock-cache": "*@dev",
-    "romeoz/rock-file": "*@dev",
     "romeoz/rock-validate": "*@dev",
     "romeoz/rock-sanitize": "*@dev",
     "romeoz/rock-behaviors": "*@dev"
@@ -44,9 +43,9 @@
   "suggest": {
     "romeoz/rock-dataprovider": "required for Data provider",
     "romeoz/rock-cache": "required for caching queries",
-    "romeoz/rock-validate": "required for validation rules the model",
-    "romeoz/rock-sanitize": "required for sanitization rules the model",
-    "romeoz/rock-behaviors": "required for behaviors the model"
+    "romeoz/rock-validate": "required for validation rules a model",
+    "romeoz/rock-sanitize": "required for sanitization rules a model",
+    "romeoz/rock-behaviors": "required for using behaviors a model"
   },
   "autoload": {
     "psr-4": {
