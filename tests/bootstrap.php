@@ -10,7 +10,6 @@ if (is_file($composerAutoload)) {
 $loader->addPsr4('rockunit\\', __DIR__);
 
 date_default_timezone_set('UTC');
-require(dirname(__DIR__) . '/src/polyfills.php');
 
 Alias::setAlias('rockunit', __DIR__);
 $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'] = 'site.com';
