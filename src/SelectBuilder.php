@@ -135,12 +135,11 @@ class SelectBuilder implements ObjectInterface
                 } elseif (strpos($column, '(') === false) {
                     if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)([\w\-_\.]+)$/', $column, $matches)) {
                         $matches[2] = $alias === true ? $tableAlias . $aliasSeparator . $matches[2] : $matches[2];
-                        $columns[$i]
-                            = "{{{$table}}}." . $this->connection->quoteColumnName($matches[1]) . ' AS ' . $connection->quoteSimpleColumnName($matches[2]);
+                        $columns[$i] = "{{{$table}}}." . $this->connection->quoteColumnName($matches[1]) . ' AS ' . $connection->quoteSimpleColumnName($matches[2]);
                     } else {
                         $columns[$i] = "{{{$table}}}." . $this->connection->quoteColumnName($column) . ($alias === true ? ' AS ' . $connection->quoteSimpleColumnName($tableAlias . $aliasSeparator . $column) : null);
                     }
-                } elseif (stripos($column, 'CONCAT') !== false) {
+                } elseif (strpos($column, '(') !== false) {
                     if (preg_match('/^(.*?)(?i:\s+as\s+|\s+)([\w\-_\.]+)$/', $column, $matches)) {
                         $matches[2] = $alias === true ? $tableAlias . $aliasSeparator . $matches[2] : $matches[2];
                         $columns[$i] = "$matches[1] AS " . $connection->quoteSimpleColumnName($matches[2]);
