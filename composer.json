@@ -37,7 +37,8 @@
     "romeoz/rock-dataprovider": "0.11.*",
     "romeoz/rock-cache": "0.15.*",
     "romeoz/rock-validate": "0.12.*",
-    "romeoz/rock-sanitize": "0.11.*"
+    "romeoz/rock-sanitize": "0.11.*",
+    "romeoz/rock-behaviors": "0.12.*"
   },
   "suggest": {
     "romeoz/rock-dataprovider": "required for Data provider",
