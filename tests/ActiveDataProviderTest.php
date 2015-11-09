@@ -22,15 +22,14 @@ class ActiveDataProviderTest extends DatabaseTestCase
     {
         parent::setUp();
         ActiveRecord::$connection = $this->getConnection(false);
-        $_GET = [];
+        $_SERVER['QUERY_STRING'] = '';
     }
 
     public static function tearDownAfterClass()
     {
         parent::tearDownAfterClass();
-        $_GET = [];
+        $_SERVER['QUERY_STRING'] = '';
     }
-
 
     /**
      * @dataProvider providerQuery
@@ -122,7 +121,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
      */
     public function testArray($page, $count)
     {
-        $_GET['page'] = $page;
+        $_SERVER['QUERY_STRING'] = "page=$page";
         $provider = new ArrayDataProvider(
             [
                 'allModels' => (new Query())->from('customer')->all($this->getConnection(false)),
@@ -213,8 +212,7 @@ class ActiveDataProviderTest extends DatabaseTestCase
 
         $this->assertEquals(1, $provider->getModels()[0]['id']);
 
-
-        $_GET['sort'] = '-id';
+        $_SERVER['QUERY_STRING'] = 'sort=-id';
         $provider = new ActiveDataProvider([
             'query' => Customer::find()->asArray(),
             'sort' => [

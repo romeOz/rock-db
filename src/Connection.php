@@ -438,7 +438,7 @@ class Connection implements ObjectInterface, ConnectionInterface
             Trace::endProfile('db', $token);
         } catch (\PDOException $e) {
             Trace::endProfile('db', $token);
-            throw new DbException($e->getMessage(), [], $e);
+            throw new DbException($e->getMessage(), [], 0, $e);
         }
     }
 

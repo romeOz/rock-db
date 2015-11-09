@@ -187,7 +187,7 @@ class Command implements ObjectInterface
             $this->bindPendingParams();
         } catch (\Exception $e) {
             $message = $e->getMessage() . "\nFailed to prepare SQL: {$this->getRawSql()}";
-            throw new DbException($message, [], $e);
+            throw new DbException($message, [], 0, $e);
         }
     }
 
@@ -807,7 +807,7 @@ class Command implements ObjectInterface
             $token['valid'] = false;
             $token['exception'] = defined('ROCK_DEBUG') && ROCK_DEBUG === true ? $e : $message;
             Trace::trace('db.query', $token);
-            throw new DbException($message, [], $e);
+            throw new DbException($message, [], 0, $e);
         }
     }
 
@@ -902,7 +902,7 @@ class Command implements ObjectInterface
             if (isset($cache, $cacheKey) && $cache instanceof CacheInterface) {
                 $cache->unlock($cacheKey);
             }
-            throw new DbException($message, [], $e);
+            throw new DbException($message, [], 0, $e);
         }
     }
 

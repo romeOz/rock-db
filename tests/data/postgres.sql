@@ -216,7 +216,7 @@ CREATE TABLE "validator_main" (
 );
 
 CREATE TABLE "validator_ref" (
-  id integer not null primary key,
+  id SERIAL not null primary key,
   a_field VARCHAR(255),
   ref     integer
 );
@@ -225,9 +225,9 @@ INSERT INTO "validator_main" (id, field1) VALUES (1, 'just a string1');
 INSERT INTO "validator_main" (id, field1) VALUES (2, 'just a string2');
 INSERT INTO "validator_main" (id, field1) VALUES (3, 'just a string3');
 INSERT INTO "validator_main" (id, field1) VALUES (4, 'just a string4');
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (1, 'ref_to_2', 2);
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (2, 'ref_to_2', 2);
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (3, 'ref_to_3', 3);
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (4, 'ref_to_4', 4);
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (5, 'ref_to_4', 4);
-INSERT INTO "validator_ref" (id, a_field, ref) VALUES (6, 'ref_to_5', 5);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_2', 2);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_2', 2);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_3', 3);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_4', 4);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_4', 4);
+INSERT INTO "validator_ref" (a_field, ref) VALUES ('ref_to_5', 5);
