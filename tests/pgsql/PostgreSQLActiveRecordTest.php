@@ -116,6 +116,9 @@ class PostgreSQLActiveRecordTest extends ActiveRecordTest
      */
     public function testBooleanValues2()
     {
+        if (!class_exists('\rock\behaviors\TimestampBehavior')) {
+            $this->markTestSkipped("Doesn't installed Rock Behaviors.");
+        }
         $db = $this->getConnection();
         $db->charset = 'utf8';
 
@@ -226,4 +229,3 @@ class UserAR extends ActiveRecord
         ];
     }
 }
-

@@ -23,7 +23,6 @@ trait CommonTestTrait
         return $value;
     }
 
-
     /**
      * @param array $config
      * @return \rock\cache\CacheInterface
